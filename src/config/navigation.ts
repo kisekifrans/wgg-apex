@@ -10,7 +10,8 @@ export const discordNavItem = { label: "Discord", href: "#discord" } as const;
 export const footerLinks = {
   services: [
     { label: "Ranked Boosting", href: "#rank-pricing" },
-    { label: "Predator Maintenance", href: "#predator-plans" },
+    { label: "Predator Maintenance", href: "/services/predator-maintenance" },
+    { label: "Duo Ranked Boost", href: "#self-play-boosting" },
     { label: "Badge Boosting", href: "#badges" },
     { label: "Unban Service", href: "/services/apex-unban" },
     { label: "Account Marketplace", href: "/marketplace" },

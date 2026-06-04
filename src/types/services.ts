@@ -54,6 +54,7 @@ export type PublicServicesCatalog = {
   featuredService: CatalogService | null;
   overview: CatalogService[];
   rankedBoost: CatalogService | null;
+  selfPlayBoost: CatalogService | null;
   predatorMaintenance: CatalogService | null;
   badgeBoosting: CatalogService | null;
   unbanService: CatalogService | null;

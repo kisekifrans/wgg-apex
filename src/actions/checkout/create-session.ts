@@ -4,12 +4,15 @@ import { headers } from "next/headers";
 
 import { reserveMarketplaceListing, releaseMarketplaceListingReservation } from "@/lib/checkout/marketplace-reservation";
 import { buildCheckoutQuote } from "@/lib/checkout/quote";
+import { getServiceBySlug } from "@/lib/db/services-catalog";
 import { getClientIp } from "@/lib/security/client-ip";
 import { checkRateLimit } from "@/lib/security/rate-limit";
 import { getStripe } from "@/lib/stripe/client";
 import { getSiteUrl, getStripeEnv } from "@/lib/stripe/env";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { predatorIntakeSchema } from "@/lib/validations/predator-intake";
 import { unbanIntakeSchema } from "@/lib/validations/unban-intake";
+import { formatPredatorNotes } from "@/types/predator";
 import { formatUnbanNotes } from "@/types/unban";
 import type { CheckoutFormInput } from "@/types/checkout";
 
@@ -50,8 +53,51 @@ export async function createCheckoutSession(
   }
 
   let unbanDetails = input.unbanDetails;
+  let predatorDetails = input.predatorDetails;
   let customerEmail = input.customerEmail?.trim() || null;
   let notes = input.notes?.trim() || null;
+
+  if (serviceSlug === "predator-maintenance") {
+    const parsed = predatorIntakeSchema.safeParse({
+      customerDiscord: discord,
+      currentRank: input.currentRank,
+      nintendoBackupCode: input.predatorDetails?.nintendoBackupCode,
+      eaEmail: input.predatorDetails?.eaEmail,
+      eaPassword: input.predatorDetails?.eaPassword,
+      eaBackupCode: input.predatorDetails?.eaBackupCode,
+    });
+
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: parsed.error.issues[0]?.message ?? "Invalid account details",
+      };
+    }
+
+    if (!input.pricingItemId) {
+      return { success: false, error: "Please select a maintenance plan" };
+    }
+
+    const service = await getServiceBySlug("predator-maintenance", true);
+    const plan = service?.pricingItems.find((i) => i.id === input.pricingItemId);
+    if (!plan) {
+      return { success: false, error: "Invalid maintenance plan" };
+    }
+
+    predatorDetails = {
+      nintendoBackupCode: parsed.data.nintendoBackupCode,
+      eaEmail: parsed.data.eaEmail,
+      eaPassword: parsed.data.eaPassword,
+      eaBackupCode: parsed.data.eaBackupCode,
+    };
+    customerEmail = parsed.data.eaEmail;
+    notes = formatPredatorNotes(
+      predatorDetails,
+      discord,
+      parsed.data.currentRank,
+      plan.name
+    );
+  }
 
   if (serviceSlug === "apex-unban") {
     const parsed = unbanIntakeSchema.safeParse({
@@ -123,6 +169,7 @@ export async function createCheckoutSession(
         pricingItemId: quote.pricingItemId,
         listingId: quote.marketplaceListingId,
         unbanDetails: unbanDetails ?? null,
+        predatorDetails: predatorDetails ?? null,
       },
     })
     .select("id")

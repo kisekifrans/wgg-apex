@@ -244,6 +244,7 @@ export async function getPublicServicesCatalog(): Promise<PublicServicesCatalog>
     featuredService,
     overview,
     rankedBoost: bySlug("ranked-boosting"),
+    selfPlayBoost: bySlug("self-play-boosting"),
     predatorMaintenance: bySlug("predator-maintenance"),
     badgeBoosting: bySlug("badge-boosting"),
     unbanService: bySlug("apex-unban"),

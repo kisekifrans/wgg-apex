@@ -24,7 +24,10 @@ import { cn } from "@/lib/utils";
 import type { ServiceOrder } from "@/types/orders";
 
 function rankSummary(order: ServiceOrder): string {
-  if (order.orderType === "ranked_boost") {
+  if (
+    order.orderType === "ranked_boost" ||
+    order.orderType === "self_play_boost"
+  ) {
     if (order.currentRank && order.targetRank) {
       return `${order.currentRank} → ${order.targetRank}`;
     }

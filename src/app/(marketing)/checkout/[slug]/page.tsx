@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { CheckoutForm } from "@/components/checkout/checkout-form";
@@ -20,6 +20,10 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function ServiceCheckoutPage({ params }: PageProps) {
   const { slug } = await params;
+
+  if (slug === "predator-maintenance") {
+    redirect("/services/predator-maintenance");
+  }
 
   if (!slugToCheckoutKind(slug)) {
     notFound();

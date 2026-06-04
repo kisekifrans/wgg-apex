@@ -31,7 +31,10 @@ import { formatOrderAmount } from "@/lib/orders/format";
 import type { ServiceOrder } from "@/types/orders";
 
 function serviceSummary(order: ServiceOrder): string {
-  if (order.orderType === "ranked_boost") {
+  if (
+    order.orderType === "ranked_boost" ||
+    order.orderType === "self_play_boost"
+  ) {
     return [order.currentRank, order.targetRank].filter(Boolean).join(" → ") || "—";
   }
   if (order.orderType === "badge_boost") {

@@ -6,6 +6,7 @@ import type {
 
 export const ORDER_TYPE_LABELS: Record<ServiceOrderType, string> = {
   ranked_boost: "Ranked Boost",
+  self_play_boost: "Duo Ranked Boost",
   badge_boost: "Badge Boost",
   predator_maintenance: "Predator Maintenance",
   unban_service: "Unban Service",
@@ -85,6 +86,17 @@ export type OrderFieldConfig = {
 
 export const ORDER_TYPE_FIELDS: Record<ServiceOrderType, OrderFieldConfig> = {
   ranked_boost: {
+    showCurrentRank: true,
+    showTargetRank: true,
+    showServiceDetail: false,
+    currentRankLabel: "Current rank",
+    targetRankLabel: "Target rank",
+    serviceDetailLabel: "",
+    requireCurrentRank: true,
+    requireTargetRank: true,
+    requireServiceDetail: false,
+  },
+  self_play_boost: {
     showCurrentRank: true,
     showTargetRank: true,
     showServiceDetail: false,

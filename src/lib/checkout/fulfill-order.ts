@@ -20,6 +20,7 @@ type CheckoutRow = {
   line_item_name: string;
   payload?: {
     unbanDetails?: Record<string, string | null> | null;
+    predatorDetails?: Record<string, string | null> | null;
   } | null;
 };
 
@@ -47,6 +48,7 @@ export async function fulfillCheckoutAsOrder(
       stripe_checkout_id: checkout.id,
       metadata: {
         unban: checkout.payload?.unbanDetails ?? null,
+        predator: checkout.payload?.predatorDetails ?? null,
       },
       completed_at: null,
       cancelled_at: null,

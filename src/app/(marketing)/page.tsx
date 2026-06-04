@@ -33,6 +33,7 @@ export default async function HomePage() {
           />
           <RankPricingSection
             rankedBoost={catalog.rankedBoost}
+            selfPlayBoost={catalog.selfPlayBoost}
             predatorMaintenance={catalog.predatorMaintenance}
           />
           <BadgeServicesSection badgeBoosting={catalog.badgeBoosting} />

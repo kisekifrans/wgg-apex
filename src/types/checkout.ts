@@ -1,4 +1,5 @@
 import type { ServiceOrderType } from "@/types/orders";
+import type { PredatorIntakeDetails } from "@/types/predator";
 import type { UnbanIntakeDetails } from "@/types/unban";
 
 export type CheckoutKind = ServiceOrderType;
@@ -24,4 +25,5 @@ export type CheckoutFormInput = {
   pricingItemId?: string | null;
   listingId?: string | null;
   unbanDetails?: UnbanIntakeDetails | null;
+  predatorDetails?: PredatorIntakeDetails | null;
 };

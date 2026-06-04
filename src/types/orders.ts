@@ -1,5 +1,6 @@
 export const SERVICE_ORDER_TYPES = [
   "ranked_boost",
+  "self_play_boost",
   "badge_boost",
   "predator_maintenance",
   "unban_service",
@@ -35,6 +36,12 @@ export type ServiceOrderMetadata = {
     banDate?: string | null;
     previousAppeals?: string | null;
     additionalNotes?: string | null;
+  } | null;
+  predator?: {
+    nintendoBackupCode?: string | null;
+    eaEmail?: string | null;
+    eaPassword?: string | null;
+    eaBackupCode?: string | null;
   } | null;
 };
 

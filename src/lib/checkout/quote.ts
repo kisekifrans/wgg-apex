@@ -40,7 +40,7 @@ export async function buildCheckoutQuote(
     return { success: false, error: "Invalid pricing selection" };
   }
 
-  if (checkoutKind === "ranked_boost") {
+  if (checkoutKind === "ranked_boost" || checkoutKind === "self_play_boost") {
     if (!input.currentRank?.trim() || !input.targetRank?.trim()) {
       return {
         success: false,

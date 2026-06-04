@@ -28,6 +28,10 @@ const SLUG_VISUAL: Record<
     rank: "Predator",
     gradient: "from-[#991b1b]/30 via-card to-[#0a0a0a]",
   },
+  "self-play-boosting": {
+    rank: "Diamond",
+    gradient: "from-primary/20 via-card to-[#0a0a0a]",
+  },
   "badge-boosting": {
     badgeName: "20 Kill Badge",
     gradient: "from-primary/15 via-card to-[#0a0a0a]",
