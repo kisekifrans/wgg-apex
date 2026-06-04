@@ -1,11 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
-import { brandAssets } from "@/config/brand-assets";
 import { Button } from "@/components/ui/button";
 
 export function CtaSection() {
@@ -17,21 +15,6 @@ export function CtaSection() {
         className="pointer-events-none absolute inset-0 bg-brand-glow-bottom opacity-80"
         aria-hidden
       />
-      <div
-        className="pointer-events-none absolute -right-8 top-0 hidden h-full w-[min(55%,22rem)] sm:block"
-        aria-hidden
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-card via-card/90 to-transparent" />
-        <Image
-          src={brandAssets.brandHero}
-          alt=""
-          width={480}
-          height={270}
-          sizes="(min-width: 640px) 22rem, 0px"
-          className="absolute right-0 top-1/2 max-h-full -translate-y-1/2 object-contain object-right opacity-35"
-          style={{ width: "auto", height: "auto" }}
-        />
-      </div>
       <div className="relative">
         <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
           Ready to compete at your target level?
