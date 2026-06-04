@@ -11,6 +11,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuLinkItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -84,13 +85,9 @@ export function AdminTopBar({ user, title, description }: AdminTopBarProps) {
 
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={
-            <Button
-              variant="ghost"
-              className="relative size-9 rounded-full p-0"
-              aria-label="Account menu"
-            />
-          }
+          type="button"
+          aria-label="Account menu"
+          className="relative inline-flex size-9 shrink-0 items-center justify-center rounded-full border-0 bg-transparent p-0 outline-none transition-colors hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <Avatar className="size-9 border border-white/10">
             <AvatarImage src={user.avatarUrl ?? undefined} alt="" />
@@ -103,12 +100,17 @@ export function AdminTopBar({ user, title, description }: AdminTopBarProps) {
           <DropdownMenuLabel className="font-normal">
             <p className="truncate text-sm font-medium">{user.fullName ?? "Admin"}</p>
             <p className="truncate text-xs text-muted-foreground">{user.email}</p>
-            <p className="mt-1 text-xs capitalize text-primary">{user.role.replace("_", " ")}</p>
+            <p className="mt-1 text-xs capitalize text-primary">
+              {user.role.replace("_", " ")}
+            </p>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem render={<Link href="/admin/settings" />}>
+          <DropdownMenuLinkItem
+            render={<Link href="/admin/settings" />}
+            closeOnClick
+          >
             Settings
-          </DropdownMenuItem>
+          </DropdownMenuLinkItem>
           <DropdownMenuSeparator />
           <SignOutMenuItem />
         </DropdownMenuContent>
