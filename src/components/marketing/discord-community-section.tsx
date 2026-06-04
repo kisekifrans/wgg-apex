@@ -6,10 +6,9 @@ import {
   AnimatedStagger,
 } from "@/components/shared/animated-section";
 import { SectionHeader } from "@/components/shared/section-header";
-import { DiscordWidgetPanel } from "@/components/marketing/discord-widget-panel";
+import { DiscordWidgetEmbed } from "@/components/marketing/discord-widget-embed";
 import { Button } from "@/components/ui/button";
 import { getDiscordCommunityConfig } from "@/config/discord-community";
-import { fetchDiscordCommunityWidget } from "@/lib/discord/community-widget";
 
 const highlights = [
   {
@@ -32,15 +31,11 @@ const highlights = [
   },
 ] as const;
 
-export async function DiscordCommunitySection() {
+export function DiscordCommunitySection() {
   const discord = getDiscordCommunityConfig();
   if (!discord.isEnabled || !discord.serverId) {
     return null;
   }
-
-  const widgetResult = await fetchDiscordCommunityWidget(discord.serverId);
-  const widget =
-    widgetResult.status === "ok" ? widgetResult.widget : null;
 
   return (
     <AnimatedSection
@@ -99,10 +94,7 @@ export async function DiscordCommunitySection() {
           </div>
 
           <div className="flex justify-center lg:justify-end">
-            <DiscordWidgetPanel
-              widget={widget}
-              inviteUrl={discord.inviteUrl}
-            />
+            <DiscordWidgetEmbed serverId={discord.serverId} />
           </div>
         </div>
       </div>

@@ -14,3 +14,8 @@ export function getDiscordCommunityConfig() {
     inviteUrl: inviteUrl.length > 0 ? inviteUrl : null,
   } as const;
 }
+
+/** Official Discord widget iframe URL (`theme=dark`, 350×500). */
+export function getDiscordWidgetEmbedUrl(serverId: string): string {
+  return `https://discord.com/widget?id=${encodeURIComponent(serverId)}&theme=dark`;
+}

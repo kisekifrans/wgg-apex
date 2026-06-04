@@ -11,6 +11,7 @@ export function buildContentSecurityPolicy(isDev: boolean): string {
     "img-src 'self' data: blob: https://*.supabase.co https://cdn.discordapp.com",
     "font-src 'self' data:",
     "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://discord.com",
+    "frame-src https://discord.com",
     "object-src 'none'",
   ];
 
