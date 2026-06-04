@@ -24,6 +24,8 @@ import {
   MAX_LISTING_IMAGE_BYTES,
   MAX_LISTING_IMAGES,
 } from "@/lib/marketplace/images";
+import { DiscordPublishPanel } from "@/components/admin/discord/discord-publish-panel";
+import type { DiscordPublishLog } from "@/lib/db/discord-publish-logs";
 import type { MarketplaceListing } from "@/types/marketplace";
 import {
   MARKETPLACE_PLATFORMS,
@@ -33,9 +35,18 @@ import {
 type ListingFormProps = {
   mode: "create" | "edit";
   listing?: MarketplaceListing;
+  siteUrl?: string;
+  discordWebhookConfigured?: boolean;
+  discordLatestLog?: DiscordPublishLog | null;
 };
 
-export function ListingForm({ mode, listing }: ListingFormProps) {
+export function ListingForm({
+  mode,
+  listing,
+  siteUrl = "https://wggapex.com",
+  discordWebhookConfigured = false,
+  discordLatestLog = null,
+}: ListingFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [removeImageIds, setRemoveImageIds] = useState<string[]>([]);
@@ -358,7 +369,16 @@ export function ListingForm({ mode, listing }: ListingFormProps) {
         </div>
       </div>
 
-      <aside className="lg:sticky lg:top-20 lg:self-start">
+      <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
+        {mode === "edit" && listing && (
+          <DiscordPublishPanel
+            listing={listing}
+            siteUrl={siteUrl}
+            webhookConfigured={discordWebhookConfigured}
+            latestLog={discordLatestLog}
+          />
+        )}
+
         <div className="space-y-3 rounded-xl border border-white/5 bg-card/40 p-4">
           <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Preview

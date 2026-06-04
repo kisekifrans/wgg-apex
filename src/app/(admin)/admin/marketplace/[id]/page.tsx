@@ -5,6 +5,8 @@ import { ArrowLeft } from "lucide-react";
 import { ListingForm } from "@/components/admin/marketplace/listing-form";
 import { ListingStatusBadge } from "@/components/admin/marketplace/listing-status-badge";
 import { Button } from "@/components/ui/button";
+import { getLatestDiscordPublishLogForListing } from "@/lib/db/discord-publish-logs";
+import { getDiscordMarketplaceConfig } from "@/lib/discord/env";
 import { getMarketplaceListingById } from "@/lib/db/marketplace-listings";
 
 type PageProps = {
@@ -33,6 +35,14 @@ export default async function EditMarketplaceListingPage({ params }: PageProps) 
     notFound();
   }
 
+  const discordConfig = getDiscordMarketplaceConfig();
+  let discordLatestLog = null;
+  try {
+    discordLatestLog = await getLatestDiscordPublishLogForListing(id);
+  } catch {
+    discordLatestLog = null;
+  }
+
   return (
     <div className="space-y-6">
       <Button
@@ -57,7 +67,13 @@ export default async function EditMarketplaceListingPage({ params }: PageProps) 
         <ListingStatusBadge status={listing.status} />
       </div>
 
-      <ListingForm mode="edit" listing={listing} />
+      <ListingForm
+        mode="edit"
+        listing={listing}
+        siteUrl={discordConfig.siteUrl}
+        discordWebhookConfigured={discordConfig.isConfigured}
+        discordLatestLog={discordLatestLog}
+      />
     </div>
   );
 }
