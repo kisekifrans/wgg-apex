@@ -9,16 +9,26 @@ import {
 import { SectionHeader } from "@/components/shared/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { badgeServices } from "@/config/platform";
+import { formatPriceFromCents } from "@/lib/services/format-price";
 import { cn } from "@/lib/utils";
+import type { CatalogService } from "@/types/services";
 
-const difficultyStyles = {
+const difficultyStyles: Record<string, string> = {
   Standard: "border-white/10 text-muted-foreground",
   Advanced: "border-primary/20 bg-primary/5 text-primary",
-  Elite: "border-[var(--brand-gold)]/25 bg-[var(--brand-gold)]/8 text-[var(--brand-gold)]",
+  Elite:
+    "border-[var(--brand-gold)]/25 bg-[var(--brand-gold)]/8 text-[var(--brand-gold)]",
 };
 
-export function BadgeServicesSection() {
+type BadgeServicesSectionProps = {
+  badgeBoosting: CatalogService | null;
+};
+
+export function BadgeServicesSection({
+  badgeBoosting,
+}: BadgeServicesSectionProps) {
+  const badges = badgeBoosting?.pricingItems ?? [];
+
   return (
     <AnimatedSection id="badges" className="py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -31,7 +41,7 @@ export function BadgeServicesSection() {
           <Button
             variant="ghost"
             className="shrink-0 text-muted-foreground hover:text-foreground"
-            render={<Link href="/services/badge-boosting" />}
+            render={<Link href="/checkout/badge-boosting" />}
           >
             Full catalog
             <ArrowRight className="size-4" data-icon="inline-end" />
@@ -39,23 +49,26 @@ export function BadgeServicesSection() {
         </div>
 
         <AnimatedStagger className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {badgeServices.map((badge) => (
-            <AnimatedItem key={badge.name}>
+          {badges.map((badge) => (
+            <AnimatedItem key={badge.id}>
               <article className="flex h-full flex-col justify-between rounded-xl border border-white/5 bg-card/40 p-5 transition-colors hover:border-white/10 hover:bg-card/60">
                 <div>
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      "font-normal",
-                      difficultyStyles[badge.difficulty]
-                    )}
-                  >
-                    {badge.difficulty}
-                  </Badge>
+                  {badge.difficulty && (
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "font-normal",
+                        difficultyStyles[badge.difficulty] ??
+                          difficultyStyles.Standard
+                      )}
+                    >
+                      {badge.difficulty}
+                    </Badge>
+                  )}
                   <h3 className="mt-3 font-medium leading-snug">{badge.name}</h3>
                 </div>
                 <p className="mt-4 font-mono text-lg font-semibold tabular-nums">
-                  ${badge.price}
+                  {formatPriceFromCents(badge.priceCents)}
                 </p>
               </article>
             </AnimatedItem>

@@ -175,6 +175,10 @@ body::before {
     font-family: var(--font-heading), var(--font-sans), ui-sans-serif, sans-serif;
     letter-spacing: -0.02em;
   }
+
+  .field-select {
+    @apply flex h-9 w-full rounded-lg border border-white/10 bg-background/50 px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

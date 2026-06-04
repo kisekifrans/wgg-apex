@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
+import { isRequestAdmin } from "@/lib/auth/middleware-admin";
+import { safeRedirectPath } from "@/lib/auth/safe-redirect";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
 export async function middleware(request: NextRequest) {
@@ -40,15 +42,27 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (pathname.startsWith("/admin") && !user) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirectTo", pathname);
-    return NextResponse.redirect(loginUrl);
+  if (pathname.startsWith("/admin")) {
+    if (!user) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("redirectTo", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    const isAdmin = await isRequestAdmin(supabase, user.id, user.email ?? "");
+    if (!isAdmin) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("error", "not_admin");
+      loginUrl.searchParams.set("redirectTo", "/admin");
+      return NextResponse.redirect(loginUrl);
+    }
   }
 
   if (pathname === "/login" && user) {
-    const redirectTo =
-      request.nextUrl.searchParams.get("redirectTo") ?? "/admin";
+    const redirectTo = safeRedirectPath(
+      request.nextUrl.searchParams.get("redirectTo"),
+      "/admin"
+    );
     return NextResponse.redirect(new URL(redirectTo, request.url));
   }
 

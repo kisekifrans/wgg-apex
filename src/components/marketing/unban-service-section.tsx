@@ -4,9 +4,19 @@ import { ArrowRight, FileSearch, Scale, ShieldAlert } from "lucide-react";
 import { AnimatedSection } from "@/components/shared/animated-section";
 import { SectionHeader } from "@/components/shared/section-header";
 import { Button } from "@/components/ui/button";
-import { unbanFeatures } from "@/config/platform";
+import { formatPriceFromCents } from "@/lib/services/format-price";
+import type { CatalogService } from "@/types/services";
 
-export function UnbanServiceSection() {
+type UnbanServiceSectionProps = {
+  unbanService: CatalogService | null;
+};
+
+export function UnbanServiceSection({ unbanService }: UnbanServiceSectionProps) {
+  const features = unbanService?.displayConfig?.features ?? [];
+  const flatItem = unbanService?.pricingItems[0];
+  const startingPrice =
+    flatItem?.priceCents ?? unbanService?.fromPriceCents ?? null;
+
   return (
     <AnimatedSection
       id="unban"
@@ -17,12 +27,15 @@ export function UnbanServiceSection() {
           <div>
             <SectionHeader
               eyebrow="Recovery"
-              title="Apex unban service"
-              description="Structured case support for suspended accounts. We screen eligibility first, document every step, and set realistic expectations—no false guarantees."
+              title={unbanService?.name ?? "Apex unban service"}
+              description={
+                unbanService?.description ??
+                "Structured case support for suspended accounts."
+              }
             />
 
             <ul className="mt-8 space-y-4">
-              {unbanFeatures.map((feature) => (
+              {features.map((feature) => (
                 <li
                   key={feature}
                   className="flex items-start gap-3 text-sm leading-relaxed text-muted-foreground"
@@ -37,7 +50,7 @@ export function UnbanServiceSection() {
               <Button
                 size="lg"
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
-                render={<Link href="/order/apex-unban" />}
+                render={<Link href="/services/apex-unban" />}
               >
                 Start eligibility review
                 <ArrowRight className="size-4" data-icon="inline-end" />
@@ -76,12 +89,14 @@ export function UnbanServiceSection() {
                 description="Clear next steps—or ineligible refund per policy."
               />
             </div>
-            <div className="mt-6 rounded-lg border border-white/5 bg-background/50 px-4 py-3">
-              <p className="text-xs text-muted-foreground">Starting at</p>
-              <p className="font-mono text-2xl font-semibold tabular-nums">
-                $149
-              </p>
-            </div>
+            {startingPrice !== null && (
+              <div className="mt-6 rounded-lg border border-white/5 bg-background/50 px-4 py-3">
+                <p className="text-xs text-muted-foreground">Starting at</p>
+                <p className="font-mono text-2xl font-semibold tabular-nums">
+                  {formatPriceFromCents(startingPrice)}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

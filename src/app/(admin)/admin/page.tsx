@@ -34,7 +34,7 @@ export default function AdminOverviewPage() {
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <PagePlaceholder
           title="Recent activity"
-          description="Status updates and new orders will appear here once the orders module is connected to Supabase."
+          description="Order timeline and status history will appear here in a future update."
         />
 
         <div className="rounded-xl border border-white/5 bg-card/50 p-6">

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, Monitor } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import {
   AnimatedItem,
@@ -7,18 +7,22 @@ import {
   AnimatedStagger,
 } from "@/components/shared/animated-section";
 import { SectionHeader } from "@/components/shared/section-header";
-import { Badge } from "@/components/ui/badge";
+import { MarketplaceListingCard } from "@/components/marketplace/marketplace-listing-card";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { featuredAccounts } from "@/config/platform";
+import { getPublicMarketplaceListings } from "@/lib/db/marketplace-listings";
+import type { MarketplaceListing } from "@/types/marketplace";
 
-export function FeaturedAccountsSection() {
+export async function FeaturedAccountsSection() {
+  let listings: MarketplaceListing[] = [];
+
+  try {
+    const all = await getPublicMarketplaceListings({ sort: "newest" });
+    const featured = all.filter((l) => l.isFeatured);
+    listings = (featured.length > 0 ? featured : all).slice(0, 3);
+  } catch {
+    listings = [];
+  }
+
   return (
     <AnimatedSection id="accounts" className="py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -26,7 +30,7 @@ export function FeaturedAccountsSection() {
           <SectionHeader
             eyebrow="Marketplace"
             title="Featured accounts for sale"
-            description="Operator-verified listings with disclosed rank, RP, and platform. Purchases flow through secure checkout—not peer-to-peer transfers."
+            description="Verified listings with disclosed rank, RP, and platform. Sold accounts remain visible for transparency."
           />
           <Button
             variant="ghost"
@@ -38,70 +42,20 @@ export function FeaturedAccountsSection() {
           </Button>
         </div>
 
-        <AnimatedStagger className="mt-12 grid gap-4 md:grid-cols-3">
-          {featuredAccounts.map((account) => (
-            <AnimatedItem key={account.id}>
-              <Card className="flex h-full flex-col border-white/5 bg-card/50 transition-colors hover:border-primary/20 hover:bg-card/70">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-lg">{account.title}</CardTitle>
-                    {account.verified && (
-                      <Badge
-                        variant="outline"
-                        className="shrink-0 gap-1 border-primary/30 bg-primary/10 text-primary"
-                      >
-                        <BadgeCheck className="size-3" aria-hidden />
-                        Verified
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Monitor className="size-4" aria-hidden />
-                    {account.platform}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <dl className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <dt className="text-muted-foreground">Rank</dt>
-                      <dd className="font-medium">{account.rank}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted-foreground">RP</dt>
-                      <dd className="font-mono tabular-nums font-medium">
-                        {account.rp}
-                      </dd>
-                    </div>
-                  </dl>
-                  <ul className="flex flex-wrap gap-1.5">
-                    {account.tags.map((tag) => (
-                      <li key={tag}>
-                        <span className="rounded-md bg-white/5 px-2 py-0.5 text-xs text-muted-foreground">
-                          {tag}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-                <CardFooter className="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
-                  <span className="font-mono text-xl font-semibold tabular-nums">
-                    ${account.price}
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-white/10"
-                    render={
-                      <Link href={`/marketplace/${account.id}`}>View</Link>
-                    }
-                  >
-                    View listing
-                  </Button>
-                </CardFooter>
-              </Card>
-            </AnimatedItem>
-          ))}
-        </AnimatedStagger>
+        {listings.length === 0 ? (
+          <div className="mt-12 rounded-xl border border-dashed border-white/5 bg-card/30 px-6 py-12 text-center text-sm text-muted-foreground">
+            Featured listings will appear here once published in the admin
+            marketplace.
+          </div>
+        ) : (
+          <AnimatedStagger className="mt-12 grid gap-4 md:grid-cols-3">
+            {listings.map((listing, index) => (
+              <AnimatedItem key={listing.id}>
+                <MarketplaceListingCard listing={listing} priority={index === 0} />
+              </AnimatedItem>
+            ))}
+          </AnimatedStagger>
+        )}
 
         <p className="mt-8 text-center text-xs text-muted-foreground">
           Listings are subject to availability. Transfer and compliance terms

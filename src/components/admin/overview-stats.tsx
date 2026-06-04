@@ -2,35 +2,60 @@ import { ArrowUpRight, ClipboardList, DollarSign, Package } from "lucide-react";
 import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getServiceOrderStats } from "@/lib/db/service-orders";
+import { getAdminMarketplaceListings } from "@/lib/db/marketplace-listings";
 
-const stats = [
-  {
-    label: "Paid awaiting start",
-    value: "—",
-    href: "/admin/orders?status=paid",
-    icon: ClipboardList,
-  },
-  {
-    label: "In progress",
-    value: "—",
-    href: "/admin/orders?status=in_progress",
-    icon: Package,
-  },
-  {
-    label: "Revenue today",
-    value: "—",
-    href: "/admin/orders",
-    icon: DollarSign,
-  },
-  {
-    label: "Active listings",
-    value: "—",
-    href: "/admin/marketplace",
-    icon: ArrowUpRight,
-  },
-] as const;
+export async function OverviewStats() {
+  let paidAwaiting = "—";
+  let inProgress = "—";
+  let pending = "—";
+  let activeListings = "—";
 
-export function OverviewStats() {
+  try {
+    const stats = await getServiceOrderStats();
+    paidAwaiting = String(stats.paidAwaitingStart);
+    inProgress = String(stats.inProgress);
+    pending = String(stats.pendingCount);
+  } catch {
+    // Supabase not migrated or unavailable
+  }
+
+  try {
+    const listings = await getAdminMarketplaceListings({
+      status: "available",
+    });
+    activeListings = String(listings.length);
+  } catch {
+    // ignore
+  }
+
+  const stats = [
+    {
+      label: "Paid awaiting start",
+      value: paidAwaiting,
+      href: "/admin/orders?status=paid",
+      icon: ClipboardList,
+    },
+    {
+      label: "In progress",
+      value: inProgress,
+      href: "/admin/orders?status=in_progress",
+      icon: Package,
+    },
+    {
+      label: "Pending orders",
+      value: pending,
+      href: "/admin/orders?status=pending",
+      icon: DollarSign,
+    },
+    {
+      label: "Active listings",
+      value: activeListings,
+      href: "/admin/marketplace?status=available",
+      icon: ArrowUpRight,
+    },
+  ] as const;
+
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {stats.map((stat) => {

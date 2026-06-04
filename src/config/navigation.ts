@@ -1,6 +1,6 @@
 export const marketingNav = [
   { label: "Services", href: "#services" },
-  { label: "Pricing", href: "#rank-pricing" },
+  { label: "Marketplace", href: "/marketplace" },
   { label: "Process", href: "#process" },
   { label: "FAQ", href: "#faq" },
 ] as const;
@@ -10,8 +10,8 @@ export const footerLinks = {
     { label: "Ranked Boosting", href: "#rank-pricing" },
     { label: "Predator Maintenance", href: "#rank-pricing" },
     { label: "Badge Boosting", href: "#badges" },
-    { label: "Unban Service", href: "#unban" },
-    { label: "Account Marketplace", href: "#accounts" },
+    { label: "Unban Service", href: "/services/apex-unban" },
+    { label: "Account Marketplace", href: "/marketplace" },
   ],
   company: [
     { label: "Why WGG", href: "#why-wgg" },

@@ -2,6 +2,7 @@ import "server-only";
 
 import { redirect } from "next/navigation";
 
+import { safeRedirectPath } from "@/lib/auth/safe-redirect";
 import { getAdminUser, getSessionUser } from "@/lib/auth/session";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import type { AdminUser } from "@/types/auth";
@@ -12,7 +13,7 @@ export async function requireAuth(redirectTo?: string) {
   if (!user) {
     const params = new URLSearchParams();
     if (redirectTo) {
-      params.set("redirectTo", redirectTo);
+      params.set("redirectTo", safeRedirectPath(redirectTo, "/admin"));
     }
     const query = params.toString();
     redirect(query ? `/login?${query}` : "/login");

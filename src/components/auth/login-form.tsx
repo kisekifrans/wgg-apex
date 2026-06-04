@@ -9,7 +9,8 @@ import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createClient } from "@/lib/supabase/client";
+import { signInAction } from "@/actions/auth/sign-in";
+import { safeRedirectPath } from "@/lib/auth/safe-redirect";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +24,10 @@ const errorMessages: Record<string, string> = {
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/admin";
+  const redirectTo = safeRedirectPath(
+    searchParams.get("redirectTo"),
+    "/admin"
+  );
   const errorKey = searchParams.get("error");
   const errorMessage = errorKey ? errorMessages[errorKey] : null;
 
@@ -46,14 +50,10 @@ export function LoginForm() {
     setLoading(true);
 
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
+      const result = await signInAction(email, password);
 
-      if (error) {
-        setFormError(error.message);
+      if (!result.success) {
+        setFormError(result.error);
         setLoading(false);
         return;
       }

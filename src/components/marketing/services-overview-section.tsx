@@ -15,9 +15,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { platformServices } from "@/config/platform";
+import { formatPriceFromCents } from "@/lib/services/format-price";
+import { getServiceIcon } from "@/lib/services/icons";
+import type { CatalogService } from "@/types/services";
 
-export function ServicesOverviewSection() {
+type ServicesOverviewSectionProps = {
+  services: CatalogService[];
+};
+
+export function ServicesOverviewSection({
+  services,
+}: ServicesOverviewSectionProps) {
   return (
     <AnimatedSection id="services" className="py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -28,19 +36,22 @@ export function ServicesOverviewSection() {
         />
 
         <AnimatedStagger className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {platformServices.map((service) => {
-            const Icon = service.icon;
+          {services.map((service) => {
+            const Icon = getServiceIcon(service.icon);
+            const priceFormatted = formatPriceFromCents(service.fromPriceCents);
+            const href =
+              service.href.startsWith("/") ? service.href : service.href;
 
             return (
-              <AnimatedItem key={service.slug}>
-                <Link href={service.href} className="group block h-full">
+              <AnimatedItem key={service.id}>
+                <Link href={href} className="group block h-full">
                   <Card className="flex h-full flex-col border-white/5 bg-card/50 transition-all duration-300 hover:border-primary/20 hover:bg-card/80">
                     <CardHeader>
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex size-10 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-primary transition-colors group-hover:border-primary/30 group-hover:bg-primary/10">
                           <Icon className="size-5" aria-hidden />
                         </div>
-                        {service.slug === "account-marketplace" && (
+                        {service.pricingEngine === "marketplace" && (
                           <Badge
                             variant="outline"
                             className="border-white/10 font-normal"
@@ -53,22 +64,22 @@ export function ServicesOverviewSection() {
                         {service.name}
                       </CardTitle>
                       <CardDescription className="leading-relaxed text-muted-foreground">
-                        {service.description}
+                        {service.shortDescription ?? service.description}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
                       <p className="text-sm text-muted-foreground">
-                        {service.fromPrice !== null ? (
+                        {priceFormatted !== null ? (
                           <>
                             From{" "}
                             <span className="font-mono text-base font-semibold tabular-nums text-foreground">
-                              ${service.fromPrice}
+                              {priceFormatted}
                             </span>
                             {service.priceLabel ?? ""}
                           </>
                         ) : (
                           <span className="font-medium text-foreground">
-                            {service.priceLabel}
+                            {service.priceLabel ?? "Contact for quote"}
                           </span>
                         )}
                       </p>
