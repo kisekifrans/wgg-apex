@@ -19,6 +19,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { centsToDisplayDollars } from "@/lib/marketplace/format";
+import {
+  LISTING_IMAGE_ACCEPT,
+  MAX_LISTING_IMAGE_BYTES,
+  MAX_LISTING_IMAGES,
+} from "@/lib/marketplace/images";
 import type { MarketplaceListing } from "@/types/marketplace";
 import {
   MARKETPLACE_PLATFORMS,
@@ -34,20 +39,43 @@ export function ListingForm({ mode, listing }: ListingFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [removeImageIds, setRemoveImageIds] = useState<string[]>([]);
-  const [previewFiles, setPreviewFiles] = useState<
-    { id: string; url: string }[]
-  >([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   const existingImages =
     listing?.images.filter((img) => !removeImageIds.includes(img.id)) ?? [];
 
+  const totalImageCount = existingImages.length + pendingFiles.length;
+  const slotsRemaining = MAX_LISTING_IMAGES - totalImageCount;
+
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    const newPreviews = files.map((file) => ({
-      id: `${file.name}-${file.size}`,
-      url: URL.createObjectURL(file),
-    }));
-    setPreviewFiles((prev) => [...prev, ...newPreviews]);
+    const picked = Array.from(e.target.files ?? []);
+    e.target.value = "";
+
+    if (picked.length === 0) return;
+
+    if (picked.length > slotsRemaining) {
+      toast.error(
+        `You can add ${slotsRemaining} more image${slotsRemaining === 1 ? "" : "s"} (max ${MAX_LISTING_IMAGES} total).`
+      );
+      return;
+    }
+
+    for (const file of picked) {
+      if (!file.type.startsWith("image/")) {
+        toast.error("Only image files are allowed.");
+        return;
+      }
+      if (file.size > MAX_LISTING_IMAGE_BYTES) {
+        toast.error(`${file.name} must be under 5MB.`);
+        return;
+      }
+    }
+
+    setPendingFiles((prev) => [...prev, ...picked]);
+  }
+
+  function removePendingFile(index: number) {
+    setPendingFiles((prev) => prev.filter((_, i) => i !== index));
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -55,6 +83,8 @@ export function ListingForm({ mode, listing }: ListingFormProps) {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
+    formData.delete("images");
+    pendingFiles.forEach((file) => formData.append("images", file));
     removeImageIds.forEach((id) => formData.append("removeImageIds", id));
 
     const result =
@@ -233,19 +263,28 @@ export function ListingForm({ mode, listing }: ListingFormProps) {
         <section className="space-y-4 rounded-xl border border-white/5 bg-card/40 p-6">
           <h2 className="font-heading text-lg font-semibold">Images</h2>
           <p className="text-sm text-muted-foreground">
-            Upload JPEG, PNG, or WebP up to 5MB each. First image is the cover.
+            Select multiple files at once (up to {MAX_LISTING_IMAGES} per listing,
+            5MB each). First image is the cover.{" "}
+            {slotsRemaining > 0 ? (
+              <span className="text-foreground/80">
+                {slotsRemaining} slot{slotsRemaining === 1 ? "" : "s"} remaining.
+              </span>
+            ) : (
+              <span className="text-primary">Maximum reached.</span>
+            )}
           </p>
 
           <Input
             type="file"
             name="images"
-            accept="image/jpeg,image/png,image/webp,image/gif"
+            accept={LISTING_IMAGE_ACCEPT}
             multiple
+            disabled={slotsRemaining === 0}
             onChange={handleFileChange}
             className="border-white/10 bg-background/50"
           />
 
-          {(existingImages.length > 0 || previewFiles.length > 0) && (
+          {(existingImages.length > 0 || pendingFiles.length > 0) && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {existingImages.map((image) => (
                 <div key={image.id} className="group relative aspect-video">
@@ -268,19 +307,12 @@ export function ListingForm({ mode, listing }: ListingFormProps) {
                   </button>
                 </div>
               ))}
-              {previewFiles.map((preview) => (
-                <div key={preview.id} className="relative aspect-video">
-                  <Image
-                    src={preview.url}
-                    alt=""
-                    fill
-                    className="rounded-lg object-cover"
-                    sizes="160px"
-                  />
-                  <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
-                    New
-                  </span>
-                </div>
+              {pendingFiles.map((file, index) => (
+                <PendingImagePreview
+                  key={`${file.name}-${file.size}-${index}`}
+                  file={file}
+                  onRemove={() => removePendingFile(index)}
+                />
               ))}
             </div>
           )}
@@ -342,5 +374,38 @@ export function ListingForm({ mode, listing }: ListingFormProps) {
         </div>
       </aside>
     </form>
+  );
+}
+
+function PendingImagePreview({
+  file,
+  onRemove,
+}: {
+  file: File;
+  onRemove: () => void;
+}) {
+  const [url] = useState(() => URL.createObjectURL(file));
+
+  return (
+    <div className="group relative aspect-video">
+      <Image
+        src={url}
+        alt=""
+        fill
+        className="rounded-lg object-cover"
+        sizes="160px"
+      />
+      <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+        New
+      </span>
+      <button
+        type="button"
+        onClick={onRemove}
+        className="absolute right-1 top-1 rounded-md bg-black/70 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
+        aria-label="Remove new image"
+      >
+        <X className="size-3.5" />
+      </button>
+    </div>
   );
 }

@@ -2,7 +2,7 @@
 
 | File | Section | Usage |
 |------|---------|--------|
-| `/logo/wgg.png` | Navbar, footer, login, admin sidebar, favicon | Official WGG lockup (`Logo` component) |
+| `/logo/wgg.png` | Navbar, footer, login, admin sidebar, favicon | Official WGG lockup (`Logo` component); transparent backdrop for tab icon |
 | `/images/wgg-brand-hero.png` | Hero / CTA (planned) | Wide brand banner; OG image candidate |
 | `/badges/20kill.png` | Homepage `#badges` | Maps to catalog item **20 Kill Badge** |
 | `/badges/4kdamage.png` | Homepage `#badges` | Maps to catalog item **4000 Damage Badge** |

@@ -25,7 +25,7 @@ export function renderBrandIcon(size: number, logoSrc: string) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0a0a0a",
+          background: "transparent",
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}

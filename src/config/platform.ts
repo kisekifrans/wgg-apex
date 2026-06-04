@@ -2,6 +2,11 @@
 
 export const whyWggItems = [
   {
+    title: "No cheats — professional operators only",
+    description:
+      "We never use cheats, exploits, or third-party tools on your account. Work is done by professional players who have completed thousands of ranked boosts and account deliveries.",
+  },
+  {
     title: "Built for competitive players",
     description:
       "Workflows designed around ranked integrity, Predator schedules, and high-stakes account decisions—not casual boosting ads.",
