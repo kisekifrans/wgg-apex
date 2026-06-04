@@ -10,6 +10,7 @@
 | `/images/wgg-brand-hero.png` | Hero (desktop), bottom CTA | Valkyrie + WGG banner behind order preview |
 | `/heroes/thumbnail1.png` | Services **Ranked Boosting** card | Default; overridable in Admin → Services → Card thumbnail |
 | `/heroes/thumbnail2.jpg` | Services **Predator Maintenance** card | Default; overridable in Admin → Services → Card thumbnail |
+| `/heroes/thumbnail3.jpg` | Services **Badge Boosting** card | Default; overridable in Admin → Services → Card thumbnail |
 
 ## Rank tier files
 

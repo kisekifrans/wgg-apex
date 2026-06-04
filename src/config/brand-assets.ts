@@ -13,6 +13,7 @@ import type { ServiceDisplayConfig } from "@/types/services";
 export const serviceArtworkBySlug: Record<string, string> = {
   "ranked-boosting": "/heroes/thumbnail1.png",
   "predator-maintenance": "/heroes/thumbnail2.jpg",
+  "badge-boosting": "/heroes/thumbnail3.jpg",
 };
 
 function isSafePublicPath(path: string): boolean {
