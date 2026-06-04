@@ -5,6 +5,8 @@ export const marketingNav = [
   { label: "FAQ", href: "#faq" },
 ] as const;
 
+export const discordNavItem = { label: "Discord", href: "#discord" } as const;
+
 export const footerLinks = {
   services: [
     { label: "Ranked Boosting", href: "#rank-pricing" },

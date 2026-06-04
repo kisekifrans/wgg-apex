@@ -4,6 +4,7 @@
 |------|---------|--------|
 | `/logo/wgg.png` | Navbar, footer, login, admin sidebar, favicon | Official WGG lockup (`Logo` component); transparent backdrop for tab icon |
 | `/images/wgg-brand-hero.png` | Hero / CTA (planned) | Wide brand banner; OG image candidate |
+| `/ranks/predator.png` | Homepage `#badges` | Maps to catalog item **Apex Predator Badge** |
 | `/badges/20kill.png` | Homepage `#badges` | Maps to catalog item **20 Kill Badge** |
 | `/badges/4kdamage.png` | Homepage `#badges` | Maps to catalog item **4000 Damage Badge** |
 | `/ranks/bronze.png` … `/ranks/predator.png` | `#rank-pricing`, hero preview, services grid, marketplace cards | Maps to tier name (Bronze, Silver, Gold, Platinum, Diamond, Master, Predator) |

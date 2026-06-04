@@ -6,8 +6,13 @@ import { useEffect, useState } from "react";
 
 import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
-import { marketingNav } from "@/config/navigation";
+import { getDiscordCommunityConfig } from "@/config/discord-community";
+import { discordNavItem, marketingNav } from "@/config/navigation";
 import { cn } from "@/lib/utils";
+
+const mainNav = getDiscordCommunityConfig().isEnabled
+  ? [...marketingNav, discordNavItem]
+  : [...marketingNav];
 
 export function MarketingHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -40,7 +45,7 @@ export function MarketingHeader() {
         <Logo />
 
         <nav className="hidden items-center gap-8 md:flex" aria-label="Main">
-          {marketingNav.map((item) => (
+          {mainNav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -81,7 +86,7 @@ export function MarketingHeader() {
             className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-4 sm:px-6"
             aria-label="Mobile"
           >
-            {marketingNav.map((item) => (
+            {mainNav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

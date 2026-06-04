@@ -10,8 +10,10 @@ import { toast } from "sonner";
 import {
   createMarketplaceListing,
   deleteMarketplaceListing,
+  revalidateMarketplaceListing,
   updateMarketplaceListing,
 } from "@/actions/admin/marketplace/listings";
+import { uploadListingImagesFromClient } from "@/lib/marketplace/upload-images-client";
 import { ListingCardImage } from "@/components/admin/marketplace/listing-card-image";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -95,25 +97,63 @@ export function ListingForm({
     e.preventDefault();
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    formData.delete("images");
-    pendingFiles.forEach((file) => formData.append("images", file));
-    removeImageIds.forEach((id) => formData.append("removeImageIds", id));
+    try {
+      const formData = new FormData(e.currentTarget);
+      formData.delete("images");
+      removeImageIds.forEach((id) => formData.append("removeImageIds", id));
 
-    const result =
-      mode === "create"
-        ? await createMarketplaceListing(formData)
-        : await updateMarketplaceListing(listing!.id, formData);
+      let targetId: string;
 
-    if (!result.success) {
-      toast.error(result.error);
-      setLoading(false);
-      return;
-    }
+      if (mode === "create") {
+        const result = await createMarketplaceListing(formData);
+        if (!result.success) {
+          toast.error(result.error);
+          return;
+        }
+        targetId = result.data.id;
+      } else {
+        const result = await updateMarketplaceListing(listing!.id, formData);
+        if (!result.success) {
+          toast.error(result.error);
+          return;
+        }
+        targetId = listing!.id;
+      }
 
-    if (mode === "edit") {
+      if (pendingFiles.length > 0) {
+        const total = pendingFiles.length;
+        for (let i = 0; i < pendingFiles.length; i++) {
+          toast.message(
+            `Uploading image ${i + 1} of ${total}…`,
+            { id: "listing-image-upload" }
+          );
+          const uploadResult = await uploadListingImagesFromClient(
+            targetId,
+            [pendingFiles[i]!],
+            existingImages.length + i
+          );
+          if (!uploadResult.success) {
+            toast.error(uploadResult.error, { id: "listing-image-upload" });
+            return;
+          }
+        }
+        toast.dismiss("listing-image-upload");
+        await revalidateMarketplaceListing(targetId);
+      }
+
+      setPendingFiles([]);
+      setRemoveImageIds([]);
+
+      if (mode === "create") {
+        toast.success("Listing created");
+        router.push(`/admin/marketplace/${targetId}`);
+        router.refresh();
+        return;
+      }
+
       toast.success("Listing updated");
       router.refresh();
+    } finally {
       setLoading(false);
     }
   }

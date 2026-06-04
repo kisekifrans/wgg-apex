@@ -1,6 +1,7 @@
 import { BadgeServicesSection } from "@/components/marketing/badge-services-section";
 import { CtaSection } from "@/components/marketing/cta-section";
 import { CustomerProcessSection } from "@/components/marketing/customer-process-section";
+import { DiscordCommunitySection } from "@/components/marketing/discord-community-section";
 import { FaqSection } from "@/components/marketing/faq-section";
 import { FeaturedAccountsSection } from "@/components/marketing/featured-accounts-section";
 import { HeroSection } from "@/components/marketing/hero-section";
@@ -45,6 +46,7 @@ export default async function HomePage() {
       <FeaturedAccountsSection />
       <CustomerProcessSection />
       <FaqSection />
+      <DiscordCommunitySection />
       <CtaSection />
     </>
   );

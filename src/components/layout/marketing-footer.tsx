@@ -3,10 +3,13 @@ import { Shield } from "lucide-react";
 
 import { Logo } from "@/components/shared/logo";
 import { Separator } from "@/components/ui/separator";
+import { getDiscordCommunityConfig } from "@/config/discord-community";
 import { footerLinks } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 
 export function MarketingFooter() {
+  const discord = getDiscordCommunityConfig();
+
   return (
     <footer className="border-t border-white/5 bg-[#0F0F12]">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
@@ -24,7 +27,17 @@ export function MarketingFooter() {
           </div>
 
           <FooterColumn title="Services" links={footerLinks.services} />
-          <FooterColumn title="Company" links={footerLinks.company} />
+          <FooterColumn
+            title="Company"
+            links={footerLinks.company}
+            extraLinks={
+              discord.inviteUrl
+                ? [{ label: "Discord", href: discord.inviteUrl, external: true }]
+                : discord.isEnabled
+                  ? [{ label: "Discord", href: "#discord", external: false }]
+                  : undefined
+            }
+          />
           <FooterColumn title="Legal" links={footerLinks.legal} />
         </div>
 
@@ -44,24 +57,43 @@ export function MarketingFooter() {
 function FooterColumn({
   title,
   links,
+  extraLinks,
 }: {
   title: string;
   links: readonly { label: string; href: string }[];
+  extraLinks?: readonly {
+    label: string;
+    href: string;
+    external?: boolean;
+  }[];
 }) {
+  const allLinks = extraLinks ? [...links, ...extraLinks] : links;
+
   return (
     <div>
       <h3 className="text-xs font-medium uppercase tracking-wider text-foreground">
         {title}
       </h3>
       <ul className="mt-4 space-y-2.5">
-        {links.map((link) => (
+        {allLinks.map((link) => (
           <li key={link.label}>
-            <Link
-              href={link.href}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {link.label}
-            </Link>
+            {"external" in link && link.external ? (
+              <a
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                href={link.href}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {link.label}
+              </Link>
+            )}
           </li>
         ))}
       </ul>

@@ -35,6 +35,7 @@ export function getServiceArtworkPath(
 
 /** Catalog pricing item name → badge image (homepage badge grid, checkout later). */
 export const badgeAssetsByCatalogName: Record<string, string> = {
+  "Apex Predator Badge": "/ranks/predator.png",
   "20 Kill Badge": "/badges/20kill.png",
   "4000 Damage Badge": "/badges/4kdamage.png",
 };

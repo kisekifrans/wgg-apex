@@ -8,10 +8,9 @@ export function buildContentSecurityPolicy(isDev: boolean): string {
     "frame-ancestors 'none'",
     `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://*.supabase.co",
+    "img-src 'self' data: blob: https://*.supabase.co https://cdn.discordapp.com",
     "font-src 'self' data:",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
-    "frame-src 'none'",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://discord.com",
     "object-src 'none'",
   ];
 

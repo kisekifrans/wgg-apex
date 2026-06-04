@@ -5,14 +5,7 @@ import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth/guards";
 import { generateListingNumber } from "@/lib/marketplace/listing-number";
-import {
-  MAX_LISTING_IMAGE_BYTES,
-  MAX_LISTING_IMAGES,
-} from "@/lib/marketplace/images";
-import {
-  buildListingImagePath,
-  MARKETPLACE_BUCKET,
-} from "@/lib/marketplace/storage";
+import { MARKETPLACE_BUCKET } from "@/lib/marketplace/images";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   dollarsToCents,
@@ -87,18 +80,9 @@ export async function createMarketplaceListing(
     return { success: false, error: error?.message ?? "Failed to create listing" };
   }
 
-  const uploadResult = await uploadListingImages(
-    listing.id,
-    formData.getAll("images")
-  );
-
-  if (!uploadResult.success) {
-    return uploadResult;
-  }
-
   revalidateMarketplace();
   revalidatePath(`/marketplace/${listing.id}`);
-  redirect(`/admin/marketplace/${listing.id}`);
+  return { success: true, data: { id: listing.id } };
 }
 
 export async function updateMarketplaceListing(
@@ -152,12 +136,6 @@ export async function updateMarketplaceListing(
     return { success: false, error: error.message };
   }
 
-  const newImages = formData.getAll("images");
-  if (newImages.length > 0) {
-    const uploadResult = await uploadListingImages(id, newImages);
-    if (!uploadResult.success) return uploadResult;
-  }
-
   const removeIds = formData
     .getAll("removeImageIds")
     .map(String)
@@ -170,6 +148,16 @@ export async function updateMarketplaceListing(
 
   revalidateMarketplace();
   revalidatePath(`/marketplace/${id}`);
+  return { success: true, data: undefined };
+}
+
+/** Call after browser-side image uploads so cached pages refresh. */
+export async function revalidateMarketplaceListing(
+  listingId: string
+): Promise<ActionResult> {
+  await requireAdmin();
+  revalidateMarketplace();
+  revalidatePath(`/marketplace/${listingId}`);
   return { success: true, data: undefined };
 }
 
@@ -220,73 +208,6 @@ export async function updateListingStatus(
   }
 
   revalidateMarketplace();
-  return { success: true, data: undefined };
-}
-
-async function uploadListingImages(
-  listingId: string,
-  files: FormDataEntryValue[]
-): Promise<ActionResult> {
-  const supabase = createAdminClient();
-  const validFiles = files.filter((f): f is File => f instanceof File && f.size > 0);
-
-  if (validFiles.length === 0) {
-    return { success: true, data: undefined };
-  }
-
-  const { count } = await supabase
-    .from("marketplace_listing_images")
-    .select("id", { count: "exact", head: true })
-    .eq("listing_id", listingId);
-
-  const existingCount = count ?? 0;
-
-  if (existingCount + validFiles.length > MAX_LISTING_IMAGES) {
-    return {
-      success: false,
-      error: `Maximum ${MAX_LISTING_IMAGES} images per listing (${existingCount} already uploaded).`,
-    };
-  }
-
-  let sortOrder = existingCount;
-
-  for (const file of validFiles) {
-    if (!file.type.startsWith("image/")) {
-      return { success: false, error: "Only image files are allowed" };
-    }
-    if (file.size > MAX_LISTING_IMAGE_BYTES) {
-      return { success: false, error: "Images must be under 5MB" };
-    }
-
-    const storagePath = buildListingImagePath(listingId, file.name);
-    const buffer = Buffer.from(await file.arrayBuffer());
-
-    const { error: uploadError } = await supabase.storage
-      .from(MARKETPLACE_BUCKET)
-      .upload(storagePath, buffer, {
-        contentType: file.type,
-        upsert: false,
-      });
-
-    if (uploadError) {
-      return { success: false, error: uploadError.message };
-    }
-
-    const { error: dbError } = await supabase
-      .from("marketplace_listing_images")
-      .insert({
-        listing_id: listingId,
-        storage_path: storagePath,
-        sort_order: sortOrder++,
-        alt_text: file.name,
-      });
-
-    if (dbError) {
-      await supabase.storage.from(MARKETPLACE_BUCKET).remove([storagePath]);
-      return { success: false, error: dbError.message };
-    }
-  }
-
   return { success: true, data: undefined };
 }
 
