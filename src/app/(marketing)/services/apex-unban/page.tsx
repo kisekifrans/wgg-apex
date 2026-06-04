@@ -22,7 +22,13 @@ export const metadata = {
 };
 
 export default async function ApexUnbanServicePage() {
-  const service = await getServiceBySlug("apex-unban", true);
+  let service: Awaited<ReturnType<typeof getServiceBySlug>> = null;
+
+  try {
+    service = await getServiceBySlug("apex-unban", true);
+  } catch {
+    service = null;
+  }
 
   if (!service) {
     notFound();

@@ -4,7 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { compareRankLabels } from "@/lib/marketplace/rank-sort";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { getPublicDataClient } from "@/lib/supabase/public-data";
 import {
   getMarketplaceImagePublicUrl,
 } from "@/lib/marketplace/storage";
@@ -182,8 +182,7 @@ async function fetchPublicListingRows(
 export async function getPublicMarketplaceListings(
   query: PublicMarketplaceQuery = {}
 ): Promise<MarketplaceListing[]> {
-  const supabase = await createClient();
-  const client = supabase ?? createAdminClient();
+  const client = await getPublicDataClient();
   const filters = applyPublicFilters(query);
 
   const rows = await fetchPublicListingRows(client, filters);
@@ -195,8 +194,7 @@ export async function getPublicMarketplaceListings(
 export async function getPublicMarketplaceListingById(
   id: string
 ): Promise<MarketplaceListing | null> {
-  const supabase = await createClient();
-  const client = supabase ?? createAdminClient();
+  const client = await getPublicDataClient();
 
   const { data, error } = await client
     .from("marketplace_listings")

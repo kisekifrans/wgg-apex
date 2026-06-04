@@ -25,7 +25,13 @@ export default async function ServiceCheckoutPage({ params }: PageProps) {
     notFound();
   }
 
-  const service = await getServiceBySlug(slug, true);
+  let service: Awaited<ReturnType<typeof getServiceBySlug>> = null;
+  try {
+    service = await getServiceBySlug(slug, true);
+  } catch {
+    service = null;
+  }
+
   if (!service || service.pricingEngine === "marketplace") {
     notFound();
   }

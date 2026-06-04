@@ -1,7 +1,9 @@
 import "server-only";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { getPublicDataClient } from "@/lib/supabase/public-data";
 import { computeFromPriceCents } from "@/lib/services/from-price";
 import type {
   CatalogPricingItem,
@@ -91,14 +93,15 @@ function mapService(row: ServiceRow, items: ItemRow[] = []): CatalogService {
 
 async function attachItems(
   services: ServiceRow[],
-  activeOnly: boolean
+  activeOnly: boolean,
+  supabase?: SupabaseClient
 ): Promise<CatalogService[]> {
   if (services.length === 0) return [];
 
-  const supabase = createAdminClient();
+  const client = supabase ?? (await getPublicDataClient());
   const ids = services.map((s) => s.id);
 
-  let query = supabase
+  let query = client
     .from("service_pricing_items")
     .select("*")
     .in("service_id", ids)
@@ -147,9 +150,9 @@ export async function getServiceBySlug(
   slug: string,
   activeOnly = true
 ): Promise<CatalogService | null> {
-  const supabase = createAdminClient();
+  const client = await getPublicDataClient();
 
-  let query = supabase.from("services").select("*").eq("slug", slug);
+  let query = client.from("services").select("*").eq("slug", slug);
 
   if (activeOnly) {
     query = query.eq("is_active", true);
@@ -159,7 +162,11 @@ export async function getServiceBySlug(
   if (error) throw new Error(error.message);
   if (!data) return null;
 
-  const [service] = await attachItems([data as ServiceRow], activeOnly);
+  const [service] = await attachItems(
+    [data as ServiceRow],
+    activeOnly,
+    client
+  );
   return service ?? null;
 }
 
@@ -201,8 +208,7 @@ export async function recalculateServiceFromPrice(
 }
 
 export async function getPublicServicesCatalog(): Promise<PublicServicesCatalog> {
-  const supabase = await createClient();
-  const client = supabase ?? createAdminClient();
+  const client = await getPublicDataClient();
 
   const { data: services, error } = await client
     .from("services")
