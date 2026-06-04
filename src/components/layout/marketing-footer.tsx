@@ -11,18 +11,18 @@ export function MarketingFooter() {
   const discord = getDiscordCommunityConfig();
 
   return (
-    <footer className="border-t border-white/5 bg-[#0F0F12]">
+    <footer className="relative border-t border-white/[0.06] bg-black/25 backdrop-blur-sm">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
             <Logo variant="footer" />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Premium Apex Legends services—ranked boosting, Predator
-              maintenance, badges, unban support, and verified accounts.
+              Ranked boosting, Predator maintenance, badges, unban support,
+              and verified accounts—handled by operators you can trust.
             </p>
             <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
               <Shield className="size-3.5 text-primary" aria-hidden />
-              <span>Payments secured by Stripe</span>
+              <span>Payments Secured by Stripe</span>
             </div>
           </div>
 
@@ -47,7 +47,7 @@ export function MarketingFooter() {
           <p>
             © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
           </p>
-          <p className="font-mono tabular-nums">Built for competitive players</p>
+          <p className="font-mono tabular-nums">Built for Competitive Players</p>
         </div>
       </div>
     </footer>

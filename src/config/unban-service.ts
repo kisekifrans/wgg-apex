@@ -25,20 +25,20 @@ export const unbanServiceNotices = {
 export const unbanProcessSteps = [
   {
     step: "01",
-    title: "Submit case details",
+    title: "Submit Case Details",
     description:
       "Provide EA credentials context, ban timeline, and prior appeal history for operator screening.",
   },
   {
     step: "02",
-    title: "Eligibility review",
+    title: "Eligibility Review",
     description:
       "Operators assess enforcement type and documentation requirements before substantive case work.",
   },
   {
     step: "03",
-    title: "Guided workflow",
+    title: "Guided Workflow",
     description:
-      "Structured submission support with timeline notes—no false guarantees, full transparency.",
+      "Structured submission support with timeline notes—no false guarantees, clear updates every step.",
   },
 ] as const;

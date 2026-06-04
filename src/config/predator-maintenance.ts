@@ -1,12 +1,12 @@
 export const predatorServiceNotices = {
   platform:
-    "Predator maintenance is performed on the Nintendo (Switch) platform. Your linked EA account will be used by our operator while you are away.",
+    "Predator maintenance runs on Nintendo (Switch). Your EA account is used by our operator while you're away.",
   nintendoAccount:
-    "You must have a Nintendo Account linked to Apex on Switch before we can start. Create it first if you do not have one.",
+    "You need a Nintendo Account linked to Apex on Switch before we start. Create one first if you don't have it yet.",
   nintendoBackup:
-    "A Nintendo backup login code lets our booster sign in without disturbing you. Generate it before checkout and keep it private.",
+    "A Nintendo backup login code lets our booster sign in without bugging you. Generate it before checkout and keep it private.",
   eaCredentials:
-    "We also need your EA email, password, and EA backup code so the operator can access the game account securely.",
+    "We also need your EA email, password, and EA backup code so the operator can log in securely.",
 } as const;
 
 export const nintendoAccountGuide = {

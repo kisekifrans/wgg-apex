@@ -14,8 +14,8 @@ export function FaqSection() {
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           eyebrow="FAQ"
-          title="Frequently asked questions"
-          description="Policies and expectations across boosting, Predator plans, badges, unban, and marketplace listings."
+          title="Frequently Asked Questions"
+          description="What to expect for boosting, Predator plans, badges, unban, and marketplace listings."
           align="center"
           className="mx-auto"
         />

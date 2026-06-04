@@ -13,21 +13,21 @@ import { getDiscordCommunityConfig } from "@/config/discord-community";
 const highlights = [
   {
     icon: Zap,
-    title: "Fast operator support",
+    title: "Fast Operator Support",
     description:
-      "Order questions, rank updates, and marketplace interest—handled in real time by our team.",
+      "Order questions, rank updates, and marketplace interest—handled in real time by our team",
   },
   {
     icon: Users,
-    title: "Active player community",
+    title: "Active Player Community",
     description:
-      "See who is online, chat with other competitive players, and stay close to new listings.",
+      "See who's online, chat with other grinders, and catch new listings first",
   },
   {
     icon: MessageCircle,
-    title: "Official WGG server",
+    title: "Official WGG Server",
     description:
-      "One verified Discord for services, marketplace drops, and announcements—no impersonators.",
+      "One verified Discord for services, marketplace drops, and announcements—no impersonators",
   },
 ] as const;
 
@@ -40,15 +40,15 @@ export function DiscordCommunitySection() {
   return (
     <AnimatedSection
       id="discord"
-      className="border-t border-white/5 bg-[#0F0F12]/50 py-20 sm:py-28"
+      className="border-t border-white/[0.06] py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
             <SectionHeader
               eyebrow="Community"
-              title="Join our official Discord"
-              description="We are very active on Discord—live support, marketplace updates, and a competitive player community."
+              title="Join Our Official Discord"
+              description="We're active on Discord—live support, marketplace drops, and a competitive player community."
             />
 
             <AnimatedStagger className="mt-10 grid gap-4">
@@ -86,7 +86,7 @@ export function DiscordCommunitySection() {
                     />
                   }
                 >
-                  Join Discord server
+                  Join Discord Server
                   <ExternalLink className="size-4" data-icon="inline-end" />
                 </Button>
               </div>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
+import { StripePreviewNotice } from "@/components/checkout/stripe-preview-notice";
 import { PredatorIntakeForm } from "@/components/predator/predator-intake-form";
 import { PredatorNoticeCards } from "@/components/predator/predator-notice-cards";
 import { Button } from "@/components/ui/button";
@@ -31,11 +32,6 @@ export default async function PredatorMaintenanceServicePage() {
 
   return (
     <div className="relative overflow-hidden pb-24 pt-28">
-      <div
-        className="pointer-events-none absolute inset-0 bg-brand-glow opacity-30"
-        aria-hidden
-      />
-
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <Button
           variant="ghost"
@@ -44,12 +40,12 @@ export default async function PredatorMaintenanceServicePage() {
           render={<Link href="/#predator-plans" />}
         >
           <ArrowLeft className="size-4" data-icon="inline-start" />
-          Back to plans
+          Back to Plans
         </Button>
 
         <header className="max-w-3xl">
           <p className="text-sm font-medium tracking-wide text-[var(--brand-gold)]">
-            Predator maintenance
+            Predator Maintenance
           </p>
           <h1 className="font-heading mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
             {service.name}
@@ -63,24 +59,12 @@ export default async function PredatorMaintenanceServicePage() {
           <PredatorNoticeCards />
         </div>
 
-        <div className="mt-16">
-          {!isCheckoutConfigured ? (
-            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm">
-              Payments are not configured. Contact{" "}
-              <a
-                href="mailto:support@wggapex.com"
-                className="font-medium text-primary hover:underline"
-              >
-                support
-              </a>{" "}
-              to place an order.
-            </div>
-          ) : (
-            <PredatorIntakeForm
-              service={service}
-              stripeEnabled={isCheckoutConfigured}
-            />
-          )}
+        <div className="mt-16 space-y-6">
+          {!isCheckoutConfigured && <StripePreviewNotice />}
+          <PredatorIntakeForm
+            service={service}
+            stripeEnabled={isCheckoutConfigured}
+          />
         </div>
       </div>
     </div>

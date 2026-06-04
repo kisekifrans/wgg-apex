@@ -29,15 +29,15 @@ export async function FeaturedAccountsSection() {
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <SectionHeader
             eyebrow="Marketplace"
-            title="Featured accounts for sale"
-            description="Verified listings with disclosed rank, RP, and platform. Sold accounts remain visible for transparency."
+            title="Featured Accounts for Sale"
+            description="Verified listings with rank, RP, and platform disclosed. Sold accounts stay listed so you know what's available."
           />
           <Button
             variant="ghost"
             className="shrink-0 text-muted-foreground hover:text-foreground"
             render={<Link href="/marketplace" />}
           >
-            Browse marketplace
+            Browse Marketplace
             <ArrowRight className="size-4" data-icon="inline-end" />
           </Button>
         </div>

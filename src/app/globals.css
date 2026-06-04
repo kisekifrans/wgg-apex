@@ -92,9 +92,13 @@
   --sidebar-border: rgb(255 255 255 / 8%);
   --sidebar-ring: rgb(249 115 22 / 45%);
 
-  --glow-orange: rgb(249 115 22 / 14%);
-  --glow-gold: rgb(250 204 21 / 8%);
-  --glow-red: rgb(153 27 27 / 12%);
+  --glow-orange: rgb(249 115 22 / 18%);
+  --glow-gold: rgb(250 204 21 / 10%);
+  --glow-red: rgb(153 27 27 / 16%);
+
+  --marketing-base-top: #0e0e14;
+  --marketing-base-mid: #0a0a0a;
+  --marketing-base-bottom: #100808;
 }
 
 @layer base {
@@ -117,25 +121,119 @@
   }
 }
 
-/* Subtle film grain (brand reference) */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  pointer-events: none;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
 @layer utilities {
   .bg-grid {
-    background-image: radial-gradient(
-      circle at 1px 1px,
-      rgb(255 255 255 / 4%) 1px,
-      transparent 0
+    background-image:
+      linear-gradient(rgb(255 255 255 / 3%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 3%) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(
+      ellipse 90% 75% at 50% 35%,
+      black 15%,
+      transparent 72%
     );
-    background-size: 32px 32px;
+  }
+
+  .bg-marketing-base {
+    background-color: var(--marketing-base-mid);
+    background-image:
+      radial-gradient(
+        ellipse 120% 80% at 50% -30%,
+        rgb(249 115 22 / 9%),
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse 90% 60% at 100% 50%,
+        rgb(250 204 21 / 4%),
+        transparent 50%
+      ),
+      radial-gradient(
+        ellipse 100% 70% at 0% 85%,
+        rgb(153 27 27 / 14%),
+        transparent 55%
+      ),
+      linear-gradient(
+        180deg,
+        var(--marketing-base-top) 0%,
+        var(--marketing-base-mid) 42%,
+        var(--marketing-base-bottom) 100%
+      );
+  }
+
+  .bg-marketing-grid {
+    background-image:
+      linear-gradient(rgb(255 255 255 / 2.5%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 2.5%) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(
+      ellipse 95% 80% at 50% 30%,
+      black 8%,
+      transparent 78%
+    );
+  }
+
+  .bg-marketing-beam {
+    background-image: linear-gradient(
+      115deg,
+      transparent 38%,
+      rgb(249 115 22 / 4%) 48%,
+      rgb(250 204 21 / 2%) 52%,
+      transparent 62%
+    );
+    opacity: 0.7;
+  }
+
+  .bg-marketing-vignette {
+    background-image: radial-gradient(
+      ellipse 85% 75% at 50% 45%,
+      transparent 35%,
+      rgb(0 0 0 / 55%) 100%
+    );
+  }
+
+  .bg-hero-spotlight {
+    background-image: radial-gradient(
+      ellipse 70% 55% at 65% 35%,
+      rgb(249 115 22 / 12%),
+      rgb(153 27 27 / 6%) 45%,
+      transparent 72%
+    );
+  }
+
+  .marketing-grain {
+    opacity: 0.028;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .marketing-aurora {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    will-change: transform;
+  }
+
+  .marketing-aurora-orange {
+    top: -8%;
+    left: 10%;
+    width: min(52vw, 36rem);
+    height: min(42vh, 28rem);
+    background: rgb(249 115 22 / 22%);
+  }
+
+  .marketing-aurora-red {
+    right: -5%;
+    bottom: 5%;
+    width: min(48vw, 32rem);
+    height: min(38vh, 24rem);
+    background: rgb(153 27 27 / 20%);
+  }
+
+  .marketing-aurora-gold {
+    top: 28%;
+    right: 8%;
+    width: min(28vw, 18rem);
+    height: min(22vh, 14rem);
+    background: rgb(250 204 21 / 8%);
   }
 
   .glass-panel {
@@ -178,6 +276,31 @@ body::before {
 
   .field-select {
     @apply flex h-9 w-full rounded-lg border border-white/10 bg-background/50 px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .marketing-aurora-orange {
+    animation: marketing-aurora-drift 22s ease-in-out infinite;
+  }
+
+  .marketing-aurora-red {
+    animation: marketing-aurora-drift 28s ease-in-out infinite reverse;
+  }
+
+  .marketing-aurora-gold {
+    animation: marketing-aurora-drift 18s ease-in-out infinite;
+    animation-delay: -6s;
+  }
+}
+
+@keyframes marketing-aurora-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(2.5%, 3%) scale(1.06);
   }
 }
 

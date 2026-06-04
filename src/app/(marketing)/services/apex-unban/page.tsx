@@ -7,6 +7,7 @@ import {
   Shield,
 } from "lucide-react";
 
+import { StripePreviewNotice } from "@/components/checkout/stripe-preview-notice";
 import { UnbanIntakeForm } from "@/components/unban/unban-intake-form";
 import { UnbanNoticeCards } from "@/components/unban/unban-notice-cards";
 import { Button } from "@/components/ui/button";
@@ -44,10 +45,6 @@ export default async function ApexUnbanServicePage() {
 
   return (
     <div className="relative overflow-hidden">
-      <div
-        className="pointer-events-none absolute inset-0 bg-brand-glow opacity-40"
-        aria-hidden
-      />
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
         aria-hidden
@@ -125,41 +122,29 @@ export default async function ApexUnbanServicePage() {
             <div className="mt-10 grid gap-3">
               <WorkflowPill
                 icon={FileSearch}
-                title="Screen"
-                text="Context reviewed before substantive work."
+                title="Eligibility Screen"
+                text="Context reviewed before substantive work"
               />
               <WorkflowPill
                 icon={Scale}
-                title="Document"
-                text="Timeline logged with operator notes."
+                title="Case Documentation"
+                text="Timeline logged with operator notes"
               />
               <WorkflowPill
                 icon={Shield}
-                title="Advise"
-                text="Clear next steps—no false guarantees."
+                title="Next Steps"
+                text="Clear guidance—no false guarantees"
               />
             </div>
           </div>
 
-          <div className="lg:col-span-3">
-            {!isCheckoutConfigured ? (
-              <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm">
-                Payments are not configured. Contact{" "}
-                <a
-                  href="mailto:support@wggapex.com"
-                  className="font-medium text-primary hover:underline"
-                >
-                  support
-                </a>{" "}
-                to submit your case.
-              </div>
-            ) : (
-              <UnbanIntakeForm
-                service={service}
-                pricingItem={pricingItem}
-                stripeEnabled={isCheckoutConfigured}
-              />
-            )}
+          <div className="lg:col-span-3 space-y-6">
+            {!isCheckoutConfigured && <StripePreviewNotice />}
+            <UnbanIntakeForm
+              service={service}
+              pricingItem={pricingItem}
+              stripeEnabled={isCheckoutConfigured}
+            />
           </div>
         </div>
 

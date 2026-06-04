@@ -14,7 +14,9 @@ import { formatPriceFromCents } from "@/lib/services/format-price";
 import type { CatalogPricingItem, CatalogService } from "@/types/services";
 import type { MarketplaceListing } from "@/types/marketplace";
 
-type CheckoutFormProps =
+type CheckoutFormProps = {
+  stripeEnabled: boolean;
+} & (
   | {
       mode: "service";
       service: CatalogService;
@@ -23,9 +25,10 @@ type CheckoutFormProps =
   | {
       mode: "marketplace";
       listing: MarketplaceListing;
-    };
+    }
+);
 
-export function CheckoutForm(props: CheckoutFormProps) {
+export function CheckoutForm({ stripeEnabled, ...props }: CheckoutFormProps) {
   const [loading, setLoading] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(
     props.mode === "service" && props.service.pricingItems[0]
@@ -49,6 +52,14 @@ export function CheckoutForm(props: CheckoutFormProps) {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (!stripeEnabled) {
+      toast.error(
+        "Payments are not configured. Add STRIPE_SECRET_KEY to test checkout."
+      );
+      return;
+    }
+
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
@@ -218,7 +229,7 @@ export function CheckoutForm(props: CheckoutFormProps) {
           <Button
             type="submit"
             size="lg"
-            disabled={loading || amountCents <= 0}
+            disabled={loading || amountCents <= 0 || !stripeEnabled}
             className="w-full bg-primary text-primary-foreground hover:bg-[var(--brand-orange-deep)]"
           >
             {loading ? (
@@ -226,11 +237,12 @@ export function CheckoutForm(props: CheckoutFormProps) {
             ) : (
               <Lock className="size-4" data-icon="inline-start" />
             )}
-            Continue to secure checkout
+            {stripeEnabled ? "Continue to Secure Checkout" : "Checkout Unavailable"}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
-            You will be redirected to Stripe. Card details are never stored on
-            WGG servers.
+            {stripeEnabled
+              ? "You will be redirected to Stripe. Card details are never stored on WGG servers."
+              : "Configure Stripe test keys in .env.local to try the full payment flow."}
           </p>
         </div>
       </aside>

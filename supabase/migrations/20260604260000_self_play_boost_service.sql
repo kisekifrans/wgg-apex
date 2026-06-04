@@ -19,8 +19,8 @@ INSERT INTO public.services (
 VALUES (
   'self-play-boosting',
   'Duo Ranked Boost',
-  'Queue with a verified operator and climb together in real time.',
-  'Self-play ranked boosting: you play on your account alongside a WGG operator who carries you to your target rank. Live comms, coordinated drops, and faster improvement than piloted boosting alone.',
+  'Queue with a verified operator and climb together.',
+  'Play on your account alongside a WGG operator—live comms, coordinated drops, and faster improvement than piloted boosting alone.',
   'tier_table',
   'users',
   '#self-play-boosting',
@@ -28,7 +28,7 @@ VALUES (
   9800,
   true,
   5,
-  '{"homepage_section":"rank_pricing","features":["Play alongside a verified WGG operator","Same rank targets as standard boosting","2× investment for dedicated duo queue time","Ideal if you want to learn while climbing"]}'::jsonb
+  '{"homepage_section":"rank_pricing","features":["Queue with a verified WGG operator","Same rank targets as standard boosting","Double the standard tier rate for duo time","Learn while you climb with a pro"]}'::jsonb
 )
 ON CONFLICT (slug) DO NOTHING;
 

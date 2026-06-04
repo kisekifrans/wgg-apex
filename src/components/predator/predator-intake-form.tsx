@@ -248,7 +248,7 @@ export function PredatorIntakeForm({
       </section>
 
       <section className="rounded-2xl border border-white/5 bg-card/40 p-6 sm:p-8">
-        <h2 className="font-heading text-lg font-semibold">Select plan</h2>
+        <h2 className="font-heading text-lg font-semibold">Select Plan</h2>
         <div className="mt-4 space-y-2">
           {service.pricingItems.map((item) => (
             <label
@@ -305,7 +305,7 @@ export function PredatorIntakeForm({
           ) : (
             <Lock className="size-4" data-icon="inline-start" />
           )}
-          Proceed to secure checkout
+          Proceed to Secure Checkout
         </Button>
       </div>
 

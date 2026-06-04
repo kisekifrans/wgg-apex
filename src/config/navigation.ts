@@ -25,6 +25,6 @@ export const footerLinks = {
   legal: [
     { label: "Terms", href: "/legal/terms" },
     { label: "Privacy", href: "/legal/privacy" },
-    { label: "Refund policy", href: "/legal/refund-policy" },
+    { label: "Refund Policy", href: "/legal/refund-policy" },
   ],
 } as const;

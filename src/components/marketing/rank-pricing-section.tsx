@@ -36,13 +36,13 @@ export function RankPricingSection({
   return (
     <AnimatedSection
       id="rank-pricing"
-      className="border-t border-white/5 bg-[#0F0F12]/40 py-20 sm:py-28"
+      className="border-t border-white/[0.06] py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           eyebrow="Pricing"
-          title="Rank boosting pricing"
-          description="Published starting rates by tier. Final quotes account for division span, platform, duo options, and express priority—confirmed before checkout."
+          title="Rank Boosting Pricing"
+          description="Starting rates by tier. Final price reflects division span, platform, duo options, and express priority—locked in before you pay."
         />
 
         {tiers.length > 0 ? (
@@ -106,11 +106,11 @@ export function RankPricingSection({
         {duoTiers.length > 0 && (
           <div id="self-play-boosting" className="mt-16 scroll-mt-28">
             <SectionHeader
-              eyebrow="Duo queue"
+              eyebrow="Duo Queue"
               title={selfPlayBoost?.name ?? "Duo Ranked Boost"}
               description={
                 selfPlayBoost?.shortDescription ??
-                "Play on your own account alongside a WGG operator—live comms, coordinated drops, and faster improvement than piloted boosting alone. Priced at 2× standard tier rates for dedicated duo time."
+                "Queue on your own account with a WGG operator—live comms, coordinated drops, and faster climbs than piloted boosting. Priced at double the standard tier rate."
               }
               className="mb-0"
             />
@@ -177,7 +177,7 @@ export function RankPricingSection({
           <div id="predator-plans" className="mt-16 scroll-mt-28">
             <SectionHeader
               eyebrow="Predator"
-              title="Predator maintenance plans"
+              title="Predator Maintenance Plans"
               description="Weekly plans for players who need RP held—not a one-time push."
               className="mb-0"
             />
@@ -244,7 +244,7 @@ export function RankPricingSection({
                         <Link href="/services/predator-maintenance" />
                       }
                     >
-                      Select plan
+                      Select Plan
                     </Button>
                   </CardFooter>
                 </Card>
@@ -259,7 +259,7 @@ export function RankPricingSection({
             href="mailto:support@wggapex.com"
             className="font-medium text-primary hover:underline"
           >
-            Contact operations
+            Contact Support
           </Link>{" "}
           for a tailored quote.
         </p>

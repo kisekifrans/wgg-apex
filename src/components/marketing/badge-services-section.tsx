@@ -36,15 +36,15 @@ export function BadgeServicesSection({
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <SectionHeader
             eyebrow="Badges"
-            title="Badge services"
-            description="Fixed-price achievement packages. Select from our catalog or request a custom badge path through support."
+            title="Badge Services"
+            description="Fixed-price achievement packages. Pick from the catalog or ask support for a custom badge run."
           />
           <Button
             variant="ghost"
             className="shrink-0 text-muted-foreground hover:text-foreground"
             render={<Link href="/checkout/badge-boosting" />}
           >
-            Full catalog
+            Full Catalog
             <ArrowRight className="size-4" data-icon="inline-end" />
           </Button>
         </div>
@@ -91,7 +91,7 @@ export function BadgeServicesSection({
         <div className="mt-10 rounded-xl border border-white/5 bg-white/[0.02] p-6 text-center sm:text-left">
           <p className="text-sm text-muted-foreground">
             Custom badge routes and multi-badge bundles are quoted individually.
-            All orders include dashboard tracking and operator verification.
+            Every order includes dashboard tracking and operator verification.
           </p>
         </div>
       </div>

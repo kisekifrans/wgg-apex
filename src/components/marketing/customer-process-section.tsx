@@ -10,13 +10,13 @@ export function CustomerProcessSection() {
   return (
     <AnimatedSection
       id="process"
-      className="border-t border-white/5 bg-[#0F0F12]/50 py-20 sm:py-28"
+      className="border-t border-white/[0.06] py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           eyebrow="Process"
-          title="Customer process"
-          description="The same disciplined flow across every product line—from ranked orders to marketplace purchases."
+          title="How It Works"
+          description="The same flow for every service—from ranked orders to marketplace buys."
           align="center"
           className="mx-auto"
         />

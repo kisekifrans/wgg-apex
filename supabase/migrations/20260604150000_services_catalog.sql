@@ -110,8 +110,8 @@ INSERT INTO public.services (
   (
     'ranked-boosting',
     'Ranked Boosting',
-    'Structured rank progression with live tracking.',
-    'Structured rank progression from current tier to target division with live tracking and verified boosters.',
+    'Ranked progression with live tracking and verified boosters.',
+    'Climb from your current tier to your target division with verified boosters and live order tracking.',
     'tier_table',
     'trophy',
     '#rank-pricing',
@@ -124,8 +124,8 @@ INSERT INTO public.services (
   (
     'predator-maintenance',
     'Predator Maintenance',
-    'Weekly RP maintenance plans.',
-    'Retain Predator RP with scheduled sessions, performance reporting, and priority queue placement.',
+    'Weekly RP maintenance on Nintendo (Switch).',
+    'Hold Predator RP with scheduled sessions, progress reports, and priority queue placement on Switch.',
     'subscription_plans',
     'crown',
     '#rank-pricing',
@@ -138,8 +138,8 @@ INSERT INTO public.services (
   (
     'badge-boosting',
     'Badge Boosting',
-    'Fixed catalog pricing for achievements.',
-    'Achievement and badge completion with fixed catalog pricing—no quote surprises.',
+    'Fixed prices for badge and achievement runs.',
+    'Badge and achievement completion at fixed prices—exact cost before you pay.',
     'catalog_items',
     'badge-check',
     '#badges',
@@ -152,8 +152,8 @@ INSERT INTO public.services (
   (
     'apex-unban',
     'Apex Unban Service',
-    'Guided recovery workflow for suspensions.',
-    'Case review and guided recovery workflow for suspended accounts, with clear eligibility screening.',
+    'Guided workflow for suspended accounts.',
+    'Eligibility screening and a guided recovery workflow for suspended accounts—with clear expectations upfront.',
     'flat_fee',
     'unlock',
     '#unban',
@@ -161,7 +161,7 @@ INSERT INTO public.services (
     14900,
     true,
     3,
-    '{"homepage_section":"services_overview","features":["Initial eligibility review before payment","Documented case timeline in your dashboard","Operator-guided submission workflow","Clear refund terms if case is ineligible"]}'::jsonb
+    '{"homepage_section":"services_overview","features":["Eligibility review before you pay","Case timeline in your dashboard","Operator-guided submission workflow","Clear refund terms if ineligible"]}'::jsonb
   ),
   (
     'account-marketplace',
@@ -199,7 +199,7 @@ SELECT s.id, v.name, v.subtitle, v.price_cents, v.features::jsonb, v.is_featured
 FROM public.services s
 CROSS JOIN (VALUES
   ('Core', 'per week', 19900, '["Minimum RP floor maintenance","Weekly progress report","Standard queue"]', false, 0),
-  ('Pro', 'per week', 34900, '["Aggressive RP target band","Daily status updates","Priority queue + duo option"]', true, 1),
+  ('Pro', 'per week', 34900, '["Aggressive RP target band","Daily status updates","Priority queue and duo option"]', true, 1),
   ('Elite', 'per week', 54900, '["Custom RP schedule","Dedicated operator channel","Express recovery sessions"]', false, 2)
 ) AS v(name, subtitle, price_cents, features, is_featured, sort_order)
 WHERE s.slug = 'predator-maintenance';

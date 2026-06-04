@@ -58,14 +58,14 @@ export function MarketingHeader() {
 
         <div className="hidden items-center gap-3 md:flex">
           <Button variant="ghost" size="sm" render={<Link href="/login" />}>
-            Sign in
+            Sign In
           </Button>
           <Button
             size="sm"
             className="bg-primary font-medium text-primary-foreground shadow-[0_0_24px_-6px] shadow-[rgba(249,115,22,0.35)] hover:bg-[var(--brand-orange-deep)]"
             render={<Link href="#services" />}
           >
-            Get started
+            Get Started
           </Button>
         </div>
 
@@ -102,14 +102,14 @@ export function MarketingHeader() {
                 className="w-full"
                 render={<Link href="/login" />}
               >
-                Sign in
+                Sign In
               </Button>
               <Button
                 className="w-full bg-primary text-primary-foreground"
                 render={<Link href="#services" />}
                 onClick={() => setMobileOpen(false)}
               >
-                Get started
+                Get Started
               </Button>
             </div>
           </nav>

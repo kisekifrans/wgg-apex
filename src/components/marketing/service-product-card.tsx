@@ -242,7 +242,7 @@ export function ServiceProductCard({
               )}
               render={<Link href={href} />}
             >
-              {isFeatured ? "Get started" : "View service"}
+              {isFeatured ? "Get Started" : "View Service"}
               <ArrowRight className="size-4" data-icon="inline-end" />
             </Button>
           </div>

@@ -20,14 +20,14 @@ export function UnbanServiceSection({ unbanService }: UnbanServiceSectionProps) 
   return (
     <AnimatedSection
       id="unban"
-      className="border-t border-white/5 bg-[#0F0F12]/40 py-20 sm:py-28"
+      className="border-t border-white/[0.06] py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
             <SectionHeader
               eyebrow="Recovery"
-              title={unbanService?.name ?? "Apex unban service"}
+              title={unbanService?.name ?? "Apex Unban Service"}
               description={
                 unbanService?.description ??
                 "Structured case support for suspended accounts."
@@ -52,7 +52,7 @@ export function UnbanServiceSection({ unbanService }: UnbanServiceSectionProps) 
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
                 render={<Link href="/services/apex-unban" />}
               >
-                Start eligibility review
+                Start Eligibility Review
                 <ArrowRight className="size-4" data-icon="inline-end" />
               </Button>
               <Button
@@ -61,13 +61,13 @@ export function UnbanServiceSection({ unbanService }: UnbanServiceSectionProps) 
                 className="border-white/10"
                 render={<Link href="/legal/refund-policy" />}
               >
-                Refund policy
+                Refund Policy
               </Button>
             </div>
 
             <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
               Outcomes depend on publisher enforcement policies. WGG provides
-              operational guidance—not legal representation.
+              operational guidance—not legal representation
             </p>
           </div>
 
@@ -75,18 +75,18 @@ export function UnbanServiceSection({ unbanService }: UnbanServiceSectionProps) 
             <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
               <ProcessCard
                 icon={FileSearch}
-                title="Screen"
-                description="Account and ban context reviewed before you pay."
+                title="Eligibility Screen"
+                description="Account and ban context reviewed before you pay"
               />
               <ProcessCard
                 icon={Scale}
-                title="Document"
-                description="Timeline logged in your dashboard with operator notes."
+                title="Case Documentation"
+                description="Timeline logged in your dashboard with operator notes"
               />
               <ProcessCard
                 icon={ShieldAlert}
-                title="Advise"
-                description="Clear next steps—or ineligible refund per policy."
+                title="Next Steps"
+                description="Clear guidance—or ineligible refund per policy"
               />
             </div>
             {startingPrice !== null && (

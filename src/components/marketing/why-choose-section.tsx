@@ -3,6 +3,7 @@ import {
   Headphones,
   Layers,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -14,20 +15,26 @@ import {
 import { SectionHeader } from "@/components/shared/section-header";
 import { whyWggItems } from "@/config/platform";
 
-const icons: LucideIcon[] = [Activity, Layers, Headphones, ShieldCheck];
+const icons: LucideIcon[] = [
+  ShieldCheck,
+  Activity,
+  Sparkles,
+  Headphones,
+  Layers,
+];
 
 export function WhyChooseSection() {
   return (
     <AnimatedSection
       id="why-wgg"
-      className="border-t border-white/5 bg-[#0F0F12]/50 py-20 sm:py-28"
+      className="border-t border-white/[0.06] py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,300px)_1fr] lg:gap-16">
           <SectionHeader
             eyebrow="Why WGG"
-            title="Why competitive players choose WGG"
-            description="We operate like infrastructure for your ranked goals—not a discount boost shop. Clarity, compliance, and consistent delivery are the product."
+            title="Why Competitive Players Choose WGG"
+            description="The most reliable ranked service in Apex—not a discount boost shop. Straight pricing, legit operators, and delivery you can track."
           />
 
           <AnimatedStagger className="grid gap-4 sm:grid-cols-2">

@@ -5,17 +5,17 @@ import { predatorServiceNotices } from "@/config/predator-maintenance";
 const notices = [
   {
     icon: Gamepad2,
-    title: "Nintendo platform",
+    title: "Nintendo Platform",
     text: predatorServiceNotices.platform,
   },
   {
     icon: Shield,
-    title: "Nintendo Account required",
+    title: "Nintendo Account Required",
     text: predatorServiceNotices.nintendoAccount,
   },
   {
     icon: KeyRound,
-    title: "Backup codes",
+    title: "Backup Codes",
     text: `${predatorServiceNotices.nintendoBackup} ${predatorServiceNotices.eaCredentials}`,
   },
 ] as const;

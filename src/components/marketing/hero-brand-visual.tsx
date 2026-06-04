@@ -9,7 +9,7 @@ export function HeroBrandVisual() {
       className="pointer-events-none absolute inset-0 hidden overflow-hidden lg:block"
       aria-hidden
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/85 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[var(--marketing-base-mid)] via-[var(--marketing-base-mid)]/85 to-transparent" />
       <Image
         src={brandAssets.brandHero}
         alt=""
@@ -20,7 +20,7 @@ export function HeroBrandVisual() {
         style={{ width: "auto", height: "auto" }}
         priority
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-[#0a0a0a]/40" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[var(--marketing-base-mid)] via-transparent to-[var(--marketing-base-top)]/40" />
     </div>
   );
 }

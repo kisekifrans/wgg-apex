@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { CheckoutForm } from "@/components/checkout/checkout-form";
+import { StripePreviewNotice } from "@/components/checkout/stripe-preview-notice";
 import { Button } from "@/components/ui/button";
 import { getPublicMarketplaceListingById } from "@/lib/db/marketplace-listings";
 import { getStripeEnv } from "@/lib/stripe/env";
@@ -43,13 +44,14 @@ export default async function MarketplaceCheckoutPage({ params }: PageProps) {
         <p className="mt-2 text-muted-foreground">{listing.title}</p>
       </div>
 
-      {!isCheckoutConfigured ? (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm">
-          Stripe is not configured.
-        </div>
-      ) : (
-        <CheckoutForm mode="marketplace" listing={listing} />
-      )}
+      <div className="space-y-6">
+        {!isCheckoutConfigured && <StripePreviewNotice />}
+        <CheckoutForm
+          mode="marketplace"
+          listing={listing}
+          stripeEnabled={isCheckoutConfigured}
+        />
+      </div>
     </div>
   );
 }

@@ -26,16 +26,7 @@ export function LegalPageLayout({
   children,
 }: LegalPageLayoutProps) {
   return (
-    <div className="relative overflow-hidden">
-      <div
-        className="pointer-events-none absolute inset-0 bg-brand-glow opacity-35"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
-        aria-hidden
-      />
-
+    <div className="relative">
       <div className="relative mx-auto max-w-3xl px-4 pb-24 pt-28 sm:px-6 lg:px-8">
         <Button
           variant="ghost"

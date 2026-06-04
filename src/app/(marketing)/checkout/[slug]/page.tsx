@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { CheckoutForm } from "@/components/checkout/checkout-form";
+import { StripePreviewNotice } from "@/components/checkout/stripe-preview-notice";
 import { Button } from "@/components/ui/button";
 import { slugToCheckoutKind } from "@/config/checkout";
 import { getServiceBySlug } from "@/lib/db/services-catalog";
@@ -66,18 +67,15 @@ export default async function ServiceCheckoutPage({ params }: PageProps) {
         </p>
       </div>
 
-      {!isCheckoutConfigured ? (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm">
-          Stripe is not configured. Set STRIPE_SECRET_KEY and
-          STRIPE_WEBHOOK_SECRET in your environment.
-        </div>
-      ) : (
+      <div className="space-y-6">
+        {!isCheckoutConfigured && <StripePreviewNotice />}
         <CheckoutForm
           mode="service"
           service={service}
           serviceSlug={slug}
+          stripeEnabled={isCheckoutConfigured}
         />
-      )}
+      </div>
     </div>
   );
 }
