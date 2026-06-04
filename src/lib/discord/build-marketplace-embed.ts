@@ -155,21 +155,11 @@ export function buildMarketplaceEmbed(
     options.avatarUrl ??
     (siteUrl.startsWith("http") ? `${siteUrl}${brandAssets.logo}` : undefined);
 
-  const payload: DiscordWebhookPayload = {
+  return {
     username: options.username ?? DISCORD_WEBHOOK_USERNAME_DEFAULT,
     ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
     embeds: [embed],
   };
-
-  if (isAvailable) {
-    payload.content = `<@${ownerUserId}> **Listing Available** — ${listing.title}`;
-    payload.allowed_mentions = {
-      parse: [],
-      users: [ownerUserId],
-    };
-  }
-
-  return payload;
 }
 
 /** Whether listing can be published to Discord */

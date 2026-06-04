@@ -31,20 +31,12 @@ export function DiscordEmbedPreview({
   const barColor = `#${DISCORD_EMBED_COLOR.toString(16).padStart(6, "0")}`;
 
   return (
-    <div className={cn("space-y-2", className)}>
-      {payload.content && (
-        <p className="rounded-lg border border-[#1e1f22] bg-[#313338] px-3 py-2 text-sm text-[#dbdee1]">
-          {payload.content.replace(
-            /<@(\d+)>/g,
-            (_, id) => `@owner (${id})`
-          )}
-        </p>
+    <div
+      className={cn(
+        "overflow-hidden rounded-lg border border-[#1e1f22] bg-[#2b2d31] text-[#dbdee1]",
+        className
       )}
-      <div
-        className={cn(
-          "overflow-hidden rounded-lg border border-[#1e1f22] bg-[#2b2d31] text-[#dbdee1]"
-        )}
-      >
+    >
       <div className="flex gap-0">
         <div
           className="w-1 shrink-0"
@@ -132,7 +124,6 @@ export function DiscordEmbedPreview({
             )}
           </div>
         </div>
-      </div>
       </div>
     </div>
   );
