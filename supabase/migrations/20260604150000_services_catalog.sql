@@ -214,8 +214,7 @@ CROSS JOIN (VALUES
   ('4000 Damage Badge', 6500, 'Standard', 1),
   ('20 Kill Badge', 12000, 'Elite', 2),
   ('Legend-Specific Master', 7500, 'Standard', 3),
-  ('Ranked Arena Badge', 9500, 'Advanced', 4),
-  ('Event Collection Badge', 5500, 'Standard', 5)
+  ('Event Collection Badge', 5500, 'Standard', 4)
 ) AS v(name, price_cents, difficulty, sort_order)
 WHERE s.slug = 'badge-boosting';
 

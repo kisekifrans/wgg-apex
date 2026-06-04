@@ -67,7 +67,6 @@ export const BADGE_OPTIONS = [
   "4000 Damage Badge",
   "20 Kill Badge",
   "Legend-Specific Master",
-  "Ranked Arena Badge",
   "Event Collection Badge",
   "Other (see notes)",
 ] as const;

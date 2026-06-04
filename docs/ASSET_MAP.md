@@ -11,6 +11,8 @@
 | `/heroes/thumbnail1.png` | Services **Ranked Boosting** card | Default; overridable in Admin → Services → Card thumbnail |
 | `/heroes/thumbnail2.jpg` | Services **Predator Maintenance** card | Default; overridable in Admin → Services → Card thumbnail |
 | `/heroes/thumbnail3.jpg` | Services **Badge Boosting** card | Default; overridable in Admin → Services → Card thumbnail |
+| `/heroes/thumbnail4.jpg` | Services **Account Marketplace** card | Default; overridable in Admin → Services → Card thumbnail |
+| `/heroes/thumbnail5.png` | Services **Apex Unban** card | Default; overridable in Admin → Services → Card thumbnail |
 
 ## Rank tier files
 
