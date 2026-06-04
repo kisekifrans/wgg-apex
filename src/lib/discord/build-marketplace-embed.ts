@@ -41,8 +41,12 @@ function buildListingBody(listing: MarketplaceListing): string {
     listing.heirloomCount === 1
       ? "1 heirloom"
       : `${listing.heirloomCount} heirlooms`;
+  const ballers =
+    listing.ballerCount === 1
+      ? "1 legendary skin"
+      : `${listing.ballerCount} legendary skins`;
 
-  return `${listing.rankLabel} account on ${platform}. ${heirlooms}. Verified WGG Apex listing.`;
+  return `${listing.rankLabel} account on ${platform}. ${heirlooms}. ${ballers} (Baller). Verified WGG Apex listing.`;
 }
 
 function buildPurchaseFields(
@@ -103,6 +107,11 @@ export function buildMarketplaceEmbed(
     {
       name: "Heirlooms",
       value: String(listing.heirloomCount),
+      inline: true,
+    },
+    {
+      name: "Baller",
+      value: String(listing.ballerCount),
       inline: true,
     },
     { name: "Status", value: statusLabel(listing.status), inline: true },

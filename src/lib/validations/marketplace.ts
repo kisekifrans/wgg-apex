@@ -8,6 +8,7 @@ export const marketplaceListingSchema = z.object({
   platform: z.enum(["pc", "playstation", "xbox", "switch"]),
   priceDollars: z.coerce.number().positive("Price must be greater than 0"),
   heirloomCount: z.coerce.number().int().min(0).max(99),
+  ballerCount: z.coerce.number().int().min(0).max(999),
   status: z.enum(["draft", "available", "reserved", "sold"]),
   isFeatured: z.coerce.boolean().optional().default(false),
   tags: z.string().optional().nullable(),

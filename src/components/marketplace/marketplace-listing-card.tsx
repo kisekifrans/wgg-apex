@@ -64,6 +64,10 @@ export function MarketplaceListingCard({
                 <dd>{listing.heirloomCount}</dd>
               </div>
             )}
+            <div>
+              <dt className="text-muted-foreground">Baller</dt>
+              <dd>{listing.ballerCount}</dd>
+            </div>
           </dl>
           {listing.tags.length > 0 && (
             <ul className="flex flex-wrap gap-1.5">

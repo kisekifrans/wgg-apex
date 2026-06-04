@@ -103,6 +103,10 @@ export default async function MarketplaceDetailPage({ params }: PageProps) {
                   value={String(listing.heirloomCount)}
                 />
                 <DetailItem
+                  label="Baller"
+                  value={String(listing.ballerCount)}
+                />
+                <DetailItem
                   label="Status"
                   value={
                     <span className="capitalize">

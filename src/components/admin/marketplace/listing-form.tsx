@@ -216,6 +216,23 @@ export function ListingForm({
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="ballerCount">Baller (legendary skins)</Label>
+              <Input
+                id="ballerCount"
+                name="ballerCount"
+                type="number"
+                min={0}
+                max={999}
+                required
+                defaultValue={listing?.ballerCount ?? 0}
+                className="border-white/10 bg-background/50"
+              />
+              <p className="text-xs text-muted-foreground">
+                Total legendary skins on this account.
+              </p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="priceDollars">Price (USD)</Label>
               <Input
                 id="priceDollars"

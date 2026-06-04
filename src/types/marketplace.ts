@@ -26,6 +26,8 @@ export type MarketplaceListing = {
   priceCents: number;
   currency: string;
   heirloomCount: number;
+  /** Number of legendary skins on the account */
+  ballerCount: number;
   status: MarketplaceListingStatus;
   isFeatured: boolean;
   tags: string[];

@@ -62,6 +62,10 @@ export function MarketplaceListingsGrid({
                 <dd>{listing.heirloomCount}</dd>
               </div>
               <div>
+                <dt className="text-muted-foreground">Baller</dt>
+                <dd>{listing.ballerCount}</dd>
+              </div>
+              <div>
                 <dt className="text-muted-foreground">Price</dt>
                 <dd className="font-mono font-semibold tabular-nums">
                   {formatListingPrice(listing.priceCents)}

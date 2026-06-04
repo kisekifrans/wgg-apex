@@ -29,6 +29,7 @@ type ListingRow = {
   price_cents: number;
   currency: string;
   heirloom_count: number;
+  baller_count: number;
   status: MarketplaceListingStatus;
   is_featured: boolean;
   tags: string[];
@@ -77,6 +78,7 @@ function mapListing(
     priceCents: row.price_cents,
     currency: row.currency,
     heirloomCount: row.heirloom_count,
+    ballerCount: row.baller_count ?? 0,
     status: row.status,
     isFeatured: row.is_featured,
     tags: row.tags ?? [],
