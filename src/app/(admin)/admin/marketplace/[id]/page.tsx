@@ -73,6 +73,7 @@ export default async function EditMarketplaceListingPage({ params }: PageProps) 
         siteUrl={discordConfig.siteUrl}
         discordWebhookConfigured={discordConfig.isConfigured}
         discordLatestLog={discordLatestLog}
+        discordOwnerUserId={discordConfig.ownerUserId}
       />
     </div>
   );

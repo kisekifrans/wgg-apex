@@ -2,6 +2,7 @@ import { brandAssets } from "@/config/brand-assets";
 import {
   DISCORD_EMBED_COLOR,
   DISCORD_EMBED_LIMITS,
+  DISCORD_OWNER_USER_ID_DEFAULT,
   DISCORD_WEBHOOK_USERNAME_DEFAULT,
 } from "@/lib/discord/constants";
 import type { DiscordWebhookPayload } from "@/lib/discord/types";
@@ -22,17 +23,17 @@ function platformLabel(platform: MarketplaceListing["platform"]): string {
 function statusLabel(status: MarketplaceListing["status"]): string {
   const labels: Record<MarketplaceListing["status"], string> = {
     draft: "Draft",
-    available: "Available — Inquire to purchase",
+    available: "Available",
     reserved: "Reserved",
     sold: "Sold",
   };
   return labels[status] ?? status;
 }
 
-function buildDescription(listing: MarketplaceListing): string {
+function buildListingBody(listing: MarketplaceListing): string {
   const trimmed = listing.description?.trim();
   if (trimmed) {
-    return truncate(trimmed, DISCORD_EMBED_LIMITS.description);
+    return trimmed;
   }
 
   const platform = platformLabel(listing.platform);
@@ -44,10 +45,29 @@ function buildDescription(listing: MarketplaceListing): string {
   return `${listing.rankLabel} account on ${platform}. ${heirlooms}. Verified WGG Apex listing.`;
 }
 
+function buildPurchaseFields(
+  listingUrl: string,
+  ownerUserId: string
+): { name: string; value: string; inline: boolean }[] {
+  return [
+    {
+      name: "Beli di website",
+      value: `Klik link ini untuk checkout:\n${listingUrl}`,
+      inline: false,
+    },
+    {
+      name: "Beli via Discord",
+      value: `DM <@${ownerUserId}> (owner) untuk membeli akun ini.`,
+      inline: false,
+    },
+  ];
+}
+
 export type BuildMarketplaceEmbedOptions = {
   siteUrl: string;
   username?: string;
   avatarUrl?: string;
+  ownerUserId?: string;
 };
 
 export function buildMarketplaceEmbed(
@@ -56,8 +76,26 @@ export function buildMarketplaceEmbed(
 ): DiscordWebhookPayload {
   const siteUrl = options.siteUrl.replace(/\/$/, "");
   const listingUrl = `${siteUrl}/marketplace/${listing.id}`;
+  const ownerUserId = options.ownerUserId ?? DISCORD_OWNER_USER_ID_DEFAULT;
   const price = formatListingPrice(listing.priceCents, listing.currency);
   const title = truncate(`${listing.title} — ${price}`, DISCORD_EMBED_LIMITS.title);
+
+  const body = buildListingBody(listing);
+  const isAvailable = listing.status === "available";
+
+  const descriptionParts = [body];
+  if (isAvailable) {
+    descriptionParts.push(
+      "",
+      "**Status: Available**",
+      "Pilih salah satu cara pembelian di bawah."
+    );
+  }
+
+  const description = truncate(
+    descriptionParts.join("\n"),
+    DISCORD_EMBED_LIMITS.description
+  );
 
   const fields = [
     { name: "Rank", value: truncate(listing.rankLabel, 1024), inline: true },
@@ -78,6 +116,10 @@ export function buildMarketplaceEmbed(
     });
   }
 
+  if (isAvailable) {
+    fields.push(...buildPurchaseFields(listingUrl, ownerUserId));
+  }
+
   if (listing.tags.length > 0) {
     fields.push({
       name: "Tags",
@@ -90,7 +132,7 @@ export function buildMarketplaceEmbed(
   const embed = {
     title,
     url: listingUrl,
-    description: buildDescription(listing),
+    description,
     color: DISCORD_EMBED_COLOR,
     fields,
     footer: { text: `WGG Apex · ${listing.listingNumber}` },
@@ -104,11 +146,21 @@ export function buildMarketplaceEmbed(
     options.avatarUrl ??
     (siteUrl.startsWith("http") ? `${siteUrl}${brandAssets.logo}` : undefined);
 
-  return {
+  const payload: DiscordWebhookPayload = {
     username: options.username ?? DISCORD_WEBHOOK_USERNAME_DEFAULT,
     ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
     embeds: [embed],
   };
+
+  if (isAvailable) {
+    payload.content = `<@${ownerUserId}> **Listing Available** — ${listing.title}`;
+    payload.allowed_mentions = {
+      parse: [],
+      users: [ownerUserId],
+    };
+  }
+
+  return payload;
 }
 
 /** Whether listing can be published to Discord */

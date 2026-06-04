@@ -10,3 +10,6 @@ export const DISCORD_EMBED_LIMITS = {
 
 export const DISCORD_WEBHOOK_USERNAME_DEFAULT = "WGG Apex";
 export const DISCORD_WEBHOOK_KEY_MARKETPLACE = "marketplace";
+
+/** Discord user ID for owner DM / mention on Available listings */
+export const DISCORD_OWNER_USER_ID_DEFAULT = "1119290295281008650";

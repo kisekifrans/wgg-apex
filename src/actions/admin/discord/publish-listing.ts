@@ -72,6 +72,7 @@ export async function publishListingToDiscord(
     siteUrl: config.siteUrl,
     username: config.username,
     avatarUrl: config.avatarUrl,
+    ownerUserId: config.ownerUserId,
   });
 
   const sendResult = await sendDiscordWebhook(payload, config.webhookUrl);

@@ -12,6 +12,7 @@ import type { MarketplaceListing } from "@/types/marketplace";
 type DiscordEmbedPreviewProps = {
   listing: MarketplaceListing;
   siteUrl: string;
+  ownerUserId?: string;
   className?: string;
 };
 
@@ -19,9 +20,10 @@ type DiscordEmbedPreviewProps = {
 export function DiscordEmbedPreview({
   listing,
   siteUrl,
+  ownerUserId,
   className,
 }: DiscordEmbedPreviewProps) {
-  const payload = buildMarketplaceEmbed(listing, { siteUrl });
+  const payload = buildMarketplaceEmbed(listing, { siteUrl, ownerUserId });
   const embed = payload.embeds[0] as DiscordEmbed | undefined;
 
   if (!embed) return null;
@@ -29,12 +31,20 @@ export function DiscordEmbedPreview({
   const barColor = `#${DISCORD_EMBED_COLOR.toString(16).padStart(6, "0")}`;
 
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-lg border border-[#1e1f22] bg-[#2b2d31] text-[#dbdee1]",
-        className
+    <div className={cn("space-y-2", className)}>
+      {payload.content && (
+        <p className="rounded-lg border border-[#1e1f22] bg-[#313338] px-3 py-2 text-sm text-[#dbdee1]">
+          {payload.content.replace(
+            /<@(\d+)>/g,
+            (_, id) => `@owner (${id})`
+          )}
+        </p>
       )}
-    >
+      <div
+        className={cn(
+          "overflow-hidden rounded-lg border border-[#1e1f22] bg-[#2b2d31] text-[#dbdee1]"
+        )}
+      >
       <div className="flex gap-0">
         <div
           className="w-1 shrink-0"
@@ -93,7 +103,12 @@ export function DiscordEmbedPreview({
                     <p className="text-xs font-semibold text-[#b5bac1]">
                       {field.name}
                     </p>
-                    <p className="text-sm text-[#dbdee1]">{field.value}</p>
+                    <p className="whitespace-pre-wrap text-sm text-[#dbdee1]">
+                      {field.value.replace(
+                        /<@(\d+)>/g,
+                        (_, id) => `@owner (${id})`
+                      )}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -117,6 +132,7 @@ export function DiscordEmbedPreview({
             )}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

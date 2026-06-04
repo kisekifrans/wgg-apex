@@ -17,6 +17,7 @@ import type { MarketplaceListing } from "@/types/marketplace";
 type DiscordPublishPanelProps = {
   listing: MarketplaceListing;
   siteUrl: string;
+  ownerUserId?: string;
   webhookConfigured: boolean;
   latestLog: DiscordPublishLog | null;
 };
@@ -35,6 +36,7 @@ function formatRelativeTime(iso: string): string {
 export function DiscordPublishPanel({
   listing,
   siteUrl,
+  ownerUserId,
   webhookConfigured,
   latestLog,
 }: DiscordPublishPanelProps) {
@@ -99,7 +101,11 @@ export function DiscordPublishPanel({
         )}
       </div>
 
-      <DiscordEmbedPreview listing={listing} siteUrl={siteUrl} />
+      <DiscordEmbedPreview
+        listing={listing}
+        siteUrl={siteUrl}
+        ownerUserId={ownerUserId}
+      />
 
       {!webhookConfigured && (
         <p className="text-xs text-amber-400/90">

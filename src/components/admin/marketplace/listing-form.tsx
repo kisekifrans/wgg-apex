@@ -38,6 +38,7 @@ type ListingFormProps = {
   siteUrl?: string;
   discordWebhookConfigured?: boolean;
   discordLatestLog?: DiscordPublishLog | null;
+  discordOwnerUserId?: string;
 };
 
 export function ListingForm({
@@ -46,6 +47,7 @@ export function ListingForm({
   siteUrl = "https://wggapex.com",
   discordWebhookConfigured = false,
   discordLatestLog = null,
+  discordOwnerUserId,
 }: ListingFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -374,6 +376,7 @@ export function ListingForm({
           <DiscordPublishPanel
             listing={listing}
             siteUrl={siteUrl}
+            ownerUserId={discordOwnerUserId}
             webhookConfigured={discordWebhookConfigured}
             latestLog={discordLatestLog}
           />

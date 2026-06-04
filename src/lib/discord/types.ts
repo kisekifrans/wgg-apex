@@ -15,7 +15,14 @@ export type DiscordEmbed = {
   timestamp?: string;
 };
 
+export type DiscordAllowedMentions = {
+  parse?: ("roles" | "users" | "everyone")[];
+  users?: string[];
+};
+
 export type DiscordWebhookPayload = {
+  content?: string;
+  allowed_mentions?: DiscordAllowedMentions;
   username?: string;
   avatar_url?: string;
   embeds: DiscordEmbed[];

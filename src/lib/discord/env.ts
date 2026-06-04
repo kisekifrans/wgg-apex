@@ -2,7 +2,10 @@ import "server-only";
 
 import { brandAssets } from "@/config/brand-assets";
 import { siteConfig } from "@/config/site";
-import { DISCORD_WEBHOOK_USERNAME_DEFAULT } from "@/lib/discord/constants";
+import {
+  DISCORD_OWNER_USER_ID_DEFAULT,
+  DISCORD_WEBHOOK_USERNAME_DEFAULT,
+} from "@/lib/discord/constants";
 
 export function getDiscordMarketplaceConfig() {
   const webhookUrl = process.env.DISCORD_MARKETPLACE_WEBHOOK_URL?.trim();
@@ -14,12 +17,16 @@ export function getDiscordMarketplaceConfig() {
     process.env.DISCORD_WEBHOOK_AVATAR_URL?.trim() ||
     `${siteUrl}${brandAssets.logo}`;
 
+  const ownerUserId =
+    process.env.DISCORD_OWNER_USER_ID?.trim() || DISCORD_OWNER_USER_ID_DEFAULT;
+
   return {
     isConfigured: Boolean(webhookUrl),
     webhookUrl: webhookUrl ?? null,
     username,
     avatarUrl,
     siteUrl,
+    ownerUserId,
     cooldownSeconds: Number(
       process.env.DISCORD_PUBLISH_COOLDOWN_SECONDS ?? "300"
     ),
