@@ -59,11 +59,14 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname === "/login" && user) {
-    const redirectTo = safeRedirectPath(
-      request.nextUrl.searchParams.get("redirectTo"),
-      "/admin"
-    );
-    return NextResponse.redirect(new URL(redirectTo, request.url));
+    const isAdmin = await isRequestAdmin(supabase, user.id, user.email ?? "");
+    if (isAdmin) {
+      const redirectTo = safeRedirectPath(
+        request.nextUrl.searchParams.get("redirectTo"),
+        "/admin"
+      );
+      return NextResponse.redirect(new URL(redirectTo, request.url));
+    }
   }
 
   return response;
