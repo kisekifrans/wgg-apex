@@ -9,7 +9,9 @@ export default function AuthLayout({
         className="pointer-events-none absolute inset-0 bg-brand-glow"
         aria-hidden
       />
-      <div className="relative z-10 w-full">{children}</div>
+      <div className="relative z-10 flex w-full flex-col items-center">
+        {children}
+      </div>
     </div>
   );
 }

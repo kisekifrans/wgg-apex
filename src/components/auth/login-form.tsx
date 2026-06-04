@@ -67,7 +67,7 @@ export function LoginForm() {
   }
 
   return (
-    <div className="w-full max-w-[400px]">
+    <div className="mx-auto w-full max-w-[400px]">
       <div className="mb-8 flex justify-center">
         <Logo variant="auth" className="justify-center" />
       </div>

@@ -34,8 +34,9 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   icons: {
-    icon: [{ url: brandAssets.logo, type: "image/png" }],
-    apple: [{ url: brandAssets.logo, type: "image/png" }],
+    icon: [{ url: "/icon", type: "image/png", sizes: "32x32" }],
+    apple: [{ url: "/apple-icon", type: "image/png", sizes: "180x180" }],
+    shortcut: [{ url: "/icon", type: "image/png" }],
   },
   openGraph: {
     title: siteConfig.name,

@@ -12,17 +12,27 @@ Admin access must not be obtainable by self-service registration.
    - **Authentication → Users → Add user** (email + password), or
    - Invite by email from the dashboard.
 
-4. Grant admin role in SQL (after the user exists):
+4. Grant admin access (pick one):
+
+**A — Email allowlist (no SQL)**  
+Add the user’s email to `ADMIN_EMAILS` in `.env.local` and Vercel (comma-separated), restart dev / redeploy, then sign in at `/login`. Works even when `profiles.role` is still `customer`.
+
+**B — Set `profiles.role` in SQL (permanent)**  
+A security trigger blocks role changes unless the session is already an admin. In the SQL Editor, run:
 
 ```sql
+ALTER TABLE public.profiles DISABLE TRIGGER profiles_prevent_role_escalation;
+
 UPDATE public.profiles
 SET role = 'admin'
-WHERE id = (
-  SELECT id FROM auth.users WHERE email = 'ops@yourdomain.com'
-);
+WHERE email = 'ops@yourdomain.com';
+
+ALTER TABLE public.profiles ENABLE TRIGGER profiles_prevent_role_escalation;
+
+SELECT id, email, role FROM public.profiles WHERE email = 'ops@yourdomain.com';
 ```
 
-Alternatively, bootstrap with `ADMIN_EMAILS` in Vercel (server env) until `profiles.role` is set—then remove the allowlist.
+Use the same email as in **Authentication → Users**. After this, you can remove that address from `ADMIN_EMAILS` if you want role-only access.
 
 ## 2. Auth URL configuration
 
