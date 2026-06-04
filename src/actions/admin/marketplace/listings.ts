@@ -5,7 +5,12 @@ import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth/guards";
 import { generateListingNumber } from "@/lib/marketplace/listing-number";
-import { MARKETPLACE_BUCKET } from "@/lib/marketplace/images";
+import {
+  buildListingImagePath,
+  MARKETPLACE_BUCKET,
+  MAX_LISTING_IMAGE_BYTES,
+  MAX_LISTING_IMAGES,
+} from "@/lib/marketplace/images";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   dollarsToCents,
@@ -208,6 +213,94 @@ export async function updateListingStatus(
   }
 
   revalidateMarketplace();
+  return { success: true, data: undefined };
+}
+
+/** Upload one or more images via service role (bypasses RLS; use one file per call for large screenshots). */
+export async function uploadMarketplaceListingImages(
+  listingId: string,
+  formData: FormData
+): Promise<ActionResult<{ uploaded: number }>> {
+  await requireAdmin();
+
+  const files = formData
+    .getAll("images")
+    .filter((f): f is File => f instanceof File && f.size > 0);
+
+  if (files.length === 0) {
+    return { success: true, data: { uploaded: 0 } };
+  }
+
+  const uploadResult = await uploadListingImages(listingId, files);
+  if (!uploadResult.success) {
+    return uploadResult;
+  }
+
+  revalidateMarketplace();
+  revalidatePath(`/marketplace/${listingId}`);
+
+  return { success: true, data: { uploaded: files.length } };
+}
+
+async function uploadListingImages(
+  listingId: string,
+  files: File[]
+): Promise<ActionResult> {
+  const supabase = createAdminClient();
+
+  const { count } = await supabase
+    .from("marketplace_listing_images")
+    .select("id", { count: "exact", head: true })
+    .eq("listing_id", listingId);
+
+  const existingCount = count ?? 0;
+
+  if (existingCount + files.length > MAX_LISTING_IMAGES) {
+    return {
+      success: false,
+      error: `Maximum ${MAX_LISTING_IMAGES} images per listing (${existingCount} already uploaded).`,
+    };
+  }
+
+  let sortOrder = existingCount;
+
+  for (const file of files) {
+    if (!file.type.startsWith("image/")) {
+      return { success: false, error: "Only image files are allowed" };
+    }
+    if (file.size > MAX_LISTING_IMAGE_BYTES) {
+      return { success: false, error: "Images must be under 5MB" };
+    }
+
+    const storagePath = buildListingImagePath(listingId, file.name);
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    const { error: uploadError } = await supabase.storage
+      .from(MARKETPLACE_BUCKET)
+      .upload(storagePath, buffer, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      return { success: false, error: uploadError.message };
+    }
+
+    const { error: dbError } = await supabase
+      .from("marketplace_listing_images")
+      .insert({
+        listing_id: listingId,
+        storage_path: storagePath,
+        sort_order: sortOrder++,
+        alt_text: file.name,
+      });
+
+    if (dbError) {
+      await supabase.storage.from(MARKETPLACE_BUCKET).remove([storagePath]);
+      return { success: false, error: dbError.message };
+    }
+  }
+
   return { success: true, data: undefined };
 }
 

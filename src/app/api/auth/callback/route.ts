@@ -2,6 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+import { ensureAdminProfileRole } from "@/lib/auth/ensure-admin-profile";
+import { isAdminEmail } from "@/lib/auth/roles";
 import { safeRedirectPath } from "@/lib/auth/safe-redirect";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
@@ -37,9 +39,12 @@ export async function GET(request: Request) {
       },
     });
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (!error) {
+    if (!error && data.user?.email) {
+      if (isAdminEmail(data.user.email)) {
+        await ensureAdminProfileRole(data.user.id, data.user.email);
+      }
       return NextResponse.redirect(`${origin}${redirectTo}`);
     }
   }

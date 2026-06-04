@@ -5,8 +5,8 @@ import { getSecurityHeaders } from "./src/lib/security/headers";
 const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
-      // Listing metadata only; images upload direct to Supabase from the browser.
-      bodySizeLimit: "2mb",
+      // Listing images upload one file per action (max 5MB each).
+      bodySizeLimit: "6mb",
     },
   },
   images: {

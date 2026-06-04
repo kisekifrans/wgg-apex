@@ -10,10 +10,9 @@ import { toast } from "sonner";
 import {
   createMarketplaceListing,
   deleteMarketplaceListing,
-  revalidateMarketplaceListing,
   updateMarketplaceListing,
+  uploadMarketplaceListingImages,
 } from "@/actions/admin/marketplace/listings";
-import { uploadListingImagesFromClient } from "@/lib/marketplace/upload-images-client";
 import { ListingCardImage } from "@/components/admin/marketplace/listing-card-image";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -127,10 +126,11 @@ export function ListingForm({
             `Uploading image ${i + 1} of ${total}…`,
             { id: "listing-image-upload" }
           );
-          const uploadResult = await uploadListingImagesFromClient(
+          const imageForm = new FormData();
+          imageForm.append("images", pendingFiles[i]!);
+          const uploadResult = await uploadMarketplaceListingImages(
             targetId,
-            [pendingFiles[i]!],
-            existingImages.length + i
+            imageForm
           );
           if (!uploadResult.success) {
             toast.error(uploadResult.error, { id: "listing-image-upload" });
@@ -138,7 +138,6 @@ export function ListingForm({
           }
         }
         toast.dismiss("listing-image-upload");
-        await revalidateMarketplaceListing(targetId);
       }
 
       setPendingFiles([]);

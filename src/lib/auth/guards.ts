@@ -2,6 +2,7 @@ import "server-only";
 
 import { redirect } from "next/navigation";
 
+import { ensureAdminProfileRole } from "@/lib/auth/ensure-admin-profile";
 import { safeRedirectPath } from "@/lib/auth/safe-redirect";
 import { getAdminUser, getSessionUser } from "@/lib/auth/session";
 import { getSupabaseEnv } from "@/lib/supabase/env";
@@ -38,6 +39,8 @@ export async function requireAdmin(): Promise<AdminUser> {
     }
     redirect("/login?redirectTo=/admin");
   }
+
+  await ensureAdminProfileRole(admin.id, admin.email);
 
   return admin;
 }
