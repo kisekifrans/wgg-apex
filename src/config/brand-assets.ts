@@ -12,7 +12,7 @@ import type { ServiceDisplayConfig } from "@/types/services";
 /** Default homepage card art when admin has not set `display_config.thumbnail_path`. */
 export const serviceArtworkBySlug: Record<string, string> = {
   "ranked-boosting": "/heroes/thumbnail1.png",
-  "self-play-boosting": "/heroes/thumbnail1.png",
+  "self-play-boosting": "/heroes/thumbnail6.jpg",
   "predator-maintenance": "/heroes/thumbnail2.jpg",
   "badge-boosting": "/heroes/thumbnail3.jpg",
   "account-marketplace": "/heroes/thumbnail4.jpg",

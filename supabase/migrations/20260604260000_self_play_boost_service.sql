@@ -28,7 +28,7 @@ VALUES (
   9800,
   true,
   5,
-  '{"homepage_section":"rank_pricing","features":["Queue with a verified WGG operator","Same rank targets as standard boosting","Double the standard tier rate for duo time","Learn while you climb with a pro"]}'::jsonb
+  '{"homepage_section":"rank_pricing","thumbnail_path":"/heroes/thumbnail6.jpg","features":["Queue with a verified WGG operator","Same rank targets as standard boosting","Double the standard tier rate for duo time","Learn while you climb with a pro"]}'::jsonb
 )
 ON CONFLICT (slug) DO NOTHING;
 
