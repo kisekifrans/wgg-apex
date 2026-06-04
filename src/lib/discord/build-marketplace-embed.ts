@@ -51,13 +51,13 @@ function buildPurchaseFields(
 ): { name: string; value: string; inline: boolean }[] {
   return [
     {
-      name: "Beli di website",
-      value: `Klik link ini untuk checkout:\n${listingUrl}`,
+      name: "Buy on website",
+      value: `Click here to purchase:\n${listingUrl}`,
       inline: false,
     },
     {
-      name: "Beli via Discord",
-      value: `DM <@${ownerUserId}> (owner) untuk membeli akun ini.`,
+      name: "Buy on Discord",
+      value: `DM <@${ownerUserId}> (owner) to purchase this account.`,
       inline: false,
     },
   ];
@@ -88,7 +88,7 @@ export function buildMarketplaceEmbed(
     descriptionParts.push(
       "",
       "**Status: Available**",
-      "Pilih salah satu cara pembelian di bawah."
+      "Choose either purchase option below."
     );
   }
 
