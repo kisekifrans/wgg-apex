@@ -26,7 +26,10 @@ export default async function HomePage() {
       <WhyChooseSection />
       {catalog ? (
         <>
-          <ServicesOverviewSection services={catalog.overview} />
+          <ServicesOverviewSection
+            featuredService={catalog.featuredService}
+            services={catalog.overview}
+          />
           <RankPricingSection
             rankedBoost={catalog.rankedBoost}
             predatorMaintenance={catalog.predatorMaintenance}

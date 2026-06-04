@@ -9,11 +9,13 @@ import {
   Eye,
   EyeOff,
   Pencil,
+  Star,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
   reorderServices,
+  toggleServiceFeatured,
   toggleServiceVisibility,
 } from "@/actions/admin/services/catalog";
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +45,25 @@ export function ServicesList({ services }: { services: CatalogService[] }) {
         return;
       }
       toast.success("Order updated");
+      router.refresh();
+    });
+  }
+
+  function toggleFeatured(service: CatalogService) {
+    startTransition(async () => {
+      const result = await toggleServiceFeatured(
+        service.id,
+        !service.isFeatured
+      );
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(
+        service.isFeatured
+          ? "Removed from homepage featured"
+          : "Set as homepage featured"
+      );
       router.refresh();
     });
   }
@@ -102,6 +123,11 @@ export function ServicesList({ services }: { services: CatalogService[] }) {
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-medium">{service.name}</h3>
+                  {service.isFeatured && (
+                    <Badge className="border-primary/30 bg-primary/15 text-primary hover:bg-primary/15">
+                      Featured
+                    </Badge>
+                  )}
                   {!service.isActive && (
                     <Badge variant="outline" className="border-white/10 text-muted-foreground">
                       Hidden
@@ -122,6 +148,29 @@ export function ServicesList({ services }: { services: CatalogService[] }) {
             </div>
 
             <div className="flex shrink-0 items-center gap-1 self-end sm:self-center">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                disabled={pending || !service.isActive}
+                onClick={() => toggleFeatured(service)}
+                aria-label={
+                  service.isFeatured
+                    ? "Remove homepage featured"
+                    : "Set as homepage featured"
+                }
+                className={cn(
+                  service.isFeatured && "text-primary"
+                )}
+              >
+                <Star
+                  className={cn(
+                    "size-4",
+                    service.isFeatured && "fill-primary"
+                  )}
+                  aria-hidden
+                />
+              </Button>
               <Button
                 type="button"
                 variant="ghost"

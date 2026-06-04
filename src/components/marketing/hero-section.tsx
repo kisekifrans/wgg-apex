@@ -9,6 +9,7 @@ import {
   Shield,
 } from "lucide-react";
 
+import { HeroBrandVisual } from "@/components/marketing/hero-brand-visual";
 import { HeroOrderPreview } from "@/components/marketing/hero-order-preview";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
@@ -94,8 +95,11 @@ export function HeroSection() {
           </ul>
         </motion.div>
 
-        <div className="relative lg:pl-4">
-          <HeroOrderPreview />
+        <div className="relative min-h-[280px] lg:min-h-[320px] lg:pl-4">
+          <HeroBrandVisual />
+          <div className="relative z-10">
+            <HeroOrderPreview />
+          </div>
         </div>
       </div>
     </section>

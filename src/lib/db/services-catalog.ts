@@ -23,6 +23,7 @@ type ServiceRow = {
   price_label: string | null;
   from_price_cents: number | null;
   is_active: boolean;
+  is_featured: boolean;
   sort_order: number;
   display_config: ServiceDisplayConfig;
   created_at: string;
@@ -79,6 +80,7 @@ function mapService(row: ServiceRow, items: ItemRow[] = []): CatalogService {
     priceLabel: row.price_label,
     fromPriceCents: row.from_price_cents,
     isActive: row.is_active,
+    isFeatured: row.is_featured ?? false,
     sortOrder: row.sort_order,
     displayConfig: row.display_config ?? {},
     createdAt: row.created_at,
@@ -227,11 +229,14 @@ export async function getPublicServicesCatalog(): Promise<PublicServicesCatalog>
   }
 
   const catalog = rows.map((s) => mapService(s, items));
+  const featuredService = catalog.find((s) => s.isFeatured) ?? null;
+  const overview = catalog.filter((s) => !s.isFeatured);
 
   const bySlug = (slug: string) => catalog.find((s) => s.slug === slug) ?? null;
 
   return {
-    overview: catalog,
+    featuredService,
+    overview,
     rankedBoost: bySlug("ranked-boosting"),
     predatorMaintenance: bySlug("predator-maintenance"),
     badgeBoosting: bySlug("badge-boosting"),

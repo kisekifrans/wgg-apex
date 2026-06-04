@@ -16,7 +16,19 @@ export const serviceSchema = z.object({
   href: z.string().min(1).max(200),
   priceLabel: z.string().max(80).optional().nullable(),
   isActive: z.coerce.boolean().optional().default(true),
+  isFeatured: z.coerce.boolean().optional().default(false),
   features: z.string().optional().nullable(),
+  thumbnailPath: z
+    .string()
+    .max(200)
+    .optional()
+    .nullable()
+    .refine(
+      (value) =>
+        !value?.trim() ||
+        (value.startsWith("/") && !value.includes("..")),
+      "Thumbnail path must start with / (e.g. /heroes/thumbnail2.jpg)"
+    ),
 });
 
 export const pricingItemSchema = z.object({
@@ -29,6 +41,24 @@ export const pricingItemSchema = z.object({
   isFeatured: z.coerce.boolean().optional().default(false),
   isActive: z.coerce.boolean().optional().default(true),
 });
+
+export function buildServiceDisplayConfig(input: {
+  features?: string | null;
+  thumbnailPath?: string | null;
+}): { homepage_section?: string; features: string[]; thumbnail_path?: string } {
+  const config: {
+    homepage_section?: string;
+    features: string[];
+    thumbnail_path?: string;
+  } = {
+    features: parseFeatures(input.features),
+  };
+  const thumbnail = input.thumbnailPath?.trim();
+  if (thumbnail) {
+    config.thumbnail_path = thumbnail;
+  }
+  return config;
+}
 
 export function parseFeatures(raw: string | null | undefined): string[] {
   if (!raw?.trim()) return [];

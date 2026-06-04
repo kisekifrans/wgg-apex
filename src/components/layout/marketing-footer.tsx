@@ -12,7 +12,7 @@ export function MarketingFooter() {
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
-            <Logo />
+            <Logo variant="footer" />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
               Premium Apex Legends services—ranked boosting, Predator
               maintenance, badges, unban support, and verified accounts.
@@ -55,7 +55,7 @@ function FooterColumn({
       </h3>
       <ul className="mt-4 space-y-2.5">
         {links.map((link) => (
-          <li key={link.href}>
+          <li key={link.label}>
             <Link
               href={link.href}
               className="text-sm text-muted-foreground transition-colors hover:text-foreground"

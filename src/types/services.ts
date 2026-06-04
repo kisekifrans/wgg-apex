@@ -11,6 +11,8 @@ export type PricingEngine = (typeof PRICING_ENGINES)[number];
 export type ServiceDisplayConfig = {
   homepage_section?: string;
   features?: string[];
+  /** Public path, e.g. /heroes/thumbnail2.jpg */
+  thumbnail_path?: string;
 };
 
 export type CatalogService = {
@@ -25,6 +27,7 @@ export type CatalogService = {
   priceLabel: string | null;
   fromPriceCents: number | null;
   isActive: boolean;
+  isFeatured: boolean;
   sortOrder: number;
   displayConfig: ServiceDisplayConfig;
   createdAt: string;
@@ -48,6 +51,7 @@ export type CatalogPricingItem = {
 };
 
 export type PublicServicesCatalog = {
+  featuredService: CatalogService | null;
   overview: CatalogService[];
   rankedBoost: CatalogService | null;
   predatorMaintenance: CatalogService | null;

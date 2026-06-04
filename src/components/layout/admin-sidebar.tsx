@@ -41,11 +41,9 @@ export function AdminSidebar({
         )}
       >
         {collapsed && !mobile ? (
-          <Link href="/admin" className="font-heading text-sm font-bold text-gradient-gold">
-            WGG
-          </Link>
+          <Logo variant="icon" href="/admin" />
         ) : (
-          <Logo />
+          <Logo variant="nav" href="/admin" />
         )}
       </div>
 

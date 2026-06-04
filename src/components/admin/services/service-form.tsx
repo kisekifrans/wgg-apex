@@ -173,6 +173,22 @@ export function ServiceForm({ mode, service }: ServiceFormProps) {
           </div>
 
           <div className="space-y-2 sm:col-span-2">
+            <Label htmlFor="thumbnailPath">Card thumbnail (homepage)</Label>
+            <Input
+              id="thumbnailPath"
+              name="thumbnailPath"
+              placeholder="/heroes/thumbnail2.jpg"
+              defaultValue={service?.displayConfig?.thumbnail_path ?? ""}
+              className="border-white/10 bg-background/50"
+            />
+            <p className="text-xs text-muted-foreground">
+              Path to an image in <code className="text-foreground/80">public/</code>{" "}
+              (e.g. <code className="text-foreground/80">/heroes/thumbnail1.png</code>).
+              Leave empty to use the default for this slug, or a gradient if none is set.
+            </p>
+          </div>
+
+          <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="features">Feature bullets (one per line, unban etc.)</Label>
             <Textarea
               id="features"
@@ -192,6 +208,25 @@ export function ServiceForm({ mode, service }: ServiceFormProps) {
             <Label htmlFor="isActive" className="font-normal">
               Visible on marketing site
             </Label>
+          </div>
+
+          <div className="space-y-2 rounded-lg border border-primary/20 bg-primary/5 p-4 sm:col-span-2">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="isFeatured"
+                name="isFeatured"
+                defaultChecked={service?.isFeatured ?? false}
+              />
+              <Label htmlFor="isFeatured" className="font-normal">
+                Featured on homepage
+              </Label>
+            </div>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Only one service can be featured at a time. Enabling this replaces
+              the current featured service and shows it as &quot;Most
+              Popular&quot; above the services grid. The service must be
+              visible.
+            </p>
           </div>
         </div>
       </section>

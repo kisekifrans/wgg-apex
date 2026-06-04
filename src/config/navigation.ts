@@ -8,7 +8,7 @@ export const marketingNav = [
 export const footerLinks = {
   services: [
     { label: "Ranked Boosting", href: "#rank-pricing" },
-    { label: "Predator Maintenance", href: "#rank-pricing" },
+    { label: "Predator Maintenance", href: "#predator-plans" },
     { label: "Badge Boosting", href: "#badges" },
     { label: "Unban Service", href: "/services/apex-unban" },
     { label: "Account Marketplace", href: "/marketplace" },

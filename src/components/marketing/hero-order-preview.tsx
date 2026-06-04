@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Clock, ShieldCheck } from "lucide-react";
 
+import { RankIcon } from "@/components/shared/rank-icon";
 import { Badge } from "@/components/ui/badge";
 
 const services = [
@@ -61,9 +62,23 @@ export function HeroOrderPreview() {
 
         <div>
           <p className="text-xs text-muted-foreground">Active order</p>
-          <p className="mt-0.5 text-lg font-semibold tracking-tight">
-            Gold II → Diamond IV
-          </p>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <RankIcon tier="Gold" size="sm" />
+              <span className="text-lg font-semibold tracking-tight">
+                Gold II
+              </span>
+            </div>
+            <span className="text-muted-foreground" aria-hidden>
+              →
+            </span>
+            <div className="flex items-center gap-1.5">
+              <RankIcon tier="Diamond" size="sm" />
+              <span className="text-lg font-semibold tracking-tight">
+                Diamond IV
+              </span>
+            </div>
+          </div>
           <div className="mt-3 space-y-2">
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Progress</span>

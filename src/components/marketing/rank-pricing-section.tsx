@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 
 import { AnimatedSection } from "@/components/shared/animated-section";
+import { RankIcon } from "@/components/shared/rank-icon";
 import { SectionHeader } from "@/components/shared/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -68,7 +69,12 @@ export function RankPricingSection({
                       key={row.id}
                       className="border-b border-white/5 transition-colors last:border-0 hover:bg-white/[0.02]"
                     >
-                      <td className="px-5 py-4 font-medium">{row.name}</td>
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3 font-medium">
+                          <RankIcon tier={row.name} size="md" />
+                          <span>{row.name}</span>
+                        </div>
+                      </td>
                       <td className="px-5 py-4 text-muted-foreground">
                         {row.subtitle ?? "—"}
                       </td>
@@ -95,7 +101,7 @@ export function RankPricingSection({
         ) : null}
 
         {plans.length > 0 && (
-          <div className="mt-16">
+          <div id="predator-plans" className="mt-16 scroll-mt-28">
             <SectionHeader
               eyebrow="Predator"
               title="Predator maintenance plans"
@@ -114,8 +120,11 @@ export function RankPricingSection({
                   )}
                 >
                   <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>{plan.name}</CardTitle>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <RankIcon tier="Predator" size="md" />
+                        <CardTitle>{plan.name}</CardTitle>
+                      </div>
                       {plan.isFeatured && (
                         <Badge className="bg-primary/15 text-primary hover:bg-primary/15">
                           Popular

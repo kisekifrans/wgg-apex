@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Monitor } from "lucide-react";
 
 import { ListingCardImage } from "@/components/marketplace/listing-card-image";
+import { RankIcon } from "@/components/shared/rank-icon";
 import { ListingStatusBadge } from "@/components/marketplace/listing-status-badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatListingPrice } from "@/lib/marketplace/format";
@@ -45,7 +46,10 @@ export function MarketplaceListingCard({
           <dl className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <dt className="text-muted-foreground">Rank</dt>
-              <dd className="font-medium">{listing.rankLabel}</dd>
+              <dd className="flex items-center gap-2 font-medium">
+                <RankIcon tier={listing.rankLabel} size="sm" />
+                <span>{listing.rankLabel}</span>
+              </dd>
             </div>
             {listing.rpLabel ? (
               <div>

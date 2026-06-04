@@ -9,6 +9,7 @@ import {
 import { SectionHeader } from "@/components/shared/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { BadgeCatalogThumb } from "@/components/marketing/badge-catalog-thumb";
 import { formatPriceFromCents } from "@/lib/services/format-price";
 import { cn } from "@/lib/utils";
 import type { CatalogService } from "@/types/services";
@@ -53,19 +54,31 @@ export function BadgeServicesSection({
             <AnimatedItem key={badge.id}>
               <article className="flex h-full flex-col justify-between rounded-xl border border-white/5 bg-card/40 p-5 transition-colors hover:border-white/10 hover:bg-card/60">
                 <div>
-                  {badge.difficulty && (
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "font-normal",
-                        difficultyStyles[badge.difficulty] ??
-                          difficultyStyles.Standard
+                  <div className="flex items-start gap-3">
+                    <BadgeCatalogThumb name={badge.name} />
+                    <div className="min-w-0 flex-1">
+                      {badge.difficulty && (
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "font-normal",
+                            difficultyStyles[badge.difficulty] ??
+                              difficultyStyles.Standard
+                          )}
+                        >
+                          {badge.difficulty}
+                        </Badge>
                       )}
-                    >
-                      {badge.difficulty}
-                    </Badge>
-                  )}
-                  <h3 className="mt-3 font-medium leading-snug">{badge.name}</h3>
+                      <h3
+                        className={cn(
+                          "font-medium leading-snug",
+                          badge.difficulty ? "mt-2" : "mt-0"
+                        )}
+                      >
+                        {badge.name}
+                      </h3>
+                    </div>
+                  </div>
                 </div>
                 <p className="mt-4 font-mono text-lg font-semibold tabular-nums">
                   {formatPriceFromCents(badge.priceCents)}

@@ -1,29 +1,19 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-
 import {
   AnimatedItem,
   AnimatedSection,
   AnimatedStagger,
 } from "@/components/shared/animated-section";
 import { SectionHeader } from "@/components/shared/section-header";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { formatPriceFromCents } from "@/lib/services/format-price";
-import { getServiceIcon } from "@/lib/services/icons";
+import { ServiceProductCard } from "@/components/marketing/service-product-card";
 import type { CatalogService } from "@/types/services";
 
 type ServicesOverviewSectionProps = {
+  featuredService: CatalogService | null;
   services: CatalogService[];
 };
 
 export function ServicesOverviewSection({
+  featuredService,
   services,
 }: ServicesOverviewSectionProps) {
   return (
@@ -31,69 +21,42 @@ export function ServicesOverviewSection({
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           eyebrow="Services"
-          title="Services overview"
-          description="Five dedicated product lines for ranked progression, Predator retention, achievements, account recovery, and verified acquisitions."
+          title="Premium Apex services"
+          description="Operator-verified delivery, transparent pricing, and live tracking—built for players who expect more than a Discord ticket."
         />
 
-        <AnimatedStagger className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {services.map((service) => {
-            const Icon = getServiceIcon(service.icon);
-            const priceFormatted = formatPriceFromCents(service.fromPriceCents);
-            const href =
-              service.href.startsWith("/") ? service.href : service.href;
-
-            return (
-              <AnimatedItem key={service.id}>
-                <Link href={href} className="group block h-full">
-                  <Card className="flex h-full flex-col border-white/5 bg-card/50 transition-all duration-300 hover:border-primary/20 hover:bg-card/80">
-                    <CardHeader>
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex size-10 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-primary transition-colors group-hover:border-primary/30 group-hover:bg-primary/10">
-                          <Icon className="size-5" aria-hidden />
-                        </div>
-                        {service.pricingEngine === "marketplace" && (
-                          <Badge
-                            variant="outline"
-                            className="border-white/10 font-normal"
-                          >
-                            Marketplace
-                          </Badge>
-                        )}
-                      </div>
-                      <CardTitle className="mt-4 text-lg">
-                        {service.name}
-                      </CardTitle>
-                      <CardDescription className="leading-relaxed text-muted-foreground">
-                        {service.shortDescription ?? service.description}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
-                      <p className="text-sm text-muted-foreground">
-                        {priceFormatted !== null ? (
-                          <>
-                            From{" "}
-                            <span className="font-mono text-base font-semibold tabular-nums text-foreground">
-                              {priceFormatted}
-                            </span>
-                            {service.priceLabel ?? ""}
-                          </>
-                        ) : (
-                          <span className="font-medium text-foreground">
-                            {service.priceLabel ?? "Contact for quote"}
-                          </span>
-                        )}
-                      </p>
-                      <span className="flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                        View
-                        <ArrowRight className="size-4" aria-hidden />
-                      </span>
-                    </CardContent>
-                  </Card>
-                </Link>
+        <div className="mt-14 space-y-8">
+          {featuredService && (
+            <div className="space-y-4">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">
+                Most popular
+              </p>
+              <AnimatedItem>
+                <ServiceProductCard
+                  service={featuredService}
+                  variant="featured"
+                />
               </AnimatedItem>
-            );
-          })}
-        </AnimatedStagger>
+            </div>
+          )}
+
+          {services.length > 0 && (
+            <div className={featuredService ? "space-y-6" : undefined}>
+              {featuredService && (
+                <h3 className="font-heading text-lg font-semibold tracking-tight text-foreground">
+                  All services
+                </h3>
+              )}
+              <AnimatedStagger className="grid gap-6 sm:grid-cols-2">
+                {services.map((service) => (
+                  <AnimatedItem key={service.id} className="h-full">
+                    <ServiceProductCard service={service} variant="standard" />
+                  </AnimatedItem>
+                ))}
+              </AnimatedStagger>
+            </div>
+          )}
+        </div>
       </div>
     </AnimatedSection>
   );

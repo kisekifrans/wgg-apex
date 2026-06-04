@@ -10,6 +10,7 @@ import {
 } from "@/lib/db/services-catalog";
 import { dollarsToCents } from "@/lib/validations/marketplace";
 import {
+  buildServiceDisplayConfig,
   parseFeatures,
   pricingItemSchema,
   serviceSchema,
@@ -46,7 +47,9 @@ export async function createService(
     href: formData.get("href"),
     priceLabel: formData.get("priceLabel"),
     isActive: formData.get("isActive") === "on",
+    isFeatured: formData.get("isFeatured") === "on",
     features: formData.get("features"),
+    thumbnailPath: formData.get("thumbnailPath"),
   });
 
   if (!parsed.success) {
@@ -57,6 +60,14 @@ export async function createService(
   }
 
   const input = parsed.data;
+
+  if (input.isFeatured && !input.isActive) {
+    return {
+      success: false,
+      error: "Featured service must be visible on the marketing site.",
+    };
+  }
+
   const supabase = createAdminClient();
 
   const { count } = await supabase
@@ -75,10 +86,12 @@ export async function createService(
       href: input.href,
       price_label: emptyToNull(input.priceLabel ?? undefined),
       is_active: input.isActive,
+      is_featured: input.isFeatured,
       sort_order: count ?? 0,
-      display_config: {
-        features: parseFeatures(input.features),
-      },
+      display_config: buildServiceDisplayConfig({
+        features: input.features,
+        thumbnailPath: input.thumbnailPath,
+      }),
       from_price_cents:
         input.pricingEngine === "marketplace" ? null : 0,
     })
@@ -109,7 +122,9 @@ export async function updateService(
     href: formData.get("href"),
     priceLabel: formData.get("priceLabel"),
     isActive: formData.get("isActive") === "on",
+    isFeatured: formData.get("isFeatured") === "on",
     features: formData.get("features"),
+    thumbnailPath: formData.get("thumbnailPath"),
   });
 
   if (!parsed.success) {
@@ -120,13 +135,27 @@ export async function updateService(
   }
 
   const input = parsed.data;
+
+  if (input.isFeatured && !input.isActive) {
+    return {
+      success: false,
+      error: "Featured service must be visible on the marketing site.",
+    };
+  }
+
   const supabase = createAdminClient();
 
   const existing = await getServiceById(id);
   const displayConfig = {
     ...(existing?.displayConfig ?? {}),
-    features: parseFeatures(input.features),
+    ...buildServiceDisplayConfig({
+      features: input.features,
+      thumbnailPath: input.thumbnailPath,
+    }),
   };
+  if (!input.thumbnailPath?.trim()) {
+    delete displayConfig.thumbnail_path;
+  }
 
   const { error } = await supabase
     .from("services")
@@ -140,6 +169,7 @@ export async function updateService(
       href: input.href,
       price_label: emptyToNull(input.priceLabel ?? undefined),
       is_active: input.isActive,
+      is_featured: input.isFeatured,
       display_config: displayConfig,
     })
     .eq("id", id);
@@ -154,6 +184,39 @@ export async function updateService(
   return { success: true, data: undefined };
 }
 
+export async function toggleServiceFeatured(
+  id: string,
+  isFeatured: boolean
+): Promise<ActionResult> {
+  await requireAdmin();
+
+  const supabase = createAdminClient();
+  const existing = await getServiceById(id);
+
+  if (!existing) {
+    return { success: false, error: "Service not found" };
+  }
+
+  if (isFeatured && !existing.isActive) {
+    return {
+      success: false,
+      error: "Only visible services can be featured.",
+    };
+  }
+
+  const { error } = await supabase
+    .from("services")
+    .update({ is_featured: isFeatured })
+    .eq("id", id);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidateCatalog();
+  return { success: true, data: undefined };
+}
+
 export async function toggleServiceVisibility(
   id: string,
   isActive: boolean
@@ -161,10 +224,16 @@ export async function toggleServiceVisibility(
   await requireAdmin();
 
   const supabase = createAdminClient();
-  const { error } = await supabase
-    .from("services")
-    .update({ is_active: isActive })
-    .eq("id", id);
+
+  const updates: { is_active: boolean; is_featured?: boolean } = {
+    is_active: isActive,
+  };
+
+  if (!isActive) {
+    updates.is_featured = false;
+  }
+
+  const { error } = await supabase.from("services").update(updates).eq("id", id);
 
   if (error) {
     return { success: false, error: error.message };
