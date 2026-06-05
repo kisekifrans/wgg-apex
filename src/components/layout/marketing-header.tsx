@@ -14,7 +14,11 @@ const mainNav = getDiscordCommunityConfig().isEnabled
   ? [...marketingNav, discordNavItem]
   : [...marketingNav];
 
-export function MarketingHeader() {
+type MarketingHeaderProps = {
+  isSignedIn?: boolean;
+};
+
+export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -57,8 +61,14 @@ export function MarketingHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button variant="ghost" size="sm" render={<Link href="/account/login" />}>
-            Sign In
+          <Button
+            variant="ghost"
+            size="sm"
+            render={
+              <Link href={isSignedIn ? "/account" : "/account/login"} />
+            }
+          >
+            {isSignedIn ? "My Orders" : "Sign In"}
           </Button>
           <Button
             size="sm"
@@ -100,9 +110,11 @@ export function MarketingHeader() {
               <Button
                 variant="outline"
                 className="w-full"
-                render={<Link href="/account/login" />}
+                render={
+                  <Link href={isSignedIn ? "/account" : "/account/login"} />
+                }
               >
-                Sign In
+                {isSignedIn ? "My Orders" : "Sign In"}
               </Button>
               <Button
                 className="w-full bg-primary text-primary-foreground"

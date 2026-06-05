@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { Suspense } from "react";
 
 import { CustomerLoginForm } from "@/components/account/customer-login-form";
 import { Button } from "@/components/ui/button";
@@ -36,7 +37,9 @@ export default function AccountLoginPage() {
         </p>
       </header>
 
-      <CustomerLoginForm />
+      <Suspense fallback={null}>
+        <CustomerLoginForm />
+      </Suspense>
     </div>
   );
 }

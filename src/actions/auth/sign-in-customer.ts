@@ -3,9 +3,9 @@
 import { headers } from "next/headers";
 import { z } from "zod";
 
+import { buildAuthCallbackUrl, getRequestOrigin } from "@/lib/auth/site-origin";
 import { getClientIp } from "@/lib/security/client-ip";
 import { checkRateLimit } from "@/lib/security/rate-limit";
-import { getSiteUrl } from "@/lib/stripe/env";
 import { createClient } from "@/lib/supabase/server";
 
 const emailSchema = z.object({
@@ -49,13 +49,14 @@ export async function signInCustomerAction(
     };
   }
 
-  const siteUrl = getSiteUrl();
-  const redirectTo = encodeURIComponent("/account");
+  const origin = await getRequestOrigin();
+  const emailRedirectTo = buildAuthCallbackUrl(origin, "/account");
 
   const { error } = await supabase.auth.signInWithOtp({
     email: parsed.data.email.trim().toLowerCase(),
     options: {
-      emailRedirectTo: `${siteUrl}/api/auth/callback?redirectTo=${redirectTo}`,
+      shouldCreateUser: true,
+      emailRedirectTo,
     },
   });
 

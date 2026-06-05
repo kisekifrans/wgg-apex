@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Loader2, Mail } from "lucide-react";
 import { toast } from "sonner";
 
@@ -10,7 +11,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+const authErrors: Record<string, string> = {
+  auth_callback_failed:
+    "That sign-in link expired or could not be verified. Request a new link below and open it on the same device.",
+  supabase_not_configured: "Sign-in is not configured. Contact support.",
+};
+
 export function CustomerLoginForm() {
+  const searchParams = useSearchParams();
+  const authErrorKey = searchParams.get("error");
+  const authErrorMessage = authErrorKey ? authErrors[authErrorKey] : null;
+
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
@@ -59,6 +70,15 @@ export function CustomerLoginForm() {
       onSubmit={handleSubmit}
       className="space-y-5 rounded-2xl border border-white/5 bg-card/40 p-6 sm:p-8"
     >
+      {authErrorMessage ? (
+        <p
+          className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          role="alert"
+        >
+          {authErrorMessage}
+        </p>
+      ) : null}
+
       <div className="space-y-2">
         <Label htmlFor="email">Checkout email</Label>
         <Input
