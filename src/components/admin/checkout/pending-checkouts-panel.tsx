@@ -46,12 +46,12 @@ export function PendingCheckoutsPanel({
         <div className="min-w-0 flex-1 space-y-4">
           <div>
             <h2 className="font-heading text-sm font-semibold">
-              Paid checkouts awaiting fulfillment
+              PayPal checkouts awaiting fulfillment
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              PayPal orders that paid but did not create an order (usually a
-              missed webhook). Replay fulfillment after confirming payment in
-              PayPal.
+              Customer approved on PayPal but no order was created (capture or
+              webhook missed). Replay fulfill will capture the payment if still
+              approved, then create the order.
             </p>
           </div>
 

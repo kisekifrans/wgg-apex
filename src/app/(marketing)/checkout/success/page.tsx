@@ -4,7 +4,10 @@ import { CheckCircle2, Clock3 } from "lucide-react";
 import { captureAndFulfillPayPalOrder } from "@/actions/checkout/capture-paypal-order";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
-import { getCheckoutByPayPalOrderId } from "@/lib/db/checkout";
+import {
+  getCheckoutByPayPalOrderId,
+  getServiceOrderNumberById,
+} from "@/lib/db/checkout";
 import { formatPriceFromCents } from "@/lib/services/format-price";
 
 type PageProps = {
@@ -44,7 +47,13 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
           orderNumber = order?.order_number ?? null;
         }
 
-        if (checkout.status === "completed" && orderNumber) {
+        if (!orderNumber && checkout.service_order_id) {
+          orderNumber = await getServiceOrderNumberById(
+            checkout.service_order_id
+          );
+        }
+
+        if (checkout.status === "completed" || orderNumber) {
           state = "completed";
         }
       }
@@ -94,11 +103,13 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
       ) : isPending ? (
         <div className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
           <p>
-            You approved payment on PayPal, but we have not finished capturing it
-            yet. Your PayPal balance should not change until capture completes.
+            PayPal may have already charged you — that is normal. We are still
+            finishing the order on our side. If you already got a confirmation
+            email, your payment went through; refresh this page or use Track
+            Order.
           </p>
           <p>
-            This usually resolves within a minute. If it does not, contact{" "}
+            If nothing changes after a minute, contact{" "}
             <a
               href={`mailto:${siteConfig.supportEmail}`}
               className="font-medium text-primary hover:underline"

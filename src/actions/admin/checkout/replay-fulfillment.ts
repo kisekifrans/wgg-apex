@@ -6,8 +6,8 @@ import { requireAdmin } from "@/lib/auth/guards";
 import { completePaidCheckout } from "@/lib/checkout/complete-paid-checkout";
 import { getPayPalEnv } from "@/lib/paypal/env";
 import {
+  capturePayPalOrder,
   extractCaptureFromOrder,
-  getPayPalOrder,
 } from "@/lib/paypal/orders";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -51,13 +51,13 @@ export async function replayCheckoutFulfillment(
   }
 
   try {
-    const order = await getPayPalOrder(checkout.paypal_order_id);
+    const order = await capturePayPalOrder(checkout.paypal_order_id);
     const { captureId, paidCents, currency } = extractCaptureFromOrder(order);
 
     if (!captureId || paidCents == null || !currency) {
       return {
         success: false,
-        error: `PayPal order is not captured (status: ${order.status})`,
+        error: `PayPal capture did not complete (status: ${order.status}). If this checkout is old, the customer may need to pay again.`,
       };
     }
 

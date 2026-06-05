@@ -34,6 +34,22 @@ export async function getCheckoutByPayPalOrderId(paypalOrderId: string) {
   return data;
 }
 
+export async function getServiceOrderNumberById(
+  orderId: string
+): Promise<string | null> {
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase
+    .from("service_orders")
+    .select("order_number")
+    .eq("id", orderId)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+
+  return data?.order_number ?? null;
+}
+
 export async function getCheckoutById(checkoutId: string) {
   const supabase = createAdminClient();
 
