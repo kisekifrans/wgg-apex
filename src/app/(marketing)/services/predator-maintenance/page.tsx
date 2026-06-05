@@ -6,13 +6,14 @@ import { PaymentPreviewNotice } from "@/components/checkout/payment-preview-noti
 import { PredatorIntakeForm } from "@/components/predator/predator-intake-form";
 import { PredatorNoticeCards } from "@/components/predator/predator-notice-cards";
 import { Button } from "@/components/ui/button";
+import { predatorServiceSummary } from "@/config/predator-maintenance";
 import { getServiceBySlug } from "@/lib/db/services-catalog";
 import { getPayPalEnv } from "@/lib/paypal/env";
 
 export const metadata = {
   title: "Predator Maintenance",
   description:
-    "Nintendo (Switch) Predator RP maintenance with operator access. Review requirements, backup codes, and secure checkout.",
+    "Predator RP maintenance on Nintendo (Switch) with progress that carries over to PC, PlayStation, and Xbox via your EA account.",
 };
 
 type PageProps = {
@@ -58,7 +59,7 @@ export default async function PredatorMaintenanceServicePage({
             {service.name}
           </h1>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            {service.description}
+            {predatorServiceSummary}
           </p>
         </header>
 

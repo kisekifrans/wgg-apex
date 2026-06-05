@@ -5,7 +5,7 @@ import { predatorServiceNotices } from "@/config/predator-maintenance";
 const notices = [
   {
     icon: Gamepad2,
-    title: "Nintendo Platform",
+    title: "Switch play, every platform",
     text: predatorServiceNotices.platform,
   },
   {

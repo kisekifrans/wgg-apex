@@ -365,8 +365,10 @@ export function PredatorIntakeForm({
       <section className="rounded-2xl border border-white/5 bg-card/40 p-6 sm:p-8">
         <h2 className="font-heading text-lg font-semibold">Platform</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Nintendo (Switch) is the default and lowest-cost option. PC, Xbox, and
-          PlayStation are available on request.
+          Operators play on Nintendo (Switch)—our default and lowest-cost option.
+          Your Predator RP and rewards still apply on PC, PlayStation, and Xbox
+          through your linked EA account. Other platforms are available on
+          request.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {PREDATOR_PLATFORMS.map((p) => (

@@ -216,7 +216,7 @@ export function RankPricingSection({
             <SectionHeader
               eyebrow="Predator"
               title="Predator Maintenance Plans"
-              description="Hold Predator RP with operator sessions, progress reports, and platform-specific pricing. Nintendo is our default and lowest-cost option."
+              description="Operators play on Nintendo (Switch); your EA-linked Predator RP and rewards carry over to PC, PlayStation, and Xbox."
               className="mb-0"
             />
 

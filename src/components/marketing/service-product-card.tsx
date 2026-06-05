@@ -69,7 +69,7 @@ export function ServiceProductCard({
   const priceFormatted = formatPriceFromCents(service.fromPriceCents);
   const description =
     service.slug === "predator-maintenance"
-      ? "Predator RP maintenance on Nintendo (Switch)."
+      ? "Predator RP on Nintendo (Switch)—progress and rewards carry to PC, PSN, and Xbox."
       : (service.shortDescription ?? service.description ?? "");
 
   const displayPriceLabel =

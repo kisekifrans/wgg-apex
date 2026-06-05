@@ -1,6 +1,10 @@
+/** Hero / page summary for the Predator Maintenance intake page. */
+export const predatorServiceSummary =
+  "Hold Predator RP with operator sessions on Nintendo (Switch). Your EA-linked progress—including ranked gains and rewards—carries over to PC, PlayStation, and Xbox.";
+
 export const predatorServiceNotices = {
   platform:
-    "Predator maintenance runs on Nintendo (Switch). Your EA account is used by our operator while you're away.",
+    "Our operators play on Nintendo (Switch) while you're away. Apex ties progress to your EA account, so Predator RP, rewards, and ranked gains sync to every platform you use—PC, PlayStation, and Xbox.",
   nintendoAccount:
     "You need a Nintendo Account linked to Apex on Switch before we start. Create one first if you don't have it yet.",
   nintendoBackup:
