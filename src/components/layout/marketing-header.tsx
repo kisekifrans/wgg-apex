@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { MarketingNavLink } from "@/components/layout/marketing-nav-link";
 import { Logo } from "@/components/shared/logo";
@@ -20,6 +21,8 @@ type MarketingHeaderProps = {
 };
 
 export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -37,16 +40,22 @@ export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
     };
   }, [mobileOpen]);
 
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  const showSolidHeader = scrolled || !isHome || mobileOpen;
+
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
-        scrolled
-          ? "border-b border-white/5 bg-background/70 py-3 backdrop-blur-xl"
+        "pointer-events-auto fixed inset-x-0 top-0 z-[100] transition-all duration-300",
+        showSolidHeader
+          ? "border-b border-white/5 bg-background/80 py-3 backdrop-blur-xl"
           : "border-b border-transparent bg-transparent py-5"
       )}
     >
-      <div className="mx-auto flex h-11 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="relative z-[100] mx-auto flex h-11 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Logo />
 
         <nav className="hidden items-center gap-8 md:flex" aria-label="Main">
@@ -54,7 +63,7 @@ export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
             <MarketingNavLink
               key={item.href}
               href={item.href}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="relative z-[100] text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               {item.label}
             </MarketingNavLink>
@@ -71,15 +80,12 @@ export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
           >
             {isSignedIn ? "My Orders" : "Sign In"}
           </Button>
-          <Button
-            size="sm"
-            className="bg-primary font-medium text-primary-foreground shadow-[0_0_24px_-6px] shadow-[rgba(249,115,22,0.35)] hover:bg-[var(--brand-orange-deep)]"
-            render={
-              <MarketingNavLink href="#services" className="inline-flex items-center justify-center" />
-            }
+          <MarketingNavLink
+            href="#services"
+            className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-[0_0_24px_-6px] shadow-[rgba(249,115,22,0.35)] transition-colors hover:bg-[var(--brand-orange-deep)]"
           >
             Get Started
-          </Button>
+          </MarketingNavLink>
         </div>
 
         <button
@@ -94,7 +100,7 @@ export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-white/5 bg-background/95 backdrop-blur-xl md:hidden">
+        <div className="relative z-[100] border-t border-white/5 bg-background/95 backdrop-blur-xl md:hidden">
           <nav
             className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-4 sm:px-6"
             aria-label="Mobile"
@@ -119,13 +125,13 @@ export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
               >
                 {isSignedIn ? "My Orders" : "Sign In"}
               </Button>
-              <Button
-                className="w-full bg-primary text-primary-foreground"
-                render={<MarketingNavLink href="#services" />}
+              <MarketingNavLink
+                href="#services"
+                className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium text-primary-foreground"
                 onClick={() => setMobileOpen(false)}
               >
                 Get Started
-              </Button>
+              </MarketingNavLink>
             </div>
           </nav>
         </div>

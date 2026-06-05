@@ -53,7 +53,7 @@ export default async function ServiceCheckoutPage({
   const { isConfigured: isCheckoutConfigured } = getPayPalEnv();
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-6xl px-4 pb-12 pt-4 sm:px-6 lg:px-8">
       <Button
         variant="ghost"
         size="sm"
