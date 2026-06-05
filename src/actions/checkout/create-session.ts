@@ -71,6 +71,8 @@ export async function createCheckoutSession(
     const parsed = predatorIntakeSchema.safeParse({
       customerDiscord: discord,
       currentRank: input.currentRank,
+      nintendoEmail: input.predatorDetails?.nintendoEmail,
+      nintendoPassword: input.predatorDetails?.nintendoPassword,
       nintendoBackupCode: input.predatorDetails?.nintendoBackupCode,
       eaEmail: input.predatorDetails?.eaEmail,
       eaPassword: input.predatorDetails?.eaPassword,
@@ -95,6 +97,8 @@ export async function createCheckoutSession(
     }
 
     predatorDetails = {
+      nintendoEmail: parsed.data.nintendoEmail,
+      nintendoPassword: parsed.data.nintendoPassword,
       nintendoBackupCode: parsed.data.nintendoBackupCode,
       eaEmail: parsed.data.eaEmail,
       eaPassword: parsed.data.eaPassword,

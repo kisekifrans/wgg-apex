@@ -38,6 +38,8 @@ export type ServiceOrderMetadata = {
     additionalNotes?: string | null;
   } | null;
   predator?: {
+    nintendoEmail?: string | null;
+    nintendoPassword?: string | null;
     nintendoBackupCode?: string | null;
     eaEmail?: string | null;
     eaPassword?: string | null;

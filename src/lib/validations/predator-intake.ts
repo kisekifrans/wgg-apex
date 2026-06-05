@@ -3,6 +3,14 @@ import { z } from "zod";
 export const predatorIntakeSchema = z.object({
   customerDiscord: z.string().trim().min(2, "Discord username is required"),
   currentRank: z.string().trim().min(2, "Current rank or RP band is required"),
+  nintendoEmail: z
+    .string()
+    .trim()
+    .email("Valid Nintendo account email is required"),
+  nintendoPassword: z
+    .string()
+    .trim()
+    .min(4, "Nintendo account password is required"),
   nintendoBackupCode: z
     .string()
     .trim()

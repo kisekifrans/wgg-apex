@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 
+import { Toaster } from "@/components/ui/sonner";
 import { brandAssets } from "@/config/brand-assets";
 import { siteConfig } from "@/config/site";
 
@@ -68,7 +69,10 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${inter.variable} ${plusJakarta.variable} ${jetbrainsMono.variable} dark h-full`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Toaster position="top-right" theme="dark" />
+      </body>
     </html>
   );
 }

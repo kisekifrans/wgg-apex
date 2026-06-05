@@ -1,4 +1,6 @@
 export type PredatorIntakeDetails = {
+  nintendoEmail: string;
+  nintendoPassword: string;
   nintendoBackupCode: string;
   eaEmail: string;
   eaPassword: string;
@@ -16,6 +18,8 @@ export function formatPredatorNotes(
     `Plan: ${planName}`,
     `Current rank / RP: ${currentRank}`,
     `Platform: Nintendo (Switch)`,
+    `Nintendo email: ${details.nintendoEmail}`,
+    `Nintendo password: ${details.nintendoPassword}`,
     `Nintendo backup code: ${details.nintendoBackupCode}`,
     `EA Email: ${details.eaEmail}`,
     `EA Password: ${details.eaPassword}`,

@@ -6,7 +6,7 @@ export const predatorServiceNotices = {
   nintendoBackup:
     "A Nintendo backup login code lets our booster sign in without bugging you. Generate it before checkout and keep it private.",
   eaCredentials:
-    "We also need your EA email, password, and EA backup code so the operator can log in securely.",
+    "We need your Nintendo account email and password, plus your EA email, password, and EA backup code so the operator can log in securely.",
 } as const;
 
 export const nintendoAccountGuide = {

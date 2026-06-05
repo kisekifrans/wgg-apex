@@ -34,6 +34,7 @@ export function PredatorIntakeForm({
   stripeEnabled,
 }: PredatorIntakeFormProps) {
   const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [acknowledged, setAcknowledged] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(
     service.pricingItems.find((i) => i.isFeatured)?.id ??
@@ -46,41 +47,63 @@ export function PredatorIntakeForm({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setFormError(null);
+
+    if (!stripeEnabled) {
+      const message =
+        "Payments are not configured yet. Contact support to complete your order.";
+      setFormError(message);
+      toast.error(message);
+      return;
+    }
 
     if (!selectedItemId) {
-      toast.error("Please select a maintenance plan.");
+      const message = "Please select a maintenance plan.";
+      setFormError(message);
+      toast.error(message);
       return;
     }
 
     if (!acknowledged) {
-      toast.error(
-        "Please confirm Nintendo platform access and credential sharing to continue."
-      );
+      const message =
+        "Please confirm Nintendo platform access and credential sharing to continue.";
+      setFormError(message);
+      toast.error(message);
       return;
     }
 
     setLoading(true);
     const formData = new FormData(e.currentTarget);
 
-    const result = await createCheckoutSession("predator-maintenance", {
-      customerDiscord: String(formData.get("customerDiscord") ?? ""),
-      currentRank: String(formData.get("currentRank") ?? ""),
-      pricingItemId: selectedItemId,
-      predatorDetails: {
-        nintendoBackupCode: String(formData.get("nintendoBackupCode") ?? ""),
-        eaEmail: String(formData.get("eaEmail") ?? ""),
-        eaPassword: String(formData.get("eaPassword") ?? ""),
-        eaBackupCode: String(formData.get("eaBackupCode") ?? ""),
-      },
-    });
+    try {
+      const result = await createCheckoutSession("predator-maintenance", {
+        customerDiscord: String(formData.get("customerDiscord") ?? ""),
+        currentRank: String(formData.get("currentRank") ?? ""),
+        pricingItemId: selectedItemId,
+        predatorDetails: {
+          nintendoEmail: String(formData.get("nintendoEmail") ?? ""),
+          nintendoPassword: String(formData.get("nintendoPassword") ?? ""),
+          nintendoBackupCode: String(formData.get("nintendoBackupCode") ?? ""),
+          eaEmail: String(formData.get("eaEmail") ?? ""),
+          eaPassword: String(formData.get("eaPassword") ?? ""),
+          eaBackupCode: String(formData.get("eaBackupCode") ?? ""),
+        },
+      });
 
-    if (!result.success) {
-      toast.error(result.error);
+      if (!result.success) {
+        setFormError(result.error);
+        toast.error(result.error);
+        setLoading(false);
+        return;
+      }
+
+      window.location.href = result.url;
+    } catch {
+      const message = "Checkout failed unexpectedly. Please try again.";
+      setFormError(message);
+      toast.error(message);
       setLoading(false);
-      return;
     }
-
-    window.location.href = result.url;
   }
 
   return (
@@ -178,6 +201,32 @@ export function PredatorIntakeForm({
               name="currentRank"
               required
               placeholder="e.g. Master · 15,000 RP"
+              className="border-white/10 bg-background/50"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="nintendoEmail">Nintendo account email *</Label>
+            <Input
+              id="nintendoEmail"
+              name="nintendoEmail"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="Email for accounts.nintendo.com"
+              className="border-white/10 bg-background/50"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="nintendoPassword">Nintendo account password *</Label>
+            <Input
+              id="nintendoPassword"
+              name="nintendoPassword"
+              type="password"
+              required
+              autoComplete="current-password"
+              placeholder="Nintendo account password"
               className="border-white/10 bg-background/50"
             />
           </div>
@@ -286,7 +335,15 @@ export function PredatorIntakeForm({
       </section>
 
       <div className="flex flex-col gap-4 rounded-xl border border-white/5 bg-card/50 p-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div className="space-y-2">
+          {formError ? (
+            <p
+              className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              role="alert"
+            >
+              {formError}
+            </p>
+          ) : null}
           <p className="text-sm text-muted-foreground">Total due today</p>
           <p className="font-mono text-3xl font-semibold tabular-nums">
             {selectedItem
