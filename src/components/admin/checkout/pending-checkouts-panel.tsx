@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw, X } from "lucide-react";
 import { toast } from "sonner";
 
+import { dismissPendingCheckout } from "@/actions/admin/checkout/dismiss-pending-checkout";
 import { replayCheckoutFulfillment } from "@/actions/admin/checkout/replay-fulfillment";
 import { Button } from "@/components/ui/button";
 import { formatPriceFromCents } from "@/lib/services/format-price";
@@ -17,15 +18,18 @@ export function PendingCheckoutsPanel({
   checkouts,
 }: PendingCheckoutsPanelProps) {
   const [pending, startTransition] = useTransition();
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeAction, setActiveAction] = useState<{
+    id: string;
+    type: "replay" | "dismiss";
+  } | null>(null);
 
   if (checkouts.length === 0) return null;
 
   function handleReplay(checkoutId: string) {
-    setActiveId(checkoutId);
+    setActiveAction({ id: checkoutId, type: "replay" });
     startTransition(async () => {
       const result = await replayCheckoutFulfillment(checkoutId);
-      setActiveId(null);
+      setActiveAction(null);
 
       if (result.success) {
         toast.success(
@@ -33,6 +37,20 @@ export function PendingCheckoutsPanel({
             ? `Order ${result.orderNumber} created`
             : "Checkout fulfilled"
         );
+      } else {
+        toast.error(result.error);
+      }
+    });
+  }
+
+  function handleDismiss(checkoutId: string) {
+    setActiveAction({ id: checkoutId, type: "dismiss" });
+    startTransition(async () => {
+      const result = await dismissPendingCheckout(checkoutId);
+      setActiveAction(null);
+
+      if (result.success) {
+        toast.success("Checkout dismissed");
       } else {
         toast.error(result.error);
       }
@@ -57,7 +75,9 @@ export function PendingCheckoutsPanel({
 
           <ul className="divide-y divide-white/5 rounded-lg border border-white/5 bg-card/40">
             {checkouts.map((checkout) => {
-              const isLoading = pending && activeId === checkout.id;
+              const isActive = pending && activeAction?.id === checkout.id;
+              const isReplaying = isActive && activeAction?.type === "replay";
+              const isDismissing = isActive && activeAction?.type === "dismiss";
               return (
                 <li
                   key={checkout.id}
@@ -76,19 +96,42 @@ export function PendingCheckoutsPanel({
                       {formatPriceFromCents(checkout.amountCents)}
                     </p>
                   </div>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="border-white/10"
-                    disabled={pending}
-                    onClick={() => handleReplay(checkout.id)}
-                  >
-                    {isLoading ? (
-                      <Loader2 className="size-4 animate-spin" data-icon="inline-start" />
-                    ) : null}
-                    Replay fulfill
-                  </Button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="border-white/10"
+                      disabled={pending}
+                      onClick={() => handleReplay(checkout.id)}
+                    >
+                      {isReplaying ? (
+                        <Loader2
+                          className="size-4 animate-spin"
+                          data-icon="inline-start"
+                        />
+                      ) : null}
+                      Replay fulfill
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className="text-muted-foreground hover:text-foreground"
+                      disabled={pending}
+                      onClick={() => handleDismiss(checkout.id)}
+                    >
+                      {isDismissing ? (
+                        <Loader2
+                          className="size-4 animate-spin"
+                          data-icon="inline-start"
+                        />
+                      ) : (
+                        <X className="size-4" data-icon="inline-start" />
+                      )}
+                      Dismiss
+                    </Button>
+                  </div>
                 </li>
               );
             })}

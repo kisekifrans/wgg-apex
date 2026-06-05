@@ -30,7 +30,12 @@ export async function sendOrderStatusUpdateEmail(
   const client = getResendClient();
   const { from, replyTo, isConfigured } = getEmailEnv();
 
-  if (!isConfigured || !client) return;
+  if (!isConfigured || !client) {
+    console.warn(
+      "[email] Skipping status update — RESEND_API_KEY or EMAIL_FROM not configured"
+    );
+    return;
+  }
 
   const email = input.customerEmail.trim().toLowerCase();
   if (!email) return;

@@ -33,6 +33,26 @@ type CheckoutRow = {
   } | null;
 };
 
+async function sendCheckoutConfirmationEmail(
+  checkout: CheckoutRow,
+  orderNumber: string
+): Promise<void> {
+  if (!checkout.customer_email) return;
+
+  await sendOrderConfirmationEmail({
+    orderNumber,
+    orderType: checkout.checkout_kind,
+    serviceName: checkout.line_item_name,
+    customerEmail: checkout.customer_email,
+    customerDiscord: checkout.customer_discord,
+    currentRank: checkout.current_rank,
+    targetRank: checkout.target_rank,
+    serviceDetail: checkout.service_detail,
+    amountCents: checkout.amount_cents,
+    currency: checkout.currency,
+  });
+}
+
 export async function fulfillCheckoutAsOrder(
   checkout: CheckoutRow
 ): Promise<{ orderId: string; orderNumber: string }> {
@@ -53,6 +73,11 @@ export async function fulfillCheckoutAsOrder(
         completed_at: new Date().toISOString(),
       })
       .eq("id", checkout.id);
+
+    await sendCheckoutConfirmationEmail(
+      checkout,
+      existingOrder.order_number
+    );
 
     return {
       orderId: existingOrder.id,
@@ -159,20 +184,7 @@ export async function fulfillCheckoutAsOrder(
     message: "Payment confirmed — assigning operator",
   });
 
-  if (checkout.customer_email) {
-    await sendOrderConfirmationEmail({
-      orderNumber: order.order_number,
-      orderType: checkout.checkout_kind,
-      serviceName: checkout.line_item_name,
-      customerEmail: checkout.customer_email,
-      customerDiscord: checkout.customer_discord,
-      currentRank: checkout.current_rank,
-      targetRank: checkout.target_rank,
-      serviceDetail: checkout.service_detail,
-      amountCents: checkout.amount_cents,
-      currency: checkout.currency,
-    });
-  }
+  await sendCheckoutConfirmationEmail(checkout, order.order_number);
 
   if (checkout.promo_code_id && (checkout.discount_cents ?? 0) > 0) {
     await recordPromoRedemption({
