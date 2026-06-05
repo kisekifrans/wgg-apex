@@ -23,7 +23,7 @@ export const relinkingProcessSteps = [
     step: "01",
     title: "Submit your details",
     description:
-      "Share your EA account details and which platform link to remove (PSN, Xbox, or Steam).",
+      "Share your EA account, the platform link to remove, and that platform's login details.",
   },
   {
     step: "02",

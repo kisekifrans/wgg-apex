@@ -54,6 +54,12 @@ export type ServiceOrderMetadata = {
     eaEmail?: string | null;
     eaPassword?: string | null;
     eaBackupCode?: string | null;
+    steamId?: string | null;
+    steamPassword?: string | null;
+    xboxEmail?: string | null;
+    xboxPassword?: string | null;
+    psnEmail?: string | null;
+    psnPassword?: string | null;
     /** @deprecated Legacy intake shape */
     currentPlatform?: string | null;
     targetPlatform?: string | null;

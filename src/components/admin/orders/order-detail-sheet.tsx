@@ -289,6 +289,62 @@ export function OrderDetailSheet({
                           </dd>
                         </div>
                       )}
+                      {order.metadata.relinking.steamId && (
+                        <div>
+                          <dt className="text-xs text-muted-foreground">
+                            Steam ID
+                          </dt>
+                          <dd className="font-medium">
+                            {order.metadata.relinking.steamId}
+                          </dd>
+                        </div>
+                      )}
+                      {order.metadata.relinking.steamPassword && (
+                        <div>
+                          <dt className="text-xs text-muted-foreground">
+                            Steam password
+                          </dt>
+                          <dd className="font-mono text-xs">
+                            {order.metadata.relinking.steamPassword}
+                          </dd>
+                        </div>
+                      )}
+                      {order.metadata.relinking.xboxEmail && (
+                        <div>
+                          <dt className="text-xs text-muted-foreground">
+                            Xbox email
+                          </dt>
+                          <dd>{order.metadata.relinking.xboxEmail}</dd>
+                        </div>
+                      )}
+                      {order.metadata.relinking.xboxPassword && (
+                        <div>
+                          <dt className="text-xs text-muted-foreground">
+                            Xbox password
+                          </dt>
+                          <dd className="font-mono text-xs">
+                            {order.metadata.relinking.xboxPassword}
+                          </dd>
+                        </div>
+                      )}
+                      {order.metadata.relinking.psnEmail && (
+                        <div>
+                          <dt className="text-xs text-muted-foreground">
+                            PSN email
+                          </dt>
+                          <dd>{order.metadata.relinking.psnEmail}</dd>
+                        </div>
+                      )}
+                      {order.metadata.relinking.psnPassword && (
+                        <div>
+                          <dt className="text-xs text-muted-foreground">
+                            PSN password
+                          </dt>
+                          <dd className="font-mono text-xs">
+                            {order.metadata.relinking.psnPassword}
+                          </dd>
+                        </div>
+                      )}
                     </dl>
                   </section>
                 )}

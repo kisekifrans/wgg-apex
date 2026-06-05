@@ -17,6 +17,9 @@ const SENSITIVE_PREDATOR_KEYS = [
 const SENSITIVE_RELINKING_KEYS = [
   "eaPassword",
   "eaBackupCode",
+  "steamPassword",
+  "xboxPassword",
+  "psnPassword",
   "password",
   "backupCode",
 ] as const;

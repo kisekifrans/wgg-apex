@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPublicDataClient } from "@/lib/supabase/public-data";
+import { getServiceLinkHref } from "@/config/service-links";
 import { computeFromPriceCents } from "@/lib/services/from-price";
 import type {
   CatalogPricingItem,
@@ -84,7 +85,7 @@ function mapService(row: ServiceRow, items: ItemRow[] = []): CatalogService {
     description: row.description,
     pricingEngine: row.pricing_engine,
     icon: row.icon,
-    href: row.href,
+    href: getServiceLinkHref(row.slug, row.href),
     priceLabel: row.price_label,
     fromPriceCents,
     isActive: row.is_active,

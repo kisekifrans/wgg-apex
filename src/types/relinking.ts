@@ -6,6 +6,12 @@ export type RelinkingIntakeDetails = {
   eaEmail: string;
   eaPassword: string;
   eaBackupCode: string;
+  steamId?: string;
+  steamPassword?: string;
+  xboxEmail?: string;
+  xboxPassword?: string;
+  psnEmail?: string;
+  psnPassword?: string;
 };
 
 export const RELINKING_PLATFORM_LABELS: Record<RelinkingPlatform, string> = {
@@ -29,6 +35,50 @@ export function formatRelinkingNotes(
     `Relinking from: ${RELINKING_PLATFORM_LABELS[details.platform]}`,
     `EA account: ${details.eaAccount}`,
     `EA email: ${details.eaEmail}`,
-    `Credentials: stored encrypted in order metadata (admin view).`,
+    `Platform credentials: stored encrypted in order metadata (admin view).`,
   ].join("\n");
+}
+
+export function buildRelinkingDetailsFromParsed(data: {
+  platform: RelinkingPlatform;
+  eaAccount: string;
+  eaEmail: string;
+  eaPassword: string;
+  eaBackupCode: string;
+  steamId?: string;
+  steamPassword?: string;
+  xboxEmail?: string;
+  xboxPassword?: string;
+  psnEmail?: string;
+  psnPassword?: string;
+}): RelinkingIntakeDetails {
+  const base = {
+    platform: data.platform,
+    eaAccount: data.eaAccount,
+    eaEmail: data.eaEmail,
+    eaPassword: data.eaPassword,
+    eaBackupCode: data.eaBackupCode,
+  };
+
+  if (data.platform === "steam") {
+    return {
+      ...base,
+      steamId: data.steamId!.trim(),
+      steamPassword: data.steamPassword!.trim(),
+    };
+  }
+
+  if (data.platform === "xbox") {
+    return {
+      ...base,
+      xboxEmail: data.xboxEmail!.trim(),
+      xboxPassword: data.xboxPassword!.trim(),
+    };
+  }
+
+  return {
+    ...base,
+    psnEmail: data.psnEmail!.trim(),
+    psnPassword: data.psnPassword!.trim(),
+  };
 }

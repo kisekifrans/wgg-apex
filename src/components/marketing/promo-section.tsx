@@ -5,6 +5,7 @@ import { Tag } from "lucide-react";
 
 import { AnimatedSection } from "@/components/shared/animated-section";
 import { Button } from "@/components/ui/button";
+import { getServiceIntakeHref } from "@/config/service-links";
 import { formatPriceFromCents } from "@/lib/services/format-price";
 import type { FeaturedPromo } from "@/types/promo";
 
@@ -14,10 +15,11 @@ type PromoSectionProps = {
 
 function promoCheckoutHref(promo: FeaturedPromo): string {
   const code = encodeURIComponent(promo.code);
-  if (promo.serviceSlug === "predator-maintenance") {
-    return `/services/predator-maintenance?promo=${code}`;
-  }
   if (promo.serviceSlug) {
+    const intakeHref = getServiceIntakeHref(promo.serviceSlug, {
+      promo: promo.code,
+    });
+    if (intakeHref) return intakeHref;
     return `/checkout/${promo.serviceSlug}?promo=${code}`;
   }
   return `/?promo=${code}#services`;

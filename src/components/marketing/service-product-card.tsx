@@ -11,6 +11,7 @@ import { RankIcon } from "@/components/shared/rank-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getServiceArtworkPath } from "@/config/brand-assets";
+import { getServiceLinkHref } from "@/config/service-links";
 import { formatPriceFromCents } from "@/lib/services/format-price";
 import { cn } from "@/lib/utils";
 import type { CatalogService } from "@/types/services";
@@ -62,6 +63,7 @@ export function ServiceProductCard({
   const [pointer, setPointer] = useState({ x: 0, y: 0, active: false });
 
   const artwork = getServiceArtworkPath(service.slug, service.displayConfig);
+  const serviceHref = getServiceLinkHref(service.slug, service.href);
   const visual = SLUG_VISUAL[service.slug];
   const isFeatured = variant === "featured";
   const priceFormatted = formatPriceFromCents(service.fromPriceCents);
@@ -255,7 +257,7 @@ export function ServiceProductCard({
                 "shrink-0 bg-primary font-medium text-primary-foreground shadow-[0_0_28px_-6px_rgba(249,115,22,0.5)] transition-shadow duration-300",
                 "group-hover/card:shadow-[0_0_36px_-4px_rgba(249,115,22,0.55)]"
               )}
-              render={<MarketingNavLink href={service.href} />}
+              render={<MarketingNavLink href={serviceHref} />}
             >
               {isFeatured ? "Get Started" : "View Service"}
               <ArrowRight className="size-4" data-icon="inline-end" />

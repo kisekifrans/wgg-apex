@@ -54,6 +54,12 @@ export function RelinkingIntakeForm({
         eaEmail: String(formData.get("eaEmail") ?? ""),
         eaPassword: String(formData.get("eaPassword") ?? ""),
         eaBackupCode: String(formData.get("eaBackupCode") ?? ""),
+        steamId: String(formData.get("steamId") ?? ""),
+        steamPassword: String(formData.get("steamPassword") ?? ""),
+        xboxEmail: String(formData.get("xboxEmail") ?? ""),
+        xboxPassword: String(formData.get("xboxPassword") ?? ""),
+        psnEmail: String(formData.get("psnEmail") ?? ""),
+        psnPassword: String(formData.get("psnPassword") ?? ""),
       },
     });
 
@@ -71,9 +77,9 @@ export function RelinkingIntakeForm({
       <section className="rounded-2xl border border-white/5 bg-card/40 p-6 sm:p-8">
         <h2 className="font-heading text-lg font-semibold">Your details</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          We remove the selected platform link from your EA account. Password and
-          backup code are encrypted before storage and visible only to assigned
-          WGG operators.
+          We remove the selected platform link from your EA account. EA and
+          platform passwords are encrypted before storage and visible only to
+          assigned WGG operators.
         </p>
 
         <div className="mt-6 grid gap-5 sm:grid-cols-2">
@@ -164,6 +170,101 @@ export function RelinkingIntakeForm({
                 </label>
               ))}
             </div>
+          </div>
+
+          <div key={platform} className="space-y-5 sm:col-span-2">
+            <div>
+              <h3 className="text-sm font-medium">
+                {RELINKING_PLATFORM_LABELS[platform]} credentials
+              </h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Login for the linked {RELINKING_PLATFORM_LABELS[platform]}{" "}
+                account we are removing.
+              </p>
+            </div>
+
+            {platform === "steam" && (
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="steamId">Steam ID *</Label>
+                  <Input
+                    id="steamId"
+                    name="steamId"
+                    required
+                    autoComplete="off"
+                    placeholder="Your Steam ID or profile URL"
+                    className="border-white/10 bg-background/50"
+                  />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="steamPassword">Steam password *</Label>
+                  <Input
+                    id="steamPassword"
+                    name="steamPassword"
+                    type="password"
+                    required
+                    autoComplete="current-password"
+                    className="border-white/10 bg-background/50"
+                  />
+                </div>
+              </div>
+            )}
+
+            {platform === "xbox" && (
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="xboxEmail">Xbox email *</Label>
+                  <Input
+                    id="xboxEmail"
+                    name="xboxEmail"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    placeholder="Microsoft account email"
+                    className="border-white/10 bg-background/50"
+                  />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="xboxPassword">Xbox password *</Label>
+                  <Input
+                    id="xboxPassword"
+                    name="xboxPassword"
+                    type="password"
+                    required
+                    autoComplete="current-password"
+                    className="border-white/10 bg-background/50"
+                  />
+                </div>
+              </div>
+            )}
+
+            {platform === "psn" && (
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="psnEmail">PSN email *</Label>
+                  <Input
+                    id="psnEmail"
+                    name="psnEmail"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    placeholder="PlayStation account email"
+                    className="border-white/10 bg-background/50"
+                  />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="psnPassword">PSN password *</Label>
+                  <Input
+                    id="psnPassword"
+                    name="psnPassword"
+                    type="password"
+                    required
+                    autoComplete="current-password"
+                    className="border-white/10 bg-background/50"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

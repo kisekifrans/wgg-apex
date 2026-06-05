@@ -18,6 +18,7 @@ import { unbanIntakeSchema } from "@/lib/validations/unban-intake";
 import { relinkingIntakeSchema } from "@/lib/validations/relinking-intake";
 import { formatPredatorNotes } from "@/types/predator";
 import {
+  buildRelinkingDetailsFromParsed,
   formatRelinkingNotes,
   formatRelinkingServiceDetail,
 } from "@/types/relinking";
@@ -162,6 +163,12 @@ export async function createCheckoutSession(
       eaEmail: input.relinkingDetails?.eaEmail,
       eaPassword: input.relinkingDetails?.eaPassword,
       eaBackupCode: input.relinkingDetails?.eaBackupCode,
+      steamId: input.relinkingDetails?.steamId,
+      steamPassword: input.relinkingDetails?.steamPassword,
+      xboxEmail: input.relinkingDetails?.xboxEmail,
+      xboxPassword: input.relinkingDetails?.xboxPassword,
+      psnEmail: input.relinkingDetails?.psnEmail,
+      psnPassword: input.relinkingDetails?.psnPassword,
     });
 
     if (!parsed.success) {
@@ -171,13 +178,7 @@ export async function createCheckoutSession(
       };
     }
 
-    relinkingDetails = {
-      platform: parsed.data.platform,
-      eaAccount: parsed.data.eaAccount,
-      eaEmail: parsed.data.eaEmail,
-      eaPassword: parsed.data.eaPassword,
-      eaBackupCode: parsed.data.eaBackupCode,
-    };
+    relinkingDetails = buildRelinkingDetailsFromParsed(parsed.data);
     customerEmail = parsed.data.eaEmail;
     notes = formatRelinkingNotes(relinkingDetails, discord);
   }
