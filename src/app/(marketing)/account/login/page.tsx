@@ -5,8 +5,9 @@ import { CustomerLoginForm } from "@/components/account/customer-login-form";
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
-  title: "My Orders — Sign In",
-  description: "Sign in with your checkout email to view all WGG Apex orders.",
+  title: "Sign In — My Orders",
+  description:
+    "Sign in or create your WGG Apex account with your checkout email. No password needed.",
 };
 
 export default function AccountLoginPage() {
@@ -27,11 +28,11 @@ export default function AccountLoginPage() {
           Customer account
         </p>
         <h1 className="font-heading mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-          My Orders
+          Sign in or create account
         </h1>
         <p className="mt-3 text-muted-foreground">
-          Sign in with the email you used at checkout. We will email you a
-          secure link — no password needed.
+          Use the email from checkout. First time here? We create your account
+          automatically when you open the magic link — no password required.
         </p>
       </header>
 

@@ -136,11 +136,20 @@ export function LoginForm() {
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          <Link href="/" className="text-primary hover:underline">
-            ← Back to site
-          </Link>
-        </p>
+        <div className="mt-6 space-y-3 text-center text-xs text-muted-foreground">
+          <p>
+            Customer?{" "}
+            <Link href="/account/login" className="font-medium text-primary hover:underline">
+              Sign in or create account
+            </Link>{" "}
+            to view your orders.
+          </p>
+          <p>
+            <Link href="/" className="text-primary hover:underline">
+              ← Back to site
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

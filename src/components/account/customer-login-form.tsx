@@ -71,8 +71,8 @@ export function CustomerLoginForm() {
           className="border-white/10 bg-background/50"
         />
         <p className="text-xs text-muted-foreground">
-          Use the same email from your order confirmation. We send a one-time
-          magic link — no password.
+          New or returning customer — same flow. Enter your checkout email and
+          we&apos;ll send a magic link to sign in or create your account.
         </p>
       </div>
 
@@ -94,6 +94,10 @@ export function CustomerLoginForm() {
         Prefer a one-off lookup?{" "}
         <Link href="/track-order" className="text-primary hover:underline">
           Track a single order
+        </Link>
+        {" · "}
+        <Link href="/login" className="text-muted-foreground hover:text-primary hover:underline">
+          Admin sign in
         </Link>
       </p>
     </form>

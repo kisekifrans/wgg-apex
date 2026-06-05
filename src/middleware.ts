@@ -71,9 +71,7 @@ export async function middleware(request: NextRequest) {
 
     const isAdmin = await isRequestAdmin(supabase, user.id, user.email ?? "");
     if (!isAdmin) {
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("error", "not_admin");
-      loginUrl.searchParams.set("redirectTo", "/admin");
+      const loginUrl = new URL("/account/login", request.url);
       return NextResponse.redirect(loginUrl);
     }
   }
@@ -87,6 +85,7 @@ export async function middleware(request: NextRequest) {
       );
       return NextResponse.redirect(new URL(redirectTo, request.url));
     }
+    return NextResponse.redirect(new URL("/account", request.url));
   }
 
   return response;

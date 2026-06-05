@@ -57,7 +57,7 @@ export function MarketingHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button variant="ghost" size="sm" render={<Link href="/login" />}>
+          <Button variant="ghost" size="sm" render={<Link href="/account/login" />}>
             Sign In
           </Button>
           <Button
@@ -100,7 +100,7 @@ export function MarketingHeader() {
               <Button
                 variant="outline"
                 className="w-full"
-                render={<Link href="/login" />}
+                render={<Link href="/account/login" />}
               >
                 Sign In
               </Button>
