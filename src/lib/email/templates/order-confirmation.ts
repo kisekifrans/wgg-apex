@@ -1,4 +1,10 @@
 import { getOrderTypeLabel } from "@/lib/orders/public-display";
+import { getEmailBrandUrls } from "@/lib/email/templates/brand";
+import {
+  emailDetailsTable,
+  escapeHtml,
+  wrapBrandedEmail,
+} from "@/lib/email/templates/layout";
 import type { ServiceOrderType } from "@/types/orders";
 
 export type OrderConfirmationEmailData = {
@@ -12,6 +18,7 @@ export type OrderConfirmationEmailData = {
   amountCents: number;
   currency: string;
   trackOrderUrl: string;
+  accountUrl: string;
   siteName: string;
   supportEmail: string;
 };
@@ -57,6 +64,7 @@ export function buildOrderConfirmationText(
     "Our operators will reach out on Discord to start fulfillment.",
     "",
     `Track your order: ${data.trackOrderUrl}`,
+    `View all orders: ${data.accountUrl}`,
     "",
     `Questions? ${data.supportEmail}`,
   ]
@@ -67,52 +75,37 @@ export function buildOrderConfirmationText(
 export function buildOrderConfirmationHtml(
   data: OrderConfirmationEmailData
 ): string {
+  const brand = getEmailBrandUrls();
   const serviceLabel = getOrderTypeLabel(data.orderType);
   const span = rankLine(data);
   const amount = formatMoney(data.amountCents, data.currency);
 
-  const detailRow = span
-    ? `<tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Details</td><td style="padding:8px 0;color:#fafafa;font-size:14px;text-align:right;">${escapeHtml(span)}</td></tr>`
-    : "";
+  const rows = [
+    { label: "Order", value: data.orderNumber, mono: true },
+    { label: "Service", value: data.serviceName },
+    { label: "Type", value: serviceLabel },
+    ...(span ? [{ label: "Details", value: span }] : []),
+    { label: "Paid", value: amount, mono: true },
+    { label: "Discord", value: data.customerDiscord },
+  ];
 
-  return `<!DOCTYPE html>
-<html lang="en">
-  <body style="margin:0;padding:0;background:#0a0a0a;font-family:Inter,Segoe UI,sans-serif;color:#fafafa;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:32px 16px;">
-      <tr>
-        <td align="center">
-          <table width="100%" style="max-width:520px;background:#141414;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;">
-            <tr>
-              <td style="padding:28px 28px 12px;">
-                <p style="margin:0;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#facc15;">${escapeHtml(data.siteName)}</p>
-                <h1 style="margin:12px 0 0;font-size:24px;font-weight:600;">Payment received</h1>
-                <p style="margin:12px 0 0;font-size:15px;line-height:1.6;color:#a1a1aa;">Your order is confirmed. We'll contact you on Discord to begin.</p>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:8px 28px 20px;">
-                <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(255,255,255,0.06);">
-                  <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Order</td><td style="padding:8px 0;color:#f97316;font-size:14px;font-family:ui-monospace,monospace;text-align:right;">${escapeHtml(data.orderNumber)}</td></tr>
-                  <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Service</td><td style="padding:8px 0;color:#fafafa;font-size:14px;text-align:right;">${escapeHtml(data.serviceName)}</td></tr>
-                  <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Type</td><td style="padding:8px 0;color:#fafafa;font-size:14px;text-align:right;">${escapeHtml(serviceLabel)}</td></tr>
-                  ${detailRow}
-                  <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Paid</td><td style="padding:8px 0;color:#fafafa;font-size:14px;font-family:ui-monospace,monospace;text-align:right;">${escapeHtml(amount)}</td></tr>
-                  <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Discord</td><td style="padding:8px 0;color:#fafafa;font-size:14px;text-align:right;">${escapeHtml(data.customerDiscord)}</td></tr>
-                </table>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:0 28px 28px;">
-                <a href="${escapeHtml(data.trackOrderUrl)}" style="display:inline-block;background:#f97316;color:#0a0a0a;text-decoration:none;font-weight:600;font-size:14px;padding:12px 20px;border-radius:10px;">Track your order</a>
-                <p style="margin:16px 0 0;font-size:12px;line-height:1.6;color:#71717a;">Need help? Reply to this email or contact <a href="mailto:${escapeHtml(data.supportEmail)}" style="color:#f97316;">${escapeHtml(data.supportEmail)}</a></p>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>`;
+  const bodyHtml = `${emailDetailsTable(rows)}
+    <p style="margin:20px 0 0;font-size:13px;line-height:1.65;color:#71717a;">
+      Operators will contact you on Discord to begin. You can also
+      <a href="${escapeHtml(data.accountUrl)}" style="color:#f97316;text-decoration:none;font-weight:500;">sign in to My Orders</a>
+      with this email anytime.
+    </p>`;
+
+  return wrapBrandedEmail({
+    brand,
+    eyebrow: data.siteName,
+    title: "Payment received",
+    intro:
+      "Your order is confirmed and queued for fulfillment. Save this email for your records.",
+    bodyHtml,
+    cta: { label: "Track your order", href: data.trackOrderUrl },
+    footerNote: `Need help? <a href="mailto:${escapeHtml(data.supportEmail)}" style="color:#f97316;text-decoration:none;">${escapeHtml(data.supportEmail)}</a>`,
+  });
 }
 
 export function buildOpsOrderNotificationText(
@@ -131,12 +124,4 @@ export function buildOpsOrderNotificationText(
   ]
     .filter(Boolean)
     .join("\n");
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
 }

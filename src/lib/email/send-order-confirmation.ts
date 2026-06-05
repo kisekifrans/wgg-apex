@@ -55,6 +55,7 @@ export async function sendOrderConfirmationEmail(
     amountCents: input.amountCents,
     currency: input.currency,
     trackOrderUrl: `${siteUrl}/track-order?order=${encodeURIComponent(input.orderNumber)}`,
+    accountUrl: `${siteUrl}/account/login`,
     siteName: siteConfig.name,
     supportEmail: siteConfig.supportEmail,
   };

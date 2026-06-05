@@ -1,3 +1,11 @@
+import { getEmailBrandUrls } from "@/lib/email/templates/brand";
+import {
+  emailDetailsTable,
+  emailProgressBar,
+  escapeHtml,
+  wrapBrandedEmail,
+} from "@/lib/email/templates/layout";
+
 export type OrderStatusUpdateEmailData = {
   orderNumber: string;
   serviceName: string;
@@ -38,38 +46,23 @@ export function buildOrderStatusUpdateText(
 export function buildOrderStatusUpdateHtml(
   data: OrderStatusUpdateEmailData
 ): string {
-  return `<!DOCTYPE html>
-<html lang="en">
-  <body style="margin:0;padding:0;background:#0a0a0a;font-family:Inter,Segoe UI,sans-serif;color:#fafafa;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:32px 16px;">
-      <tr>
-        <td align="center">
-          <table width="100%" style="max-width:520px;background:#141414;border:1px solid rgba(255,255,255,0.08);border-radius:16px;">
-            <tr>
-              <td style="padding:28px;">
-                <p style="margin:0;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#facc15;">${escapeHtml(data.siteName)}</p>
-                <h1 style="margin:12px 0 0;font-size:22px;">Order status updated</h1>
-                <p style="margin:16px 0 0;font-size:15px;line-height:1.6;color:#a1a1aa;">${escapeHtml(data.message)}</p>
-                <table width="100%" style="margin-top:20px;border-top:1px solid rgba(255,255,255,0.06);">
-                  <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Order</td><td style="padding:8px 0;color:#f97316;font-family:monospace;text-align:right;">${escapeHtml(data.orderNumber)}</td></tr>
-                  <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Status</td><td style="padding:8px 0;text-align:right;">${escapeHtml(data.statusLabel)}</td></tr>
-                  <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Progress</td><td style="padding:8px 0;text-align:right;">${data.progressPercent}%</td></tr>
-                </table>
-                <a href="${escapeHtml(data.trackOrderUrl)}" style="display:inline-block;margin-top:24px;background:#f97316;color:#0a0a0a;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:10px;">Track your order</a>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>`;
-}
+  const brand = getEmailBrandUrls();
 
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
+  const bodyHtml = `${emailDetailsTable([
+    { label: "Order", value: data.orderNumber, mono: true },
+    { label: "Service", value: data.serviceName },
+    { label: "Status", value: data.statusLabel },
+  ])}
+  ${emailProgressBar(data.progressPercent)}
+  <p style="margin:18px 0 0;font-size:14px;line-height:1.65;color:#d4d4d8;">${escapeHtml(data.message)}</p>`;
+
+  return wrapBrandedEmail({
+    brand,
+    eyebrow: "Order update",
+    title: `Now ${data.statusLabel}`,
+    intro: `Your ${data.serviceLabel} order has a new status.`,
+    bodyHtml,
+    cta: { label: "Track your order", href: data.trackOrderUrl },
+    footerNote: `Questions? <a href="mailto:${escapeHtml(data.supportEmail)}" style="color:#f97316;text-decoration:none;">${escapeHtml(data.supportEmail)}</a>`,
+  });
 }
