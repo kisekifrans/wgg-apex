@@ -19,6 +19,7 @@ export const footerLinks = {
   company: [
     { label: "Why WGG", href: "#why-wgg" },
     { label: "Process", href: "#process" },
+    { label: "My Orders", href: "/account" },
     { label: "Track Order", href: "/track-order" },
     { label: "FAQ", href: "#faq" },
     { label: "Contact", href: "mailto:support@wggapex.com" },

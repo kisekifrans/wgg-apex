@@ -10,10 +10,9 @@ import { getSupabaseEnv } from "@/lib/supabase/env";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const redirectTo = safeRedirectPath(
-    searchParams.get("redirectTo"),
-    "/admin"
-  );
+  const rawRedirect = searchParams.get("redirectTo");
+  const defaultRedirect = "/account";
+  const redirectTo = safeRedirectPath(rawRedirect, defaultRedirect);
 
   const { url, anonKey, isConfigured } = getSupabaseEnv();
 
@@ -42,10 +41,17 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error && data.user?.email) {
-      if (isAdminEmail(data.user.email)) {
-        await ensureAdminProfileRole(data.user.id, data.user.email);
+      const email = data.user.email;
+      if (isAdminEmail(email)) {
+        await ensureAdminProfileRole(data.user.id, email);
       }
-      return NextResponse.redirect(`${origin}${redirectTo}`);
+
+      const destination =
+        isAdminEmail(email) && (!rawRedirect || rawRedirect === "/account")
+          ? "/admin"
+          : redirectTo;
+
+      return NextResponse.redirect(`${origin}${destination}`);
     }
   }
 

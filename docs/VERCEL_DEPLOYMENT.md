@@ -21,7 +21,9 @@ Add these for **Production** (and **Preview** if you use preview deployments):
 | `RESEND_API_KEY` | [Resend](https://resend.com) → API Keys (order confirmation emails after payment) |
 | `EMAIL_FROM` | Verified sender, e.g. `WGG Apex <orders@wggapex.com>` |
 | `EMAIL_REPLY_TO` | Reply address, e.g. `support@wggapex.com` |
-| `EMAIL_OPS_NOTIFY` | Optional ops inbox for new-order alerts |
+| `EMAIL_OPS_NOTIFY` | Optional ops inbox for new-order and webhook failure alerts |
+| `SENTRY_DSN` | Optional [Sentry](https://sentry.io) server DSN for error monitoring |
+| `NEXT_PUBLIC_SENTRY_DSN` | Optional Sentry client DSN (can match server DSN) |
 | `DISCORD_MARKETPLACE_WEBHOOK_URL` | Discord webhook for marketplace listing embeds (optional) |
 | `DISCORD_WEBHOOK_USERNAME` | Bot display name (optional, default `WGG Apex`) |
 | `DISCORD_PUBLISH_COOLDOWN_SECONDS` | Seconds between republishes per listing (optional, default `300`) |
@@ -63,3 +65,7 @@ Supabase admin client requires NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROL
 **Cause:** Environment variables are missing on Vercel, or the deploy ran before you saved them.
 
 **Fix:** Add the variables in step 1 and redeploy. Public marketing pages only need the `NEXT_PUBLIC_SUPABASE_*` pair; the service role is still required for admin and payments.
+
+## 6. Staging / preview
+
+For a safe test stack (separate Supabase, Stripe test mode, preview webhooks), see [STAGING_ENVIRONMENT.md](./STAGING_ENVIRONMENT.md).

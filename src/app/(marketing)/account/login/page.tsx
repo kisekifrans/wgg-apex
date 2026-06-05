@@ -1,23 +1,15 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-import { TrackOrderForm } from "@/components/orders/track-order-form";
+import { CustomerLoginForm } from "@/components/account/customer-login-form";
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
-  title: "Track Order",
-  description:
-    "Look up your WGG Apex order status with your order number and checkout email.",
+  title: "My Orders — Sign In",
+  description: "Sign in with your checkout email to view all WGG Apex orders.",
 };
 
-type PageProps = {
-  searchParams: Promise<{ order?: string }>;
-};
-
-export default async function TrackOrderPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const initialOrderNumber = params.order?.trim() ?? "";
-
+export default function AccountLoginPage() {
   return (
     <div className="mx-auto max-w-xl px-4 py-12 pb-24 pt-28 sm:px-6 lg:px-8">
       <Button
@@ -32,18 +24,18 @@ export default async function TrackOrderPage({ searchParams }: PageProps) {
 
       <header className="mb-10">
         <p className="text-sm font-medium tracking-wide text-[var(--brand-gold)]">
-          Order tracking
+          Customer account
         </p>
         <h1 className="font-heading mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-          Track Your Order
+          My Orders
         </h1>
         <p className="mt-3 text-muted-foreground">
-          Enter your order number plus the email or Discord username from
-          checkout. We never show orders without both fields matching.
+          Sign in with the email you used at checkout. We will email you a
+          secure link — no password needed.
         </p>
       </header>
 
-      <TrackOrderForm initialOrderNumber={initialOrderNumber} />
+      <CustomerLoginForm />
     </div>
   );
 }

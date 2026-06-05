@@ -5,6 +5,8 @@ import {
   handleChargeRefunded,
   handlePaymentIntentFailed,
 } from "@/lib/stripe/refund-handler";
+import { captureError } from "@/lib/ops/capture-error";
+import { sendOpsAlert } from "@/lib/ops/send-ops-alert";
 import {
   claimWebhookEvent,
   completeWebhookEvent,
@@ -101,6 +103,16 @@ export async function POST(request: Request) {
   } catch (err) {
     const message = err instanceof Error ? err.message : "Webhook handler failed";
     console.error("[stripe webhook]", event.type, message);
+    captureError(err, {
+      tags: { area: "stripe-webhook" },
+      extra: { eventId: event.id, eventType: event.type },
+    });
+    await sendOpsAlert(
+      `Stripe webhook failed: ${event.type}`,
+      [`Event: ${event.id}`, `Type: ${event.type}`, `Error: ${message}`].join(
+        "\n"
+      )
+    );
     await failWebhookEvent(event.id, message);
     return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
   }

@@ -42,6 +42,26 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const isAccountRoute =
+    pathname === "/account" || pathname.startsWith("/account/");
+  const isAccountLogin = pathname === "/account/login";
+
+  if (isAccountRoute && !isAccountLogin) {
+    if (!user) {
+      const loginUrl = new URL("/account/login", request.url);
+      loginUrl.searchParams.set("redirectTo", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  if (isAccountLogin && user) {
+    const redirectTo = safeRedirectPath(
+      request.nextUrl.searchParams.get("redirectTo"),
+      "/account"
+    );
+    return NextResponse.redirect(new URL(redirectTo, request.url));
+  }
+
   if (pathname.startsWith("/admin")) {
     if (!user) {
       const loginUrl = new URL("/login", request.url);
@@ -73,5 +93,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/login"],
+  matcher: ["/admin/:path*", "/login", "/account", "/account/:path*"],
 };
