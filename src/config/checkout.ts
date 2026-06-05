@@ -7,6 +7,7 @@ export const SERVICE_SLUG_TO_CHECKOUT_KIND: Record<string, CheckoutKind> = {
   "badge-boosting": "badge_boost",
   "predator-maintenance": "predator_maintenance",
   "kills-farming": "kills_farming",
+  "mythic-prestige-damage": "mythic_prestige_damage",
   "apex-unban": "unban_service",
   relinking: "relinking_service",
 };

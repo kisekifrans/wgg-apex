@@ -45,6 +45,9 @@ const SLUG_VISUAL: Record<
   "kills-farming": {
     gradient: "from-[#7f1d1d]/25 via-card to-[#0a0a0a]",
   },
+  "mythic-prestige-damage": {
+    gradient: "from-[var(--brand-gold)]/20 via-card to-[#0a0a0a]",
+  },
   "account-marketplace": {
     gradient: "from-[#1c1c1c] via-card to-[#0a0a0a]",
   },

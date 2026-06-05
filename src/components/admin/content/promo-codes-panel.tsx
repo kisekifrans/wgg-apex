@@ -26,6 +26,10 @@ const SERVICE_OPTIONS = [
   { value: "apex-unban", label: "Apex Unban" },
   { value: "relinking", label: "Account Relinking" },
   { value: "kills-farming", label: "Kills Farming" },
+  {
+    value: "mythic-prestige-damage",
+    label: "Mythic Prestige Damage",
+  },
 ];
 
 type PromoCodesPanelProps = {

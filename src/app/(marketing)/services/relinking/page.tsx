@@ -14,7 +14,7 @@ import { formatPriceFromCents } from "@/lib/services/format-price";
 export const metadata = {
   title: "Account Relinking",
   description:
-    "Steam, Xbox, PlayStation, and EA account relinking when platform IDs are already linked. Secure checkout with encrypted credentials.",
+    "Remove a PSN, Xbox, or Steam link from your EA account. Secure checkout with encrypted credentials.",
 };
 
 export default async function RelinkingServicePage() {
@@ -112,9 +112,9 @@ export default async function RelinkingServicePage() {
             <div className="mt-10 flex items-center gap-3 rounded-lg border border-white/5 bg-white/[0.02] px-4 py-3">
               <Link2 className="size-4 shrink-0 text-primary" aria-hidden />
               <div>
-                <p className="text-sm font-medium">Supported platforms</p>
+                <p className="text-sm font-medium">Relinking from</p>
                 <p className="text-xs text-muted-foreground">
-                  EA · PSN · Xbox · Steam
+                  Remove PSN, Xbox, or Steam links
                 </p>
               </div>
             </div>

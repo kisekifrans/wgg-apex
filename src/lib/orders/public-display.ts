@@ -15,6 +15,7 @@ const ORDER_TYPE_LABELS: Record<ServiceOrderType, string> = {
   badge_boost: "Badge order",
   predator_maintenance: "Predator plan",
   kills_farming: "Kills farming",
+  mythic_prestige_damage: "Mythic prestige damage",
   unban_service: "Unban case",
   relinking_service: "Account relinking",
   marketplace: "Marketplace purchase",
@@ -82,6 +83,8 @@ export function getEtaLabel(
     case "predator_maintenance":
       return "RP maintenance";
     case "kills_farming":
+      return "1–5 days";
+    case "mythic_prestige_damage":
       return "1–5 days";
     case "badge_boost":
       return "1–3 days";

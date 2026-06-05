@@ -14,7 +14,12 @@ const SENSITIVE_PREDATOR_KEYS = [
   "eaBackupCode",
 ] as const;
 
-const SENSITIVE_RELINKING_KEYS = ["password", "backupCode"] as const;
+const SENSITIVE_RELINKING_KEYS = [
+  "eaPassword",
+  "eaBackupCode",
+  "password",
+  "backupCode",
+] as const;
 
 function getEncryptionKey(): Buffer | null {
   const raw = process.env.CHECKOUT_PAYLOAD_ENCRYPTION_KEY?.trim();

@@ -17,7 +17,10 @@ import { predatorIntakeSchema } from "@/lib/validations/predator-intake";
 import { unbanIntakeSchema } from "@/lib/validations/unban-intake";
 import { relinkingIntakeSchema } from "@/lib/validations/relinking-intake";
 import { formatPredatorNotes } from "@/types/predator";
-import { formatRelinkingNotes } from "@/types/relinking";
+import {
+  formatRelinkingNotes,
+  formatRelinkingServiceDetail,
+} from "@/types/relinking";
 import { formatUnbanNotes } from "@/types/unban";
 import type { CheckoutFormInput } from "@/types/checkout";
 
@@ -155,10 +158,10 @@ export async function createCheckoutSession(
     const parsed = relinkingIntakeSchema.safeParse({
       customerDiscord: discord,
       platform: input.relinkingDetails?.platform,
-      accountId: input.relinkingDetails?.accountId,
-      email: input.relinkingDetails?.email,
-      password: input.relinkingDetails?.password,
-      backupCode: input.relinkingDetails?.backupCode,
+      eaAccount: input.relinkingDetails?.eaAccount,
+      eaEmail: input.relinkingDetails?.eaEmail,
+      eaPassword: input.relinkingDetails?.eaPassword,
+      eaBackupCode: input.relinkingDetails?.eaBackupCode,
     });
 
     if (!parsed.success) {
@@ -170,12 +173,12 @@ export async function createCheckoutSession(
 
     relinkingDetails = {
       platform: parsed.data.platform,
-      accountId: parsed.data.accountId,
-      email: parsed.data.email,
-      password: parsed.data.password,
-      backupCode: parsed.data.backupCode,
+      eaAccount: parsed.data.eaAccount,
+      eaEmail: parsed.data.eaEmail,
+      eaPassword: parsed.data.eaPassword,
+      eaBackupCode: parsed.data.eaBackupCode,
     };
-    customerEmail = parsed.data.email;
+    customerEmail = parsed.data.eaEmail;
     notes = formatRelinkingNotes(relinkingDetails, discord);
   }
 
@@ -232,7 +235,10 @@ export async function createCheckoutSession(
       current_rank: input.currentRank?.trim() || null,
       target_rank: input.targetRank?.trim() || null,
       notes,
-      service_detail: quote.serviceDetail,
+      service_detail:
+        serviceSlug === "relinking" && relinkingDetails
+          ? formatRelinkingServiceDetail(relinkingDetails)
+          : quote.serviceDetail,
       line_item_name: quote.lineItemName,
       promo_code_id: quote.promoCodeId ?? null,
       discount_cents: quote.discountCents ?? 0,

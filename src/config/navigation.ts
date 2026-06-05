@@ -14,6 +14,10 @@ export const footerLinks = {
     { label: "Duo Ranked Boost", href: "#self-play-boosting" },
     { label: "Badge Boosting", href: "#badges" },
     { label: "Kills Farming", href: "/checkout/kills-farming" },
+    {
+      label: "Mythic Prestige Damage",
+      href: "/checkout/mythic-prestige-damage",
+    },
     { label: "Unban Service", href: "/services/apex-unban" },
     { label: "Account Marketplace", href: "/marketplace" },
   ],

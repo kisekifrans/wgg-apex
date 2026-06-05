@@ -18,6 +18,7 @@ export const serviceArtworkBySlug: Record<string, string> = {
   "account-marketplace": "/heroes/thumbnail4.jpg",
   "apex-unban": "/heroes/thumbnail5.png",
   "kills-farming": "/heroes/thumbnail8.jpg",
+  "mythic-prestige-damage": "/heroes/thumbnail8.jpg",
   relinking: "/heroes/thumbnail4.jpg",
 };
 
@@ -38,11 +39,15 @@ export function getServiceArtworkPath(
 
 /** Catalog pricing item name → badge image (homepage badge grid, checkout later). */
 export const badgeAssetsByCatalogName: Record<string, string> = {
-  "4K Damage + 20 Kills Bundle": "/badges/4kdamage.png",
   "20 Kill Badge": "/badges/20kill.png",
   "4000 Damage Badge": "/badges/4kdamage.png",
   "10-10-10 Teamwork Badge": "/badges/101010.jpg",
   "5 Win Streak Badge": "/badges/5streak.jpg",
+};
+
+/** Multi-icon badges (e.g. bundle shows both achievement art). */
+export const badgeAssetsMultiByCatalogName: Record<string, string[]> = {
+  "4K Damage + 20 Kills Bundle": ["/badges/4kdamage.png", "/badges/20kill.png"],
 };
 
 /** Ranked boost tier names from `service_pricing_items.name`. */
@@ -80,6 +85,14 @@ export function getRankAssetPath(tierOrLabel: string): string | undefined {
   return rankAssetsByTierName[tier];
 }
 
+export function getBadgeAssetPaths(catalogName: string): string[] {
+  const multi = badgeAssetsMultiByCatalogName[catalogName];
+  if (multi?.length) return multi;
+
+  const single = badgeAssetsByCatalogName[catalogName];
+  return single ? [single] : [];
+}
+
 export function getBadgeAssetPath(catalogName: string): string | undefined {
-  return badgeAssetsByCatalogName[catalogName];
+  return getBadgeAssetPaths(catalogName)[0];
 }

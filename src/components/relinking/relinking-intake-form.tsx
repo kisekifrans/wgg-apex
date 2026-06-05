@@ -11,15 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { relinkingServiceNotices } from "@/config/relinking-service";
 import { formatPriceFromCents } from "@/lib/services/format-price";
-import type { RelinkingPlatform } from "@/types/relinking";
+import {
+  RELINKING_PLATFORM_LABELS,
+  type RelinkingPlatform,
+} from "@/types/relinking";
 import type { CatalogPricingItem, CatalogService } from "@/types/services";
 
-const PLATFORM_OPTIONS: { value: RelinkingPlatform; label: string }[] = [
-  { value: "ea", label: "EA" },
-  { value: "psn", label: "PSN (PlayStation)" },
-  { value: "xbox", label: "Xbox" },
-  { value: "steam", label: "Steam" },
-];
+const PLATFORM_OPTIONS: RelinkingPlatform[] = ["psn", "xbox", "steam"];
 
 type RelinkingIntakeFormProps = {
   service: CatalogService;
@@ -52,10 +50,10 @@ export function RelinkingIntakeForm({
       pricingItemId: pricingItem.id,
       relinkingDetails: {
         platform,
-        accountId: String(formData.get("accountId") ?? ""),
-        email: String(formData.get("email") ?? ""),
-        password: String(formData.get("password") ?? ""),
-        backupCode: String(formData.get("backupCode") ?? ""),
+        eaAccount: String(formData.get("eaAccount") ?? ""),
+        eaEmail: String(formData.get("eaEmail") ?? ""),
+        eaPassword: String(formData.get("eaPassword") ?? ""),
+        eaBackupCode: String(formData.get("eaBackupCode") ?? ""),
       },
     });
 
@@ -73,8 +71,9 @@ export function RelinkingIntakeForm({
       <section className="rounded-2xl border border-white/5 bg-card/40 p-6 sm:p-8">
         <h2 className="font-heading text-lg font-semibold">Your details</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Password and backup code are encrypted before storage and visible only
-          to assigned WGG operators.
+          We remove the selected platform link from your EA account. Password and
+          backup code are encrypted before storage and visible only to assigned
+          WGG operators.
         </p>
 
         <div className="mt-6 grid gap-5 sm:grid-cols-2">
@@ -90,58 +89,35 @@ export function RelinkingIntakeForm({
           </div>
 
           <div className="space-y-2 sm:col-span-2">
-            <Label>Platform *</Label>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {PLATFORM_OPTIONS.map((opt) => (
-                <label
-                  key={opt.value}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-white/10 bg-background/30 px-4 py-3 has-checked:border-primary/40 has-checked:bg-primary/5"
-                >
-                  <input
-                    type="radio"
-                    name="platform"
-                    value={opt.value}
-                    checked={platform === opt.value}
-                    onChange={() => setPlatform(opt.value)}
-                    className="accent-primary"
-                    required
-                  />
-                  <span className="text-sm font-medium">{opt.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="accountId">Account ID *</Label>
+            <Label htmlFor="eaAccount">EA account *</Label>
             <Input
-              id="accountId"
-              name="accountId"
+              id="eaAccount"
+              name="eaAccount"
               required
               autoComplete="off"
-              placeholder="EA ID, PSN online ID, Xbox gamertag, or Steam ID"
+              placeholder="Your EA ID or username"
               className="border-white/10 bg-background/50"
             />
           </div>
 
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="email">Account email *</Label>
+            <Label htmlFor="eaEmail">EA email *</Label>
             <Input
-              id="email"
-              name="email"
+              id="eaEmail"
+              name="eaEmail"
               type="email"
               required
               autoComplete="email"
-              placeholder="Email on the platform or EA account"
+              placeholder="Email on your EA account"
               className="border-white/10 bg-background/50"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password *</Label>
+            <Label htmlFor="eaPassword">EA password *</Label>
             <Input
-              id="password"
-              name="password"
+              id="eaPassword"
+              name="eaPassword"
               type="password"
               required
               autoComplete="current-password"
@@ -150,15 +126,44 @@ export function RelinkingIntakeForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="backupCode">Backup code *</Label>
+            <Label htmlFor="eaBackupCode">EA backup code *</Label>
             <Input
-              id="backupCode"
-              name="backupCode"
+              id="eaBackupCode"
+              name="eaBackupCode"
               required
               autoComplete="off"
-              placeholder="Platform or EA backup / 2FA code"
+              placeholder="EA backup / 2FA code"
               className="border-white/10 bg-background/50 font-mono text-sm"
             />
+          </div>
+
+          <div className="space-y-2 sm:col-span-2">
+            <Label>Relinking from *</Label>
+            <p className="text-xs text-muted-foreground">
+              Which PSN, Xbox, or Steam link should we remove from your EA
+              account?
+            </p>
+            <div className="grid gap-2 sm:grid-cols-3">
+              {PLATFORM_OPTIONS.map((value) => (
+                <label
+                  key={value}
+                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-white/10 bg-background/30 px-4 py-3 has-checked:border-primary/40 has-checked:bg-primary/5"
+                >
+                  <input
+                    type="radio"
+                    name="platform"
+                    value={value}
+                    checked={platform === value}
+                    onChange={() => setPlatform(value)}
+                    className="accent-primary"
+                    required
+                  />
+                  <span className="text-sm font-medium">
+                    {RELINKING_PLATFORM_LABELS[value]}
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
         </div>
 

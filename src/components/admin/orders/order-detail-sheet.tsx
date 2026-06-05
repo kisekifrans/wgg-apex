@@ -224,51 +224,68 @@ export function OrderDetailSheet({
                       Relinking credentials
                     </h3>
                     <dl className="space-y-2 rounded-xl border border-white/5 bg-card/40 p-4 text-sm">
-                      {order.metadata.relinking.platform && (
+                      {(order.metadata.relinking.platform ||
+                        order.metadata.relinking.currentPlatform ||
+                        order.metadata.relinking.targetPlatform) && (
                         <div>
                           <dt className="text-xs text-muted-foreground">
-                            Platform
+                            Relinking from
                           </dt>
                           <dd className="font-medium uppercase">
-                            {order.metadata.relinking.platform}
+                            {order.metadata.relinking.platform ??
+                              (order.metadata.relinking.currentPlatform &&
+                              order.metadata.relinking.targetPlatform
+                                ? `${order.metadata.relinking.currentPlatform} → ${order.metadata.relinking.targetPlatform}`
+                                : order.metadata.relinking.currentPlatform ??
+                                  order.metadata.relinking.targetPlatform)}
                           </dd>
                         </div>
                       )}
-                      {order.metadata.relinking.accountId && (
+                      {(order.metadata.relinking.eaAccount ||
+                        order.metadata.relinking.accountId) && (
                         <div>
                           <dt className="text-xs text-muted-foreground">
-                            Account ID
+                            EA account
                           </dt>
                           <dd className="font-medium">
-                            {order.metadata.relinking.accountId}
+                            {order.metadata.relinking.eaAccount ??
+                              order.metadata.relinking.accountId}
                           </dd>
                         </div>
                       )}
-                      {order.metadata.relinking.email && (
+                      {(order.metadata.relinking.eaEmail ||
+                        order.metadata.relinking.email) && (
                         <div>
                           <dt className="text-xs text-muted-foreground">
-                            Email
+                            EA email
                           </dt>
-                          <dd>{order.metadata.relinking.email}</dd>
-                        </div>
-                      )}
-                      {order.metadata.relinking.password && (
-                        <div>
-                          <dt className="text-xs text-muted-foreground">
-                            Password
-                          </dt>
-                          <dd className="font-mono text-xs">
-                            {order.metadata.relinking.password}
+                          <dd>
+                            {order.metadata.relinking.eaEmail ??
+                              order.metadata.relinking.email}
                           </dd>
                         </div>
                       )}
-                      {order.metadata.relinking.backupCode && (
+                      {(order.metadata.relinking.eaPassword ||
+                        order.metadata.relinking.password) && (
                         <div>
                           <dt className="text-xs text-muted-foreground">
-                            Backup code
+                            EA password
                           </dt>
                           <dd className="font-mono text-xs">
-                            {order.metadata.relinking.backupCode}
+                            {order.metadata.relinking.eaPassword ??
+                              order.metadata.relinking.password}
+                          </dd>
+                        </div>
+                      )}
+                      {(order.metadata.relinking.eaBackupCode ||
+                        order.metadata.relinking.backupCode) && (
+                        <div>
+                          <dt className="text-xs text-muted-foreground">
+                            EA backup code
+                          </dt>
+                          <dd className="font-mono text-xs">
+                            {order.metadata.relinking.eaBackupCode ??
+                              order.metadata.relinking.backupCode}
                           </dd>
                         </div>
                       )}

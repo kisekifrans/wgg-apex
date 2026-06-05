@@ -4,6 +4,7 @@ export const SERVICE_ORDER_TYPES = [
   "badge_boost",
   "predator_maintenance",
   "kills_farming",
+  "mythic_prestige_damage",
   "unban_service",
   "relinking_service",
   "marketplace",
@@ -49,6 +50,13 @@ export type ServiceOrderMetadata = {
   } | null;
   relinking?: {
     platform?: string | null;
+    eaAccount?: string | null;
+    eaEmail?: string | null;
+    eaPassword?: string | null;
+    eaBackupCode?: string | null;
+    /** @deprecated Legacy intake shape */
+    currentPlatform?: string | null;
+    targetPlatform?: string | null;
     accountId?: string | null;
     email?: string | null;
     password?: string | null;
