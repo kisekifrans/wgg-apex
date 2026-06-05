@@ -68,14 +68,31 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
         </p>
       )}
       <div className="mt-8 flex flex-col gap-2 sm:flex-row sm:justify-center">
+        {orderNumber ? (
+          <Button
+            className="bg-primary text-primary-foreground"
+            render={
+              <Link
+                href={`/track-order?order=${encodeURIComponent(orderNumber)}`}
+              />
+            }
+          >
+            Track Order
+          </Button>
+        ) : (
+          <Button
+            className="bg-primary text-primary-foreground"
+            render={<Link href="/track-order" />}
+          >
+            Track Order
+          </Button>
+        )}
         <Button
-          className="bg-primary text-primary-foreground"
+          variant="outline"
+          className="border-white/10"
           render={<Link href="/" />}
         >
           Back to home
-        </Button>
-        <Button variant="outline" className="border-white/10" render={<Link href="/marketplace" />}>
-          Marketplace
         </Button>
       </div>
     </div>

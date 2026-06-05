@@ -13,6 +13,7 @@ import { HeroBrandVisual } from "@/components/marketing/hero-brand-visual";
 import { HeroOrderPreview } from "@/components/marketing/hero-order-preview";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
+import type { HeroOrderPreviewData } from "@/types/public-order";
 
 const trustSignals = [
   { icon: Shield, label: "Every order verified" },
@@ -20,7 +21,11 @@ const trustSignals = [
   { icon: CheckCircle2, label: "Live order tracking" },
 ];
 
-export function HeroSection() {
+type HeroSectionProps = {
+  orderPreview: HeroOrderPreviewData;
+};
+
+export function HeroSection({ orderPreview }: HeroSectionProps) {
   const prefersReducedMotion = useReducedMotion();
 
   return (
@@ -90,7 +95,7 @@ export function HeroSection() {
         <div className="relative min-h-[280px] lg:min-h-[320px] lg:pl-4">
           <HeroBrandVisual />
           <div className="relative z-10">
-            <HeroOrderPreview />
+            <HeroOrderPreview preview={orderPreview} />
           </div>
         </div>
       </div>

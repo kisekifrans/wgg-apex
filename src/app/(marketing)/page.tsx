@@ -6,6 +6,11 @@ import { FaqSection } from "@/components/marketing/faq-section";
 import { FeaturedAccountsSection } from "@/components/marketing/featured-accounts-section";
 import { HeroSection } from "@/components/marketing/hero-section";
 import { RankPricingSection } from "@/components/marketing/rank-pricing-section";
+import { getRecentPublicHeroOrder } from "@/lib/db/public-orders";
+import {
+  HERO_ORDER_PREVIEW_FALLBACK,
+  toHeroOrderPreview,
+} from "@/lib/orders/public-display";
 import { ServicesOverviewSection } from "@/components/marketing/services-overview-section";
 import { UnbanServiceSection } from "@/components/marketing/unban-service-section";
 import { WhyChooseSection } from "@/components/marketing/why-choose-section";
@@ -21,9 +26,19 @@ export default async function HomePage() {
     catalog = null;
   }
 
+  let orderPreview = HERO_ORDER_PREVIEW_FALLBACK;
+  try {
+    const recentOrder = await getRecentPublicHeroOrder();
+    if (recentOrder) {
+      orderPreview = toHeroOrderPreview(recentOrder);
+    }
+  } catch {
+    orderPreview = HERO_ORDER_PREVIEW_FALLBACK;
+  }
+
   return (
     <>
-      <HeroSection />
+      <HeroSection orderPreview={orderPreview} />
       <WhyChooseSection />
       {catalog ? (
         <>
