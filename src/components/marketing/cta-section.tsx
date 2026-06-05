@@ -36,9 +36,9 @@ export function CtaSection() {
             size="lg"
             variant="outline"
             className="h-11 min-w-[220px] border-white/10"
-            render={<Link href="/login" />}
+            render={<Link href="/account/login" />}
           >
-            Sign In to Dashboard
+            Sign In to My Orders
           </Button>
         </div>
       </div>

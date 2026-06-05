@@ -95,10 +95,6 @@ export function CustomerLoginForm() {
         <Link href="/track-order" className="text-primary hover:underline">
           Track a single order
         </Link>
-        {" · "}
-        <Link href="/login" className="text-muted-foreground hover:text-primary hover:underline">
-          Admin sign in
-        </Link>
       </p>
     </form>
   );
