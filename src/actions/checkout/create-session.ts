@@ -302,8 +302,11 @@ export async function createCheckoutSession(
       await releaseMarketplaceListingReservation(quote.marketplaceListingId);
     }
 
-    const message =
+    const raw =
       e instanceof Error ? e.message : "Failed to create checkout session";
-    return { success: false, error: message };
+    const error = raw.includes("PayPal auth failed")
+      ? "Payments are temporarily unavailable. Please try again shortly or contact support."
+      : raw;
+    return { success: false, error };
   }
 }

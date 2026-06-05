@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Clock3 } from "lucide-react";
 
 import { captureAndFulfillPayPalOrder } from "@/actions/checkout/capture-paypal-order";
 import { Button } from "@/components/ui/button";
+import { siteConfig } from "@/config/site";
 import { getCheckoutByPayPalOrderId } from "@/lib/db/checkout";
 import { formatPriceFromCents } from "@/lib/services/format-price";
 
@@ -10,26 +11,26 @@ type PageProps = {
   searchParams: Promise<{ token?: string }>;
 };
 
+type SuccessState = "completed" | "pending" | "missing_token";
+
 export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
   const { token } = await searchParams;
 
   let orderNumber: string | null = null;
   let amountCents: number | null = null;
-  let pending = false;
+  let state: SuccessState = "missing_token";
 
-  if (token) {
+  if (token?.trim()) {
+    state = "pending";
+
     try {
-      if (token) {
-        try {
-          await captureAndFulfillPayPalOrder(token);
-        } catch {
-          pending = true;
-        }
+      try {
+        await captureAndFulfillPayPalOrder(token);
+      } catch (err) {
+        console.error("[checkout/success] PayPal capture failed:", err);
       }
 
-      const checkout = token
-        ? await getCheckoutByPayPalOrderId(token)
-        : null;
+      const checkout = await getCheckoutByPayPalOrderId(token);
 
       if (checkout) {
         amountCents = checkout.amount_cents;
@@ -43,34 +44,84 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
           orderNumber = order?.order_number ?? null;
         }
 
-        if (checkout.status === "pending") {
-          pending = true;
+        if (checkout.status === "completed" && orderNumber) {
+          state = "completed";
         }
       }
-    } catch {
-      pending = true;
+    } catch (err) {
+      console.error("[checkout/success] Fulfillment lookup failed:", err);
+      state = "pending";
     }
   }
 
+  const isCompleted = state === "completed";
+  const isPending = state === "pending";
+
   return (
     <div className="mx-auto max-w-lg px-4 py-20 text-center sm:px-6">
-      <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-emerald-500/10">
-        <CheckCircle2 className="size-8 text-emerald-400" aria-hidden />
+      <div
+        className={`mx-auto flex size-16 items-center justify-center rounded-full ${
+          isCompleted
+            ? "bg-emerald-500/10"
+            : isPending
+              ? "bg-amber-500/10"
+              : "bg-white/5"
+        }`}
+      >
+        {isCompleted ? (
+          <CheckCircle2 className="size-8 text-emerald-400" aria-hidden />
+        ) : (
+          <Clock3
+            className={`size-8 ${isPending ? "text-amber-400" : "text-muted-foreground"}`}
+            aria-hidden
+          />
+        )}
       </div>
+
       <h1 className="font-heading mt-6 text-3xl font-semibold tracking-tight">
-        Payment received
+        {isCompleted
+          ? "Payment received"
+          : isPending
+            ? "Confirming your payment"
+            : "Checkout incomplete"}
       </h1>
-      {pending ? (
-        <p className="mt-3 text-muted-foreground">
-          We are confirming your payment. Your order will appear in our system
-          within a minute.
-        </p>
-      ) : (
+
+      {isCompleted ? (
         <p className="mt-3 text-muted-foreground">
           Thank you. A confirmation email is on its way. Our operators will
           reach out on Discord to begin fulfillment.
         </p>
+      ) : isPending ? (
+        <div className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
+          <p>
+            You approved payment on PayPal, but we have not finished capturing it
+            yet. Your PayPal balance should not change until capture completes.
+          </p>
+          <p>
+            This usually resolves within a minute. If it does not, contact{" "}
+            <a
+              href={`mailto:${siteConfig.supportEmail}`}
+              className="font-medium text-primary hover:underline"
+            >
+              {siteConfig.supportEmail}
+            </a>{" "}
+            with your Discord username and checkout time.
+          </p>
+        </div>
+      ) : (
+        <p className="mt-3 text-muted-foreground">
+          We could not find a PayPal payment reference. Return to checkout and
+          try again, or contact{" "}
+          <a
+            href={`mailto:${siteConfig.supportEmail}`}
+            className="font-medium text-primary hover:underline"
+          >
+            {siteConfig.supportEmail}
+          </a>
+          .
+        </p>
       )}
+
       {orderNumber && (
         <p className="mt-4 font-mono text-sm text-primary">{orderNumber}</p>
       )}
@@ -79,6 +130,7 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
           {formatPriceFromCents(amountCents)}
         </p>
       )}
+
       <div className="mt-8 flex flex-col gap-2 sm:flex-row sm:justify-center">
         {orderNumber ? (
           <Button
