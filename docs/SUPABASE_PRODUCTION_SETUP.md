@@ -87,17 +87,16 @@ In **Database → Tables**, confirm **RLS enabled** on:
 
 Bucket `marketplace-listings` (or as configured): restrict uploads to authenticated admins via policies; keep `allowed_mime_types` aligned with `src/lib/marketplace/storage.ts`.
 
-## 7. Stripe webhook events
+## 7. PayPal webhook (production)
 
-In **Stripe Dashboard → Webhooks**, subscribe the production endpoint to:
+In **PayPal Developer → Live**, create webhook:
 
-- `checkout.session.completed`
-- `checkout.session.expired`
-- `charge.refunded`
-- `payment_intent.payment_failed`
+`https://www.wggapex.com/api/webhooks/paypal`
 
-Use the **live** signing secret as `STRIPE_WEBHOOK_SECRET` in production.
+Subscribe to: `PAYMENT.CAPTURE.COMPLETED`, `PAYMENT.CAPTURE.REFUNDED`, `PAYMENT.CAPTURE.REVERSED`, `CHECKOUT.ORDER.VOIDED`, `CHECKOUT.ORDER.CANCELLED`.
+
+Copy the webhook ID (`WH-...`) into `PAYPAL_WEBHOOK_ID` on Vercel Production.
 
 ---
 
-See also: [PRODUCTION_SECURITY_AUDIT.md](./PRODUCTION_SECURITY_AUDIT.md)
+See also: [GO_LIVE.md](./GO_LIVE.md), [PRODUCTION_SECURITY_AUDIT.md](./PRODUCTION_SECURITY_AUDIT.md)

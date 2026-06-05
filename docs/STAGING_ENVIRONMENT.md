@@ -8,7 +8,7 @@ Use a separate staging stack to test checkout, webhooks, and emails without touc
 |-------|------------|---------|
 | **App** | `www.wggapex.com` (Vercel Production) | Vercel Preview or dedicated `staging.wggapex.com` branch deploy |
 | **Supabase** | Production project | Separate Supabase project (free tier is fine) |
-| **Stripe** | Live mode keys | **Test mode** keys only |
+| **PayPal** | Live mode (`PAYPAL_MODE=live`) | **Sandbox** credentials only |
 | **Resend** | Verified `wggapex.com` domain | Same API key; send test emails to your inbox |
 | **Sentry** | Production DSN | Separate Sentry project or `environment: preview` |
 
@@ -30,9 +30,11 @@ NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
 
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...   # from stripe listen or Dashboard test webhook
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+PAYPAL_CLIENT_ID=...              # Sandbox app
+PAYPAL_CLIENT_SECRET=...
+PAYPAL_WEBHOOK_ID=WH-...          # Sandbox webhook ID
+PAYPAL_MODE=sandbox
+CHECKOUT_PAYLOAD_ENCRYPTION_KEY=...  # openssl rand -base64 32
 
 RESEND_API_KEY=re_...
 EMAIL_FROM="WGG Apex <orders@wggapex.com>"
@@ -48,24 +50,19 @@ NEXT_PUBLIC_SENTRY_DSN=https://...@sentry.io/...
 
 Redeploy preview after saving.
 
-## 3. Stripe test webhooks (local or preview)
+## 3. PayPal sandbox webhooks (local or preview)
 
-**Local:**
+**Sandbox Developer Dashboard:**
 
-```bash
-stripe listen --forward-to localhost:3000/api/webhooks/stripe
-```
+1. Toggle **Sandbox** mode at [developer.paypal.com](https://developer.paypal.com).
+2. Create a sandbox app → copy Client ID + Secret.
+3. Add webhook URL:
+   - Local (via tunnel): `https://your-tunnel.ngrok.io/api/webhooks/paypal`
+   - Preview: `https://your-preview-url.vercel.app/api/webhooks/paypal`
+4. Events: `PAYMENT.CAPTURE.COMPLETED`, `PAYMENT.CAPTURE.REFUNDED`, `PAYMENT.CAPTURE.REVERSED`, `CHECKOUT.ORDER.VOIDED`, `CHECKOUT.ORDER.CANCELLED`
+5. Copy webhook ID (`WH-...`) into `PAYPAL_WEBHOOK_ID`.
 
-Copy the signing secret into `STRIPE_WEBHOOK_SECRET` in `.env.local`.
-
-**Preview deploy:**
-
-1. Stripe Dashboard → Developers → Webhooks → Add endpoint.
-2. URL: `https://your-preview-url.vercel.app/api/webhooks/stripe`
-3. Events: `checkout.session.completed`, `checkout.session.expired`, `charge.refunded`, `payment_intent.payment_failed`.
-4. Use the endpoint signing secret as `STRIPE_WEBHOOK_SECRET` for Preview.
-
-Test card: `4242 4242 4242 4242`.
+Use PayPal sandbox buyer accounts for test payments.
 
 ## 4. Customer magic-link sign-in (Supabase)
 
@@ -81,7 +78,7 @@ For `/account` magic links to work:
 ## 5. Smoke test checklist
 
 - [ ] Homepage loads from DB (services, marketplace)
-- [ ] Ranked checkout shows live quote → Stripe test pay → order in `/admin/orders`
+- [ ] Ranked checkout shows live quote → PayPal sandbox pay → order in `/admin/orders`
 - [ ] Webhook returns 200; confirmation email received
 - [ ] `/track-order` works with email **and** Discord toggle
 - [ ] `/account/login` magic link → `/account` lists orders for that email
@@ -90,11 +87,12 @@ For `/account` magic links to work:
 
 ## 6. Never mix environments
 
-- Do not point staging `NEXT_PUBLIC_SITE_URL` at production domain while using test Stripe.
+- Do not point staging `NEXT_PUBLIC_SITE_URL` at production domain while using PayPal sandbox.
 - Do not use production `SUPABASE_SERVICE_ROLE_KEY` in Preview.
-- Keep `STRIPE_SECRET_KEY` live keys **Production-only** in Vercel.
+- Keep `PAYPAL_MODE=live` and live PayPal credentials **Production-only** in Vercel.
 
 ## Related docs
 
+- [GO_LIVE.md](./GO_LIVE.md) — production go-live checklist
 - [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) — production env vars
 - [PRODUCTION_SECURITY_AUDIT.md](./PRODUCTION_SECURITY_AUDIT.md) — security checklist

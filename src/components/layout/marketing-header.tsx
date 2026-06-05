@@ -24,7 +24,12 @@ export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileState, setMobileState] = useState<{
+    open: boolean;
+    path: string;
+  }>({ open: false, path: pathname });
+  const mobileOpen =
+    mobileState.open && mobileState.path === pathname;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -39,10 +44,6 @@ export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
       document.body.style.overflow = "";
     };
   }, [mobileOpen]);
-
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
 
   const showSolidHeader = scrolled || !isHome || mobileOpen;
 
@@ -93,7 +94,12 @@ export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
           className="inline-flex size-10 items-center justify-center rounded-lg border border-white/10 text-foreground md:hidden"
           aria-expanded={mobileOpen}
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          onClick={() => setMobileOpen((o) => !o)}
+          onClick={() =>
+            setMobileState((state) => ({
+              open: state.path === pathname ? !state.open : true,
+              path: pathname,
+            }))
+          }
         >
           {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
         </button>
@@ -110,7 +116,7 @@ export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
                 key={item.href}
                 href={item.href}
                 className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground hover:bg-white/5 hover:text-foreground"
-                onClick={() => setMobileOpen(false)}
+                onClick={() => setMobileState({ open: false, path: pathname })}
               >
                 {item.label}
               </MarketingNavLink>
@@ -128,7 +134,7 @@ export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
               <MarketingNavLink
                 href="#services"
                 className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium text-primary-foreground"
-                onClick={() => setMobileOpen(false)}
+                onClick={() => setMobileState({ open: false, path: pathname })}
               >
                 Get Started
               </MarketingNavLink>

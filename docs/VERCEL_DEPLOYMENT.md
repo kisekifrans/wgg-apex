@@ -14,9 +14,11 @@ Add these for **Production** (and **Preview** if you use preview deployments):
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → **Project Settings → API → Project URL** |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → **API → anon public** |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase → **API → service_role** (server only, never expose in the browser) |
-| `STRIPE_SECRET_KEY` | Stripe → **Developers → API keys** (use live key in production) |
-| `STRIPE_WEBHOOK_SECRET` | Stripe → **Webhooks → signing secret** for your production endpoint |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe → publishable key (optional for Checkout redirect flow) |
+| `PAYPAL_CLIENT_ID` | PayPal Developer → **Live** app Client ID |
+| `PAYPAL_CLIENT_SECRET` | PayPal Developer → **Live** app Secret |
+| `PAYPAL_WEBHOOK_ID` | PayPal Developer → Live webhook ID (`WH-...`) |
+| `PAYPAL_MODE` | `live` in Production; `sandbox` locally |
+| `CHECKOUT_PAYLOAD_ENCRYPTION_KEY` | `openssl rand -base64 32` (encrypts predator credentials) |
 | `ADMIN_EMAILS` | Comma-separated admin emails (optional bootstrap until `profiles.role = admin`) |
 | `RESEND_API_KEY` | [Resend](https://resend.com) → API Keys (order confirmation emails after payment) |
 | `EMAIL_FROM` | Verified sender, e.g. `WGG Apex <orders@wggapex.com>` |
@@ -25,13 +27,16 @@ Add these for **Production** (and **Preview** if you use preview deployments):
 | `SENTRY_DSN` | Optional [Sentry](https://sentry.io) server DSN for error monitoring |
 | `NEXT_PUBLIC_SENTRY_DSN` | Optional Sentry client DSN (can match server DSN) |
 | `DISCORD_MARKETPLACE_WEBHOOK_URL` | Discord webhook for marketplace listing embeds (optional) |
+| `DISCORD_MARKETPLACE_SOLD_WEBHOOK_URL` | Discord webhook for SOLD notifications (optional) |
 | `DISCORD_WEBHOOK_USERNAME` | Bot display name (optional, default `WGG Apex`) |
 | `DISCORD_PUBLISH_COOLDOWN_SECONDS` | Seconds between republishes per listing (optional, default `300`) |
 
 Copy values from your local `.env.local` (same Supabase project you use in development).
 
 **Required for a successful build:** at minimum `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.  
-**Required for admin, checkout, and webhooks:** `SUPABASE_SERVICE_ROLE_KEY` and Stripe variables.
+**Required for admin, checkout, and webhooks:** `SUPABASE_SERVICE_ROLE_KEY`, PayPal variables, and `CHECKOUT_PAYLOAD_ENCRYPTION_KEY` (production).
+
+See [GO_LIVE.md](./GO_LIVE.md) for the full production checklist.
 
 After adding variables, **redeploy** (Deployments → … → Redeploy).
 
@@ -48,13 +53,13 @@ See [SUPABASE_PRODUCTION_SETUP.md](./SUPABASE_PRODUCTION_SETUP.md).
 
 Apply all files under `supabase/migrations/` to your Supabase project (SQL Editor or `supabase db push`).
 
-## 4. Stripe webhook (production)
+## 4. PayPal webhook (production)
 
-Create a webhook endpoint:
+In PayPal Developer (**Live** mode), create a webhook:
 
-`https://your-domain.com/api/webhooks/stripe`
+`https://www.wggapex.com/api/webhooks/paypal`
 
-Subscribe to: `checkout.session.completed`, `checkout.session.expired`, `charge.refunded`, `payment_intent.payment_failed`.
+Subscribe to: `PAYMENT.CAPTURE.COMPLETED`, `PAYMENT.CAPTURE.REFUNDED`, `PAYMENT.CAPTURE.REVERSED`, `CHECKOUT.ORDER.VOIDED`, `CHECKOUT.ORDER.CANCELLED`.
 
 ## 5. Common build error
 
@@ -68,4 +73,4 @@ Supabase admin client requires NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROL
 
 ## 6. Staging / preview
 
-For a safe test stack (separate Supabase, Stripe test mode, preview webhooks), see [STAGING_ENVIRONMENT.md](./STAGING_ENVIRONMENT.md).
+For a safe test stack (separate Supabase, PayPal sandbox, preview webhooks), see [STAGING_ENVIRONMENT.md](./STAGING_ENVIRONMENT.md).

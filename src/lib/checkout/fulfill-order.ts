@@ -1,5 +1,6 @@
 import "server-only";
 
+import { sendMarketplaceSoldNotification } from "@/lib/discord/notify-marketplace-sold";
 import { sendOrderConfirmationEmail } from "@/lib/email/send-order-confirmation";
 import { generateOrderNumber } from "@/lib/orders/order-number";
 import { progressPercentForStatus } from "@/lib/orders/progress";
@@ -31,6 +32,29 @@ export async function fulfillCheckoutAsOrder(
   checkout: CheckoutRow
 ): Promise<{ orderId: string; orderNumber: string }> {
   const supabase = createAdminClient();
+
+  const { data: existingOrder } = await supabase
+    .from("service_orders")
+    .select("id, order_number")
+    .eq("stripe_checkout_id", checkout.id)
+    .maybeSingle();
+
+  if (existingOrder) {
+    await supabase
+      .from("stripe_checkouts")
+      .update({
+        status: "completed",
+        service_order_id: existingOrder.id,
+        completed_at: new Date().toISOString(),
+      })
+      .eq("id", checkout.id);
+
+    return {
+      orderId: existingOrder.id,
+      orderNumber: existingOrder.order_number,
+    };
+  }
+
   const orderNumber = await generateOrderNumber();
 
   const { data: order, error } = await supabase
@@ -60,8 +84,36 @@ export async function fulfillCheckoutAsOrder(
     .select("id, order_number")
     .single();
 
-  if (error || !order) {
-    throw new Error(error?.message ?? "Failed to create order");
+  if (error) {
+    if (error.code === "23505") {
+      const { data: racedOrder } = await supabase
+        .from("service_orders")
+        .select("id, order_number")
+        .eq("stripe_checkout_id", checkout.id)
+        .maybeSingle();
+
+      if (racedOrder) {
+        await supabase
+          .from("stripe_checkouts")
+          .update({
+            status: "completed",
+            service_order_id: racedOrder.id,
+            completed_at: new Date().toISOString(),
+          })
+          .eq("id", checkout.id);
+
+        return {
+          orderId: racedOrder.id,
+          orderNumber: racedOrder.order_number,
+        };
+      }
+    }
+
+    throw new Error(error.message ?? "Failed to create order");
+  }
+
+  if (!order) {
+    throw new Error("Failed to create order");
   }
 
   if (checkout.marketplace_listing_id) {
@@ -78,10 +130,7 @@ export async function fulfillCheckoutAsOrder(
       throw new Error(listingError.message);
     }
 
-    const { notifyMarketplaceSold } = await import(
-      "@/actions/admin/marketplace/notify-sold"
-    );
-    await notifyMarketplaceSold(checkout.marketplace_listing_id, {
+    await sendMarketplaceSoldNotification(checkout.marketplace_listing_id, {
       orderNumber: order.order_number,
       soldVia: "checkout",
     }).catch(() => undefined);

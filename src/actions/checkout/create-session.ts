@@ -1,5 +1,6 @@
 "use server";
 
+import { randomBytes } from "crypto";
 import { headers } from "next/headers";
 
 import { reserveMarketplaceListing, releaseMarketplaceListingReservation } from "@/lib/checkout/marketplace-reservation";
@@ -9,6 +10,7 @@ import { getPayPalEnv } from "@/lib/paypal/env";
 import { createPayPalOrder } from "@/lib/paypal/orders";
 import { getClientIp } from "@/lib/security/client-ip";
 import { checkRateLimit } from "@/lib/security/rate-limit";
+import { sealCheckoutPayload } from "@/lib/security/payload-cipher";
 import { getSiteUrl } from "@/lib/site-url";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { predatorIntakeSchema } from "@/lib/validations/predator-intake";
@@ -177,6 +179,8 @@ export async function createCheckoutSession(
     }
   }
 
+  const fulfillmentToken = randomBytes(32).toString("hex");
+
   const { data: checkoutRow, error: insertError } = await supabase
     .from("stripe_checkouts")
     .insert({
@@ -194,13 +198,14 @@ export async function createCheckoutSession(
       notes,
       service_detail: quote.serviceDetail,
       line_item_name: quote.lineItemName,
-      payload: {
+      fulfillment_token: fulfillmentToken,
+      payload: sealCheckoutPayload({
         lineItemDescription: quote.lineItemDescription,
         pricingItemId: quote.pricingItemId,
         listingId: quote.marketplaceListingId,
         unbanDetails: unbanDetails ?? null,
         predatorDetails: predatorDetails ?? null,
-      },
+      }),
     })
     .select("id")
     .single();
@@ -225,7 +230,7 @@ export async function createCheckoutSession(
       lineItemName: quote.lineItemName,
       lineItemDescription: quote.lineItemDescription ?? quote.lineItemName,
       returnUrl: `${siteUrl}/checkout/success`,
-      cancelUrl: `${siteUrl}/checkout/cancel?checkout_id=${checkoutId}`,
+      cancelUrl: `${siteUrl}/checkout/cancel?checkout_id=${checkoutId}&token=${fulfillmentToken}`,
     });
 
     const { error: updateError } = await supabase

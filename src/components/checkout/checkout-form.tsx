@@ -51,15 +51,18 @@ export function CheckoutForm({
   masterPredatorPreset = false,
   ...props
 }: CheckoutFormProps) {
+  const mode = props.mode;
+  const serviceSlug = mode === "service" ? props.serviceSlug : null;
+  const service = mode === "service" ? props.service : null;
+  const listing = mode === "marketplace" ? props.listing : null;
+
   const [loading, setLoading] = useState(false);
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [quote, setQuote] = useState<CheckoutQuote | null>(null);
   const [quoteError, setQuoteError] = useState<string | null>(null);
 
   const [selectedItemId, setSelectedItemId] = useState(
-    props.mode === "service" && props.service.pricingItems[0]
-      ? props.service.pricingItems[0].id
-      : ""
+    service?.pricingItems[0] ? service.pricingItems[0].id : ""
   );
   const [currentRank, setCurrentRank] = useState(
     masterPredatorPreset ? MASTER_PREDATOR_FROM_RANK : ""
@@ -71,9 +74,7 @@ export function CheckoutForm({
     masterPredatorPreset ? "xbox" : ""
   );
   const [priority, setPriority] = useState("standard");
-  const serviceSlug = props.mode === "service" ? props.serviceSlug : null;
-  const pricingItems =
-    props.mode === "service" ? props.service.pricingItems : null;
+  const pricingItems = service?.pricingItems ?? null;
 
   const killsConfig = useMemo(
     () =>
@@ -92,8 +93,8 @@ export function CheckoutForm({
     serviceSlug === "ranked-boosting" || serviceSlug === "self-play-boosting";
 
   const requiresRanks =
-    props.mode === "service" &&
-    props.service.pricingEngine === "tier_table" &&
+    service !== null &&
+    service.pricingEngine === "tier_table" &&
     isRankedTier;
 
   const lockedMasterPredator =
@@ -109,19 +110,19 @@ export function CheckoutForm({
     : CHECKOUT_PLATFORMS;
 
   const showPricingItems =
-    props.mode === "service" &&
-    props.service.pricingEngine !== "marketplace" &&
+    service !== null &&
+    service.pricingEngine !== "marketplace" &&
     !requiresRanks &&
     !isKillsFarming;
 
   const selectedItem: CatalogPricingItem | null =
-    props.mode === "service"
-      ? props.service.pricingItems.find((i) => i.id === selectedItemId) ?? null
+    service !== null
+      ? service.pricingItems.find((i) => i.id === selectedItemId) ?? null
       : null;
 
   const staticAmountCents =
-    props.mode === "marketplace"
-      ? props.listing.priceCents
+    listing !== null
+      ? listing.priceCents
       : isKillsFarming && killsConfig
         ? computeKillsFarmingCents(killCount, killsConfig)
         : (selectedItem?.priceCents ?? 0);
@@ -131,7 +132,7 @@ export function CheckoutForm({
   const minKills = killsConfig?.minKills ?? 100;
 
   const fetchQuote = useCallback(async () => {
-    if (props.mode === "marketplace") {
+    if (mode === "marketplace") {
       setQuote(null);
       setQuoteError(null);
       setQuoteLoading(false);
@@ -189,7 +190,7 @@ export function CheckoutForm({
       setQuoteError(result.error);
     }
   }, [
-    props.mode,
+    mode,
     serviceSlug,
     currentRank,
     targetRank,
@@ -229,7 +230,7 @@ export function CheckoutForm({
     const formData = new FormData(e.currentTarget);
 
     const result = await createCheckoutSession(
-      props.mode === "service" ? props.serviceSlug : null,
+      mode === "service" ? serviceSlug : null,
       {
         customerDiscord: String(formData.get("customerDiscord") ?? ""),
         customerEmail: String(formData.get("customerEmail") ?? "") || null,
@@ -244,13 +245,11 @@ export function CheckoutForm({
         priority: requiresRanks ? priority : null,
         killCount: isKillsFarming ? killCount : null,
         pricingItemId:
-          props.mode === "service" && !requiresRanks && !isKillsFarming
+          mode === "service" && !requiresRanks && !isKillsFarming
             ? selectedItemId || null
             : null,
         listingId:
-          props.mode === "marketplace"
-            ? props.listing.listingNumber
-            : null,
+          listing !== null ? listing.listingNumber : null,
       }
     );
 
@@ -264,7 +263,7 @@ export function CheckoutForm({
   }
 
   const title =
-    props.mode === "service" ? props.service.name : props.listing.title;
+    service !== null ? service.name : (listing?.title ?? "Checkout");
 
   return (
     <form
@@ -464,8 +463,8 @@ export function CheckoutForm({
               Select option
             </h2>
             <div className="space-y-2">
-              {props.mode === "service" &&
-                props.service.pricingItems.map((item) => (
+              {mode === "service" &&
+                service.pricingItems.map((item) => (
                   <label
                     key={item.id}
                     className="flex cursor-pointer items-center justify-between rounded-lg border border-white/10 bg-background/30 px-4 py-3 transition-colors has-checked:border-primary/40 has-checked:bg-primary/5"
@@ -513,9 +512,9 @@ export function CheckoutForm({
           {selectedItem && !requiresRanks && !isKillsFarming && (
             <p className="text-sm">{selectedItem.name}</p>
           )}
-          {props.mode === "marketplace" && (
+          {listing !== null && (
             <p className="text-sm text-muted-foreground">
-              {props.listing.rankLabel} · {props.listing.platform}
+              {listing.rankLabel} · {listing.platform}
             </p>
           )}
 

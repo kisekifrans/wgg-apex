@@ -31,10 +31,7 @@ export function formatPredatorNotes(
     `Current rank / RP: ${currentRank}`,
     `Platform: Nintendo (Switch)`,
     `Nintendo email: ${details.nintendoEmail}`,
-    `Nintendo password: ${details.nintendoPassword}`,
-    `Nintendo backup code: ${details.nintendoBackupCode}`,
     `EA Email: ${details.eaEmail}`,
-    `EA Password: ${details.eaPassword}`,
-    `EA Backup code: ${details.eaBackupCode}`,
+    `Account credentials: stored encrypted in order metadata (admin view).`,
   ].join("\n");
 }

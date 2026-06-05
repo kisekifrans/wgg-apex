@@ -5,15 +5,15 @@ import { releaseCheckoutReservation } from "@/actions/checkout/release-reservati
 import { Button } from "@/components/ui/button";
 
 type PageProps = {
-  searchParams: Promise<{ checkout_id?: string }>;
+  searchParams: Promise<{ checkout_id?: string; token?: string }>;
 };
 
 export default async function CheckoutCancelPage({ searchParams }: PageProps) {
-  const { checkout_id: checkoutId } = await searchParams;
+  const { checkout_id: checkoutId, token } = await searchParams;
 
-  if (checkoutId) {
+  if (checkoutId && token) {
     try {
-      await releaseCheckoutReservation(checkoutId);
+      await releaseCheckoutReservation(checkoutId, token);
     } catch {
       // PayPal void webhook will release if this fails
     }

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
@@ -106,9 +107,9 @@ export function PricingItemsEditor({ service }: { service: CatalogService }) {
     return (
       <div className="rounded-xl border border-white/5 bg-card/40 p-6 text-sm text-muted-foreground">
         Marketplace pricing is managed per listing in{" "}
-        <a href="/admin/marketplace" className="text-primary hover:underline">
+        <Link href="/admin/marketplace" className="text-primary hover:underline">
           Account Marketplace
-        </a>
+        </Link>
         .
       </div>
     );

@@ -1,11 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 
+import { MarketingNavLink } from "@/components/layout/marketing-nav-link";
 import { BadgeCatalogThumb } from "@/components/marketing/badge-catalog-thumb";
 import { RankIcon } from "@/components/shared/rank-icon";
 import { Badge } from "@/components/ui/badge";
@@ -59,7 +59,6 @@ export function ServiceProductCard({
   const visual = SLUG_VISUAL[service.slug];
   const isFeatured = variant === "featured";
   const priceFormatted = formatPriceFromCents(service.fromPriceCents);
-  const href = service.href.startsWith("/") ? service.href : service.href;
   const description =
     service.slug === "predator-maintenance"
       ? "Predator RP maintenance on Nintendo (Switch)."
@@ -250,7 +249,7 @@ export function ServiceProductCard({
                 "shrink-0 bg-primary font-medium text-primary-foreground shadow-[0_0_28px_-6px_rgba(249,115,22,0.5)] transition-shadow duration-300",
                 "group-hover/card:shadow-[0_0_36px_-4px_rgba(249,115,22,0.55)]"
               )}
-              render={<Link href={href} />}
+              render={<MarketingNavLink href={service.href} />}
             >
               {isFeatured ? "Get Started" : "View Service"}
               <ArrowRight className="size-4" data-icon="inline-end" />

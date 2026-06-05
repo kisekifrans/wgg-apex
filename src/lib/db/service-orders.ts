@@ -1,5 +1,6 @@
 import "server-only";
 
+import { revealOrderMetadata } from "@/lib/security/payload-cipher";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type {
   ServiceOrder,
@@ -47,7 +48,9 @@ function mapOrder(row: OrderRow): ServiceOrder {
     currency: row.currency,
     customerEmail: row.customer_email,
     progressPercent: row.progress_percent ?? 0,
-    metadata: (row.metadata ?? {}) as ServiceOrderMetadata,
+    metadata: revealOrderMetadata(
+      (row.metadata ?? {}) as Record<string, unknown>
+    ) as ServiceOrderMetadata,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     completedAt: row.completed_at,

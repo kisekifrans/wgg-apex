@@ -1,7 +1,7 @@
 # WGG Apex — Production Readiness & Security Audit
 
-**Audit date:** 2026-06-04  
-**Scope:** Authentication, authorization, admin routes, Stripe, webhooks, environment variables, Supabase RLS, input validation, file uploads  
+**Audit date:** 2026-06-04 (updated 2026-06-05)  
+**Scope:** Authentication, authorization, admin routes, PayPal, webhooks, environment variables, Supabase RLS, input validation, file uploads  
 **Method:** Static code review of application and SQL migrations (no penetration test)
 
 ---
@@ -10,17 +10,18 @@
 
 | Area | Rating | Notes |
 |------|--------|-------|
-| Authentication | **Adequate** | Supabase password auth; session via cookies |
-| Authorization | **At risk** | App-layer admin checks exist; **RLS allows self–role escalation** |
-| Admin routes | **Adequate** | Layout + server actions guarded; middleware is weak |
-| Stripe integration | **Good** | Secrets server-only; quotes from DB |
-| Webhooks | **At risk** | Signature verification good; **idempotency ordering bug** |
-| Environment variables | **Good** | `.env*` gitignored; documented in `.env.example` |
-| Supabase policies | **At risk** | Profile UPDATE policy; service role bypass by design |
-| Input validation | **Adequate** | Zod on forms; gaps on IDs and redirects |
-| File uploads | **Adequate** | Admin-only; size/MIME checks; bucket limits |
+| Authentication | **Good** | Supabase auth; middleware + server guards |
+| Authorization | **Good** | Role escalation trigger; `requireAdmin()` on admin actions |
+| Admin routes | **Good** | Middleware + layout + server action guards |
+| PayPal integration | **Good** | Server-only secrets; server-side quotes; atomic fulfillment |
+| Webhooks | **Good** | PayPal signature verification + event idempotency |
+| Environment variables | **Good** | Documented in `.env.example` + [GO_LIVE.md](./GO_LIVE.md) |
+| Supabase policies | **Adequate** | RLS on all tables; predator progress public read still broad |
+| Input validation | **Adequate** | Zod on intake forms; checkout token on cancel |
+| File uploads | **Adequate** | Admin-only; size/MIME checks |
+| Credential storage | **Good** | Predator secrets encrypted at rest (production key required) |
 
-**Production recommendation:** P0 fixes applied 2026-06-04 (migration `20260604170000_security_hardening.sql`). Re-verify after deploy; remaining items in §11 still apply.
+**Production recommendation:** Critical payment fixes applied 2026-06-05 (`20260605220000_production_hardening.sql`). Follow [GO_LIVE.md](./GO_LIVE.md) before accepting live payments.
 
 ---
 

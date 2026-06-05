@@ -86,12 +86,12 @@ export async function createMarketplaceListing(
   }
 
   if (input.status === "sold") {
-    const { notifyMarketplaceSold } = await import(
-      "@/actions/admin/marketplace/notify-sold"
+    const { sendMarketplaceSoldNotification } = await import(
+      "@/lib/discord/notify-marketplace-sold"
     );
-    await notifyMarketplaceSold(listing.id, { soldVia: "admin" }).catch(
-      () => undefined
-    );
+    await sendMarketplaceSoldNotification(listing.id, {
+      soldVia: "admin",
+    }).catch(() => undefined);
   }
 
   revalidateMarketplace();
@@ -163,10 +163,12 @@ export async function updateMarketplaceListing(
   }
 
   if (input.status === "sold" && existing?.status !== "sold") {
-    const { notifyMarketplaceSold } = await import(
-      "@/actions/admin/marketplace/notify-sold"
+    const { sendMarketplaceSoldNotification } = await import(
+      "@/lib/discord/notify-marketplace-sold"
     );
-    await notifyMarketplaceSold(id, { soldVia: "admin" }).catch(() => undefined);
+    await sendMarketplaceSoldNotification(id, { soldVia: "admin" }).catch(
+      () => undefined
+    );
   }
 
   const removeIds = formData
@@ -246,10 +248,12 @@ export async function updateListingStatus(
   }
 
   if (status === "sold") {
-    const { notifyMarketplaceSold } = await import(
-      "@/actions/admin/marketplace/notify-sold"
+    const { sendMarketplaceSoldNotification } = await import(
+      "@/lib/discord/notify-marketplace-sold"
     );
-    await notifyMarketplaceSold(id, { soldVia: "admin" }).catch(() => undefined);
+    await sendMarketplaceSoldNotification(id, { soldVia: "admin" }).catch(
+      () => undefined
+    );
   }
 
   revalidateMarketplace();

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import {
   ExternalLink,
   Loader2,
@@ -52,25 +52,20 @@ type OrderDetailSheetProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-export function OrderDetailSheet({
-  order,
-  open,
-  onOpenChange,
-}: OrderDetailSheetProps) {
+function OrderNotesEditor({
+  orderId,
+  initialNotes,
+}: {
+  orderId: string;
+  initialNotes: string;
+}) {
   const router = useRouter();
-  const [notes, setNotes] = useState("");
+  const [notes, setNotes] = useState(initialNotes);
   const [savingNotes, startSaveNotes] = useTransition();
 
-  useEffect(() => {
-    if (order) {
-      setNotes(order.notes ?? "");
-    }
-  }, [order]);
-
   function saveNotes() {
-    if (!order) return;
     startSaveNotes(async () => {
-      const result = await updateOrderNotes(order.id, notes);
+      const result = await updateOrderNotes(orderId, notes);
       if (!result.success) {
         toast.error(result.error);
         return;
@@ -80,6 +75,46 @@ export function OrderDetailSheet({
     });
   }
 
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center gap-2">
+        <StickyNote className="size-4 text-muted-foreground" />
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Notes
+        </h3>
+      </div>
+      <Textarea
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        rows={6}
+        placeholder="Operator notes, platform, deadlines…"
+        className="border-white/10 bg-background/50"
+      />
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={savingNotes}
+        onClick={saveNotes}
+      >
+        {savingNotes ? (
+          <>
+            <Loader2 className="size-4 animate-spin" data-icon="inline-start" />
+            Saving…
+          </>
+        ) : (
+          "Save notes"
+        )}
+      </Button>
+    </section>
+  );
+}
+
+export function OrderDetailSheet({
+  order,
+  open,
+  onOpenChange,
+}: OrderDetailSheetProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -126,6 +161,61 @@ export function OrderDetailSheet({
                   )}
                 </div>
               </section>
+
+              {order.orderType === "predator_maintenance" &&
+                order.metadata?.predator && (
+                  <section className="space-y-3">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Account credentials
+                    </h3>
+                    <dl className="space-y-2 rounded-xl border border-white/5 bg-card/40 p-4 text-sm">
+                      <div>
+                        <dt className="text-xs text-muted-foreground">
+                          Nintendo email
+                        </dt>
+                        <dd>{order.metadata.predator.nintendoEmail}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs text-muted-foreground">
+                          Nintendo password
+                        </dt>
+                        <dd className="font-mono text-xs">
+                          {order.metadata.predator.nintendoPassword}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs text-muted-foreground">
+                          Nintendo backup code
+                        </dt>
+                        <dd className="font-mono text-xs">
+                          {order.metadata.predator.nintendoBackupCode}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs text-muted-foreground">
+                          EA email
+                        </dt>
+                        <dd>{order.metadata.predator.eaEmail}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs text-muted-foreground">
+                          EA password
+                        </dt>
+                        <dd className="font-mono text-xs">
+                          {order.metadata.predator.eaPassword}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs text-muted-foreground">
+                          EA backup code
+                        </dt>
+                        <dd className="font-mono text-xs">
+                          {order.metadata.predator.eaBackupCode}
+                        </dd>
+                      </div>
+                    </dl>
+                  </section>
+                )}
 
               {order.orderType === "unban_service" && order.metadata?.unban && (
                 <section className="space-y-3">
@@ -207,34 +297,11 @@ export function OrderDetailSheet({
                 </div>
               </section>
 
-              <section className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <StickyNote className="size-4 text-muted-foreground" />
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Notes
-                  </h3>
-                </div>
-                <Textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={6}
-                  placeholder="Operator notes, platform, deadlines…"
-                  className="border-white/10 bg-background/50"
-                />
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  className="border-white/10"
-                  disabled={savingNotes}
-                  onClick={saveNotes}
-                >
-                  {savingNotes && (
-                    <Loader2 className="size-4 animate-spin" data-icon="inline-start" />
-                  )}
-                  Save notes
-                </Button>
-              </section>
+              <OrderNotesEditor
+                key={order.id}
+                orderId={order.id}
+                initialNotes={order.notes ?? ""}
+              />
 
               <Button
                 className="w-full bg-primary text-primary-foreground hover:bg-[var(--brand-orange-deep)]"
