@@ -1,15 +1,19 @@
 "use client";
 
 import type { ComponentProps } from "react";
+import Link from "next/link";
 import { LogOut } from "lucide-react";
 
-import { signOut } from "@/actions/auth/sign-out";
 import { Button } from "@/components/ui/button";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenuLinkItem } from "@/components/ui/dropdown-menu";
 
 type SignOutButtonProps = ComponentProps<typeof Button> & {
   redirectTo?: string;
 };
+
+function signOutHref(redirectTo: string): string {
+  return `/api/auth/sign-out?redirectTo=${encodeURIComponent(redirectTo)}`;
+}
 
 export function SignOutButton({
   redirectTo = "/login",
@@ -17,28 +21,25 @@ export function SignOutButton({
   ...props
 }: SignOutButtonProps) {
   return (
-    <Button
-      type="button"
-      {...props}
-      onClick={() => {
-        void signOut(redirectTo);
-      }}
-    >
+    <Button {...props} render={<Link href={signOutHref(redirectTo)} />}>
       {children}
     </Button>
   );
 }
 
-export function SignOutMenuItem() {
+export function SignOutMenuItem({
+  redirectTo = "/login",
+}: {
+  redirectTo?: string;
+}) {
   return (
-    <DropdownMenuItem
-      variant="destructive"
-      onClick={() => {
-        void signOut("/login");
-      }}
+    <DropdownMenuLinkItem
+      className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+      render={<Link href={signOutHref(redirectTo)} />}
+      closeOnClick
     >
       <LogOut className="size-4" />
       Sign out
-    </DropdownMenuItem>
+    </DropdownMenuLinkItem>
   );
 }

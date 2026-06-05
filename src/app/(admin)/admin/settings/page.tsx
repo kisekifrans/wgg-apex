@@ -1,3 +1,6 @@
+import { LogOut } from "lucide-react";
+
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { PagePlaceholder } from "@/components/admin/page-placeholder";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,6 +38,15 @@ export default async function AdminSettingsPage() {
                 {user?.role.replace("_", " ") ?? "—"}
               </span>
             </div>
+            <SignOutButton
+              variant="outline"
+              size="sm"
+              className="mt-4 w-full border-white/10"
+              redirectTo="/login"
+            >
+              <LogOut className="size-4" data-icon="inline-start" />
+              Sign out
+            </SignOutButton>
           </CardContent>
         </Card>
 
