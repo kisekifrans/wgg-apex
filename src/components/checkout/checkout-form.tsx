@@ -34,6 +34,7 @@ import type { MarketplaceListing } from "@/types/marketplace";
 type CheckoutFormProps = {
   paymentsEnabled: boolean;
   masterPredatorPreset?: boolean;
+  initialPromoCode?: string;
 } & (
   | {
       mode: "service";
@@ -49,6 +50,7 @@ type CheckoutFormProps = {
 export function CheckoutForm({
   paymentsEnabled,
   masterPredatorPreset = false,
+  initialPromoCode = "",
   ...props
 }: CheckoutFormProps) {
   const mode = props.mode;
@@ -60,6 +62,7 @@ export function CheckoutForm({
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [quote, setQuote] = useState<CheckoutQuote | null>(null);
   const [quoteError, setQuoteError] = useState<string | null>(null);
+  const [promoCode, setPromoCode] = useState(initialPromoCode.trim().toUpperCase());
 
   const [selectedItemId, setSelectedItemId] = useState(
     service?.pricingItems[0] ? service.pricingItems[0].id : ""
@@ -150,6 +153,7 @@ export function CheckoutForm({
       pricingItemId: requiresRanks || isKillsFarming ? null : selectedItemId || null,
       killCount: isKillsFarming ? killCount : null,
       listingId: null,
+      promoCode: promoCode || null,
     };
 
     if (requiresRanks) {
@@ -201,6 +205,7 @@ export function CheckoutForm({
     isKillsFarming,
     killCount,
     minKills,
+    promoCode,
   ]);
 
   useEffect(() => {
@@ -250,6 +255,7 @@ export function CheckoutForm({
             : null,
         listingId:
           listing !== null ? listing.listingNumber : null,
+        promoCode: promoCode || null,
       }
     );
 
@@ -517,6 +523,22 @@ export function CheckoutForm({
               {listing.rankLabel} · {listing.platform}
             </p>
           )}
+
+          {mode === "service" ? (
+            <div className="space-y-2">
+              <Label htmlFor="promoCode">Promo code</Label>
+              <Input
+                id="promoCode"
+                name="promoCode"
+                value={promoCode}
+                onChange={(e) =>
+                  setPromoCode(e.target.value.toUpperCase().replace(/\s/g, ""))
+                }
+                placeholder="PREDATOR20"
+                className="border-white/10 bg-background/50 font-mono uppercase"
+              />
+            </div>
+          ) : null}
 
           <PriceBreakdown quote={quote} loading={quoteLoading} />
 

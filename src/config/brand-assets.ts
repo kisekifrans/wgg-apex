@@ -18,6 +18,7 @@ export const serviceArtworkBySlug: Record<string, string> = {
   "account-marketplace": "/heroes/thumbnail4.jpg",
   "apex-unban": "/heroes/thumbnail5.png",
   "kills-farming": "/heroes/thumbnail8.jpg",
+  relinking: "/heroes/thumbnail4.jpg",
 };
 
 function isSafePublicPath(path: string): boolean {
@@ -37,9 +38,11 @@ export function getServiceArtworkPath(
 
 /** Catalog pricing item name → badge image (homepage badge grid, checkout later). */
 export const badgeAssetsByCatalogName: Record<string, string> = {
-  "Apex Predator Badge": "/ranks/predator.png",
+  "4K Damage + 20 Kills Bundle": "/badges/4kdamage.png",
   "20 Kill Badge": "/badges/20kill.png",
   "4000 Damage Badge": "/badges/4kdamage.png",
+  "10-10-10 Teamwork Badge": "/badges/101010.jpg",
+  "5 Win Streak Badge": "/badges/5streak.jpg",
 };
 
 /** Ranked boost tier names from `service_pricing_items.name`. */

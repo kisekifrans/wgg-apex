@@ -6,28 +6,32 @@ import {
   getDiscordWebhookSettings,
   type DiscordWebhookSettings,
 } from "@/lib/db/app-settings";
+import { getAdminPromoCodes } from "@/lib/db/promo-codes";
 
 export const metadata = { title: "Content" };
 
 export default async function AdminContentPage() {
-  const [reviews, boosts, discordSettings] = await Promise.all([
+  const [reviews, boosts, discordSettings, promos] = await Promise.all([
     getAdminCustomerReviews().catch(() => []),
     getAdminCompletedBoosts().catch(() => []),
     getDiscordWebhookSettings().catch(
       () => ({}) as DiscordWebhookSettings
     ),
+    getAdminPromoCodes().catch(() => []),
   ]);
 
   return (
     <>
       <AdminPageHeader
         title="Homepage content"
-        description="Manage customer reviews, completed boost gallery, and Discord sold-listing webhook."
+        description="Manage reviews, boosts, promo codes, and Discord webhooks."
       />
       <ContentCmsPanel
         reviews={reviews}
         boosts={boosts}
         soldWebhookUrl={discordSettings.soldWebhookUrl ?? ""}
+        ordersWebhookUrl={discordSettings.ordersWebhookUrl ?? ""}
+        promos={promos}
       />
     </>
   );

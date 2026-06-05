@@ -9,7 +9,6 @@ import {
   Shield,
 } from "lucide-react";
 
-import { HeroBrandVisual } from "@/components/marketing/hero-brand-visual";
 import { HeroOrderPreview } from "@/components/marketing/hero-order-preview";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
@@ -53,8 +52,9 @@ export function HeroSection({ orderPreview }: HeroSectionProps) {
             shortcuts.
           </h1>
           <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Ranked boosting, Predator maintenance, badges, unban support, and
-            verified accounts—one place to order, pay, and track everything.
+            Ranked boosting, Predator maintenance, badges, relinking, unban
+            support, and verified accounts—one place to order, pay, and track
+            everything.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -92,11 +92,8 @@ export function HeroSection({ orderPreview }: HeroSectionProps) {
           </ul>
         </motion.div>
 
-        <div className="relative min-h-[280px] lg:min-h-[320px] lg:pl-4">
-          <HeroBrandVisual />
-          <div className="relative z-10">
-            <HeroOrderPreview preview={orderPreview} />
-          </div>
+        <div className="relative lg:pl-4">
+          <HeroOrderPreview preview={orderPreview} />
         </div>
       </div>
     </section>

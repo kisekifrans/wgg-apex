@@ -15,7 +15,14 @@ export const metadata = {
     "Nintendo (Switch) Predator RP maintenance with operator access. Review requirements, backup codes, and secure checkout.",
 };
 
-export default async function PredatorMaintenanceServicePage() {
+type PageProps = {
+  searchParams: Promise<{ promo?: string }>;
+};
+
+export default async function PredatorMaintenanceServicePage({
+  searchParams,
+}: PageProps) {
+  const { promo } = await searchParams;
   let service: Awaited<ReturnType<typeof getServiceBySlug>> = null;
 
   try {
@@ -64,6 +71,7 @@ export default async function PredatorMaintenanceServicePage() {
           <PredatorIntakeForm
             service={service}
             paymentsEnabled={isCheckoutConfigured}
+            initialPromoCode={promo ?? ""}
           />
         </div>
       </div>

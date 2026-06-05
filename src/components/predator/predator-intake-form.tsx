@@ -36,15 +36,18 @@ import type { CatalogPricingItem, CatalogService } from "@/types/services";
 type PredatorIntakeFormProps = {
   service: CatalogService;
   paymentsEnabled: boolean;
+  initialPromoCode?: string;
 };
 
 export function PredatorIntakeForm({
   service,
   paymentsEnabled,
+  initialPromoCode = "",
 }: PredatorIntakeFormProps) {
   const [loading, setLoading] = useState(false);
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [quote, setQuote] = useState<CheckoutQuote | null>(null);
+  const [quoteError, setQuoteError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [acknowledged, setAcknowledged] = useState(false);
   const [platform, setPlatform] = useState("switch");
@@ -52,6 +55,9 @@ export function PredatorIntakeForm({
     service.pricingItems.find((i) => i.isFeatured)?.id ??
       service.pricingItems[0]?.id ??
       ""
+  );
+  const [promoCode, setPromoCode] = useState(
+    initialPromoCode.trim().toUpperCase()
   );
 
   const selectedItem: CatalogPricingItem | null =
@@ -78,11 +84,17 @@ export function PredatorIntakeForm({
       customerDiscord: "quote",
       pricingItemId: selectedItemId,
       platform,
+      promoCode: promoCode || null,
     });
     setQuoteLoading(false);
-    if (result.success) setQuote(result.quote);
-    else setQuote(null);
-  }, [selectedItemId, platform]);
+    if (result.success) {
+      setQuote(result.quote);
+      setQuoteError(null);
+    } else {
+      setQuote(null);
+      setQuoteError(result.error);
+    }
+  }, [selectedItemId, platform, promoCode]);
 
   useEffect(() => {
     const timer = setTimeout(() => void fetchQuote(), 200);
@@ -133,6 +145,7 @@ export function PredatorIntakeForm({
           eaPassword: String(formData.get("eaPassword") ?? ""),
           eaBackupCode: String(formData.get("eaBackupCode") ?? ""),
         },
+        promoCode: promoCode || null,
       });
 
       if (!result.success) {
@@ -425,6 +438,26 @@ export function PredatorIntakeForm({
         </div>
       </section>
 
+      <section className="rounded-2xl border border-white/5 bg-card/40 p-6 sm:p-8">
+        <h2 className="font-heading text-lg font-semibold">Promo code</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Have a discount code? Enter it here before checkout.
+        </p>
+        <div className="mt-4 max-w-sm space-y-2">
+          <Label htmlFor="promoCode">Code</Label>
+          <Input
+            id="promoCode"
+            name="promoCode"
+            value={promoCode}
+            onChange={(e) =>
+              setPromoCode(e.target.value.toUpperCase().replace(/\s/g, ""))
+            }
+            placeholder="PREDATOR20"
+            className="border-white/10 bg-background/50 font-mono uppercase"
+          />
+        </div>
+      </section>
+
       <div className="flex flex-col gap-4 rounded-xl border border-white/5 bg-card/50 p-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-2">
           {formError ? (
@@ -436,6 +469,9 @@ export function PredatorIntakeForm({
             </p>
           ) : null}
           <PriceBreakdown quote={quote} loading={quoteLoading} />
+          {quoteError ? (
+            <p className="text-xs text-destructive">{quoteError}</p>
+          ) : null}
         </div>
         <Button
           type="submit"

@@ -1,5 +1,6 @@
 import type { ServiceOrderType } from "@/types/orders";
 import type { PredatorIntakeDetails } from "@/types/predator";
+import type { RelinkingIntakeDetails } from "@/types/relinking";
 import type { UnbanIntakeDetails } from "@/types/unban";
 
 export type CheckoutKind = ServiceOrderType;
@@ -15,6 +16,9 @@ export type CheckoutQuote = {
   /** Service subtotal before processing fee. */
   serviceCents: number;
   processingFeeCents: number;
+  discountCents?: number;
+  promoCode?: string | null;
+  promoCodeId?: string | null;
   currency: string;
   lineItemName: string;
   lineItemDescription?: string;
@@ -39,4 +43,6 @@ export type CheckoutFormInput = {
   killCount?: number | null;
   unbanDetails?: UnbanIntakeDetails | null;
   predatorDetails?: PredatorIntakeDetails | null;
+  relinkingDetails?: RelinkingIntakeDetails | null;
+  promoCode?: string | null;
 };

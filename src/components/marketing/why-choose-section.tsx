@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
+import { HeroBrandVisual } from "@/components/marketing/hero-brand-visual";
 import {
   AnimatedItem,
   AnimatedSection,
@@ -30,12 +31,17 @@ export function WhyChooseSection() {
       className="border-t border-white/[0.06] py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,300px)_1fr] lg:gap-16">
-          <SectionHeader
-            eyebrow="Why WGG"
-            title="Why Competitive Players Choose WGG"
-            description="The most reliable ranked service in Apex—not a discount boost shop. Straight pricing, legit operators, and delivery you can track."
-          />
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,340px)_1fr] lg:gap-16">
+          <div className="relative min-h-[280px] overflow-hidden rounded-2xl border border-white/5 bg-card/30 lg:min-h-[420px]">
+            <HeroBrandVisual placement="why-wgg" />
+            <div className="relative z-10 p-6 sm:p-8">
+              <SectionHeader
+                eyebrow="Why WGG"
+                title="Why Competitive Players Choose WGG"
+                description="The most reliable ranked service in Apex—not a discount boost shop. Straight pricing, legit operators, and delivery you can track."
+              />
+            </div>
+          </div>
 
           <AnimatedStagger className="grid gap-4 sm:grid-cols-2">
             {whyWggItems.map((item, index) => {

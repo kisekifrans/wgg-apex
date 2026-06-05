@@ -19,8 +19,23 @@ export function PriceBreakdown({ quote, loading }: PriceBreakdownProps) {
 
   return (
     <div className="space-y-2 border-t border-white/5 pt-3 text-sm">
+      {(quote.adjustments ?? [])
+        .filter((a) => a.cents !== 0 && !a.label.includes("Processing fee"))
+        .map((adjustment) => (
+          <div key={adjustment.label} className="flex justify-between gap-2">
+            <span className="text-muted-foreground">{adjustment.label}</span>
+            <span
+              className={`font-mono tabular-nums ${
+                adjustment.cents < 0 ? "text-primary" : ""
+              }`}
+            >
+              {adjustment.cents < 0 ? "−" : ""}
+              {formatPriceFromCents(Math.abs(adjustment.cents))}
+            </span>
+          </div>
+        ))}
       <div className="flex justify-between gap-2">
-        <span className="text-muted-foreground">Service price</span>
+        <span className="text-muted-foreground">Service subtotal</span>
         <span className="font-mono tabular-nums">
           {formatPriceFromCents(quote.serviceCents)}
         </span>

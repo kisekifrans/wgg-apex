@@ -8,6 +8,7 @@ export const SERVICE_SLUG_TO_CHECKOUT_KIND: Record<string, CheckoutKind> = {
   "predator-maintenance": "predator_maintenance",
   "kills-farming": "kills_farming",
   "apex-unban": "unban_service",
+  relinking: "relinking_service",
 };
 
 export function slugToCheckoutKind(slug: string): CheckoutKind | null {

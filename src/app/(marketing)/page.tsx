@@ -1,4 +1,5 @@
 import { BadgeServicesSection } from "@/components/marketing/badge-services-section";
+import { PromoSection } from "@/components/marketing/promo-section";
 import { CtaSection } from "@/components/marketing/cta-section";
 import { CustomerProcessSection } from "@/components/marketing/customer-process-section";
 import { DiscordCommunitySection } from "@/components/marketing/discord-community-section";
@@ -18,6 +19,7 @@ import { ReviewsSection } from "@/components/marketing/reviews-section";
 import { WhyChooseSection } from "@/components/marketing/why-choose-section";
 import { getPublicCompletedBoosts } from "@/lib/db/completed-boosts";
 import { getPublicCustomerReviews } from "@/lib/db/customer-reviews";
+import { getFeaturedPromos } from "@/lib/db/promo-codes";
 import { getPublicServicesCatalog } from "@/lib/db/services-catalog";
 
 export default async function HomePage() {
@@ -38,14 +40,16 @@ export default async function HomePage() {
     orderPreview = HERO_ORDER_PREVIEW_FALLBACK;
   }
 
-  const [reviews, completedBoosts] = await Promise.all([
+  const [reviews, completedBoosts, featuredPromos] = await Promise.all([
     getPublicCustomerReviews().catch(() => []),
     getPublicCompletedBoosts().catch(() => []),
+    getFeaturedPromos().catch(() => []),
   ]);
 
   return (
     <>
       <HeroSection orderPreview={orderPreview} />
+      <PromoSection promos={featuredPromos} />
       <WhyChooseSection />
       {catalog ? (
         <>

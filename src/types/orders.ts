@@ -5,6 +5,7 @@ export const SERVICE_ORDER_TYPES = [
   "predator_maintenance",
   "kills_farming",
   "unban_service",
+  "relinking_service",
   "marketplace",
 ] as const;
 
@@ -45,6 +46,13 @@ export type ServiceOrderMetadata = {
     eaEmail?: string | null;
     eaPassword?: string | null;
     eaBackupCode?: string | null;
+  } | null;
+  relinking?: {
+    platform?: string | null;
+    accountId?: string | null;
+    email?: string | null;
+    password?: string | null;
+    backupCode?: string | null;
   } | null;
 };
 

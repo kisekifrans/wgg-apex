@@ -15,7 +15,9 @@ import { getSiteUrl } from "@/lib/site-url";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { predatorIntakeSchema } from "@/lib/validations/predator-intake";
 import { unbanIntakeSchema } from "@/lib/validations/unban-intake";
+import { relinkingIntakeSchema } from "@/lib/validations/relinking-intake";
 import { formatPredatorNotes } from "@/types/predator";
+import { formatRelinkingNotes } from "@/types/relinking";
 import { formatUnbanNotes } from "@/types/unban";
 import type { CheckoutFormInput } from "@/types/checkout";
 
@@ -66,6 +68,7 @@ export async function createCheckoutSession(
   }
 
   let unbanDetails = input.unbanDetails;
+  let relinkingDetails = input.relinkingDetails;
   let predatorDetails = input.predatorDetails;
   let customerEmail = input.customerEmail?.trim() || null;
   let notes = input.notes?.trim() || null;
@@ -144,6 +147,38 @@ export async function createCheckoutSession(
     notes = formatUnbanNotes(unbanDetails, discord);
   }
 
+  if (serviceSlug === "relinking") {
+    if (!input.pricingItemId) {
+      return { success: false, error: "Invalid service configuration" };
+    }
+
+    const parsed = relinkingIntakeSchema.safeParse({
+      customerDiscord: discord,
+      platform: input.relinkingDetails?.platform,
+      accountId: input.relinkingDetails?.accountId,
+      email: input.relinkingDetails?.email,
+      password: input.relinkingDetails?.password,
+      backupCode: input.relinkingDetails?.backupCode,
+    });
+
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: parsed.error.issues[0]?.message ?? "Invalid account details",
+      };
+    }
+
+    relinkingDetails = {
+      platform: parsed.data.platform,
+      accountId: parsed.data.accountId,
+      email: parsed.data.email,
+      password: parsed.data.password,
+      backupCode: parsed.data.backupCode,
+    };
+    customerEmail = parsed.data.email;
+    notes = formatRelinkingNotes(relinkingDetails, discord);
+  }
+
   customerEmail = requireCustomerEmail(customerEmail);
   if (!customerEmail) {
     return {
@@ -158,6 +193,7 @@ export async function createCheckoutSession(
     customerDiscord: discord,
     customerEmail,
     notes: input.notes?.trim() || null,
+    promoCode: input.promoCode?.trim() || null,
     platform:
       serviceSlug === "predator-maintenance"
         ? input.platform ?? "switch"
@@ -198,6 +234,8 @@ export async function createCheckoutSession(
       notes,
       service_detail: quote.serviceDetail,
       line_item_name: quote.lineItemName,
+      promo_code_id: quote.promoCodeId ?? null,
+      discount_cents: quote.discountCents ?? 0,
       fulfillment_token: fulfillmentToken,
       payload: sealCheckoutPayload({
         lineItemDescription: quote.lineItemDescription,
@@ -205,6 +243,7 @@ export async function createCheckoutSession(
         listingId: quote.marketplaceListingId,
         unbanDetails: unbanDetails ?? null,
         predatorDetails: predatorDetails ?? null,
+        relinkingDetails: relinkingDetails ?? null,
       }),
     })
     .select("id")

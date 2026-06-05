@@ -51,7 +51,7 @@ export function RankPricingSection({
         <SectionHeader
           eyebrow="Pricing"
           title="Rank Boosting Pricing"
-          description="Official bundle packages with per-rank add-ons. Pick a starting tier or configure your exact rank span at checkout."
+          description="Official bundle packages with per-rank add-ons. Buy a tier now, or configure your exact rank span at checkout for a custom quote."
         />
 
         {tiers.length > 0 ? (
@@ -106,16 +106,22 @@ export function RankPricingSection({
                         {row.etaLabel ?? "—"}
                       </td>
                       <td className="px-5 py-4 text-right">
-                        <Link
-                          href={
-                            isMasterPredatorBundleItem(row)
-                              ? "/checkout/ranked-boosting?bundle=master-predator"
-                              : "/checkout/ranked-boosting"
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 border-primary/30 text-primary hover:bg-primary/10"
+                          render={
+                            <Link
+                              href={
+                                isMasterPredatorBundleItem(row)
+                                  ? "/checkout/ranked-boosting?bundle=master-predator"
+                                  : "/checkout/ranked-boosting"
+                              }
+                            />
                           }
-                          className="text-sm font-medium text-primary hover:underline"
                         >
-                          Configure
-                        </Link>
+                          Buy Now
+                        </Button>
                       </td>
                     </tr>
                   );
@@ -179,16 +185,22 @@ export function RankPricingSection({
                           {row.etaLabel ?? "—"}
                         </td>
                         <td className="px-5 py-4 text-right">
-                          <Link
-                            href={
-                              isMasterPredatorBundleItem(row)
-                                ? "/checkout/self-play-boosting?bundle=master-predator"
-                                : "/checkout/self-play-boosting"
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 border-primary/30 text-primary hover:bg-primary/10"
+                            render={
+                              <Link
+                                href={
+                                  isMasterPredatorBundleItem(row)
+                                    ? "/checkout/self-play-boosting?bundle=master-predator"
+                                    : "/checkout/self-play-boosting"
+                                }
+                              />
                             }
-                            className="text-sm font-medium text-primary hover:underline"
                           >
-                            Configure
-                          </Link>
+                            Buy Now
+                          </Button>
                         </td>
                       </tr>
                     ))}

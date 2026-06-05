@@ -14,6 +14,8 @@ const SENSITIVE_PREDATOR_KEYS = [
   "eaBackupCode",
 ] as const;
 
+const SENSITIVE_RELINKING_KEYS = ["password", "backupCode"] as const;
+
 function getEncryptionKey(): Buffer | null {
   const raw = process.env.CHECKOUT_PAYLOAD_ENCRYPTION_KEY?.trim();
   if (!raw) {
@@ -103,9 +105,42 @@ export function revealPredatorDetails<T extends Record<string, string>>(
   return revealed as T;
 }
 
+export function sealRelinkingDetails<T extends Record<string, string>>(
+  details: T | null | undefined
+): T | null {
+  if (!details) return null;
+
+  const sealed = { ...details } as Record<string, string>;
+  for (const field of SENSITIVE_RELINKING_KEYS) {
+    const value = sealed[field];
+    if (typeof value === "string" && value.length > 0) {
+      sealed[field] = encryptSecret(value);
+    }
+  }
+
+  return sealed as T;
+}
+
+export function revealRelinkingDetails<T extends Record<string, string>>(
+  details: T | null | undefined
+): T | null {
+  if (!details) return null;
+
+  const revealed = { ...details } as Record<string, string>;
+  for (const field of SENSITIVE_RELINKING_KEYS) {
+    const value = revealed[field];
+    if (typeof value === "string" && value.startsWith(ENCRYPTED_PREFIX)) {
+      revealed[field] = decryptSecret(value);
+    }
+  }
+
+  return revealed as T;
+}
+
 export function sealCheckoutPayload(payload: {
   unbanDetails?: Record<string, string | null> | null;
   predatorDetails?: Record<string, string | null> | null;
+  relinkingDetails?: Record<string, string | null> | null;
   [key: string]: unknown;
 }) {
   return {
@@ -113,6 +148,11 @@ export function sealCheckoutPayload(payload: {
     predatorDetails: payload.predatorDetails
       ? sealPredatorDetails(
           payload.predatorDetails as Record<string, string>
+        )
+      : null,
+    relinkingDetails: payload.relinkingDetails
+      ? sealRelinkingDetails(
+          payload.relinkingDetails as Record<string, string>
         )
       : null,
   };
@@ -123,13 +163,23 @@ export function revealOrderMetadata(metadata: Record<string, unknown> | null) {
     return metadata ?? {};
   }
 
+  let result = { ...metadata };
+
   const predator = metadata.predator;
-  if (!predator || typeof predator !== "object") {
-    return metadata;
+  if (predator && typeof predator === "object") {
+    result = {
+      ...result,
+      predator: revealPredatorDetails(predator as Record<string, string>),
+    };
   }
 
-  return {
-    ...metadata,
-    predator: revealPredatorDetails(predator as Record<string, string>),
-  };
+  const relinking = metadata.relinking;
+  if (relinking && typeof relinking === "object") {
+    result = {
+      ...result,
+      relinking: revealRelinkingDetails(relinking as Record<string, string>),
+    };
+  }
+
+  return result;
 }

@@ -217,6 +217,65 @@ export function OrderDetailSheet({
                   </section>
                 )}
 
+              {order.orderType === "relinking_service" &&
+                order.metadata?.relinking && (
+                  <section className="space-y-3">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Relinking credentials
+                    </h3>
+                    <dl className="space-y-2 rounded-xl border border-white/5 bg-card/40 p-4 text-sm">
+                      {order.metadata.relinking.platform && (
+                        <div>
+                          <dt className="text-xs text-muted-foreground">
+                            Platform
+                          </dt>
+                          <dd className="font-medium uppercase">
+                            {order.metadata.relinking.platform}
+                          </dd>
+                        </div>
+                      )}
+                      {order.metadata.relinking.accountId && (
+                        <div>
+                          <dt className="text-xs text-muted-foreground">
+                            Account ID
+                          </dt>
+                          <dd className="font-medium">
+                            {order.metadata.relinking.accountId}
+                          </dd>
+                        </div>
+                      )}
+                      {order.metadata.relinking.email && (
+                        <div>
+                          <dt className="text-xs text-muted-foreground">
+                            Email
+                          </dt>
+                          <dd>{order.metadata.relinking.email}</dd>
+                        </div>
+                      )}
+                      {order.metadata.relinking.password && (
+                        <div>
+                          <dt className="text-xs text-muted-foreground">
+                            Password
+                          </dt>
+                          <dd className="font-mono text-xs">
+                            {order.metadata.relinking.password}
+                          </dd>
+                        </div>
+                      )}
+                      {order.metadata.relinking.backupCode && (
+                        <div>
+                          <dt className="text-xs text-muted-foreground">
+                            Backup code
+                          </dt>
+                          <dd className="font-mono text-xs">
+                            {order.metadata.relinking.backupCode}
+                          </dd>
+                        </div>
+                      )}
+                    </dl>
+                  </section>
+                )}
+
               {order.orderType === "unban_service" && order.metadata?.unban && (
                 <section className="space-y-3">
                   <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">

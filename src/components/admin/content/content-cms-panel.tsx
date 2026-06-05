@@ -5,7 +5,8 @@ import { useTransition } from "react";
 import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { saveSoldWebhookUrl } from "@/actions/admin/settings/discord-webhooks";
+import { saveDiscordWebhooks } from "@/actions/admin/settings/discord-webhooks";
+import { PromoCodesPanel } from "@/components/admin/content/promo-codes-panel";
 import { createCompletedBoost } from "@/actions/admin/content/completed-boosts";
 import { createReview, deleteReview } from "@/actions/admin/content/reviews";
 import { deleteCompletedBoost } from "@/actions/admin/content/completed-boosts";
@@ -15,12 +16,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { CompletedBoost } from "@/lib/db/completed-boosts";
 import type { CustomerReview } from "@/lib/db/customer-reviews";
+import type { PromoCode } from "@/types/promo";
 
 const SERVICE_TYPES = [
   "Ranked Boosting",
   "Predator Maintenance",
   "Badge Boosting",
   "Unban Service",
+  "Account Relinking",
   "Duo Ranked Boost",
 ];
 
@@ -28,12 +31,16 @@ type ContentCmsPanelProps = {
   reviews: CustomerReview[];
   boosts: CompletedBoost[];
   soldWebhookUrl: string;
+  ordersWebhookUrl: string;
+  promos: PromoCode[];
 };
 
 export function ContentCmsPanel({
   reviews,
   boosts,
   soldWebhookUrl,
+  ordersWebhookUrl,
+  promos,
 }: ContentCmsPanelProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -41,27 +48,37 @@ export function ContentCmsPanel({
   return (
     <div className="space-y-10">
       <section className="rounded-xl border border-white/5 bg-card/40 p-6">
-        <h2 className="font-heading text-lg font-semibold">
-          Discord sold webhook
-        </h2>
+        <h2 className="font-heading text-lg font-semibold">Discord webhooks</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Automatically posts a SOLD embed when a marketplace account is sold
-          (PayPal checkout, admin status change, or edit form). Env fallback:{" "}
+          Order notifications ping{" "}
+          <code className="text-xs">1119290295281008650</code> in your channel.
+          Env fallbacks:{" "}
+          <code className="text-xs">DISCORD_ORDERS_WEBHOOK_URL</code>,{" "}
           <code className="text-xs">DISCORD_MARKETPLACE_SOLD_WEBHOOK_URL</code>.
         </p>
         <form
-          className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end"
+          className="mt-4 space-y-4"
           action={async (fd) => {
             startTransition(async () => {
-              const result = await saveSoldWebhookUrl(fd);
+              const result = await saveDiscordWebhooks(fd);
               if (!result.success) toast.error(result.error);
-              else toast.success("Sold webhook saved");
+              else toast.success("Discord webhooks saved");
               router.refresh();
             });
           }}
         >
-          <div className="min-w-0 flex-1 space-y-2">
-            <Label htmlFor="soldWebhookUrl">Webhook URL</Label>
+          <div className="space-y-2">
+            <Label htmlFor="ordersWebhookUrl">New order webhook (all paid orders)</Label>
+            <Input
+              id="ordersWebhookUrl"
+              name="ordersWebhookUrl"
+              defaultValue={ordersWebhookUrl}
+              placeholder="https://discord.com/api/webhooks/..."
+              className="border-white/10 bg-background/50"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="soldWebhookUrl">Marketplace sold webhook</Label>
             <Input
               id="soldWebhookUrl"
               name="soldWebhookUrl"
@@ -71,10 +88,12 @@ export function ContentCmsPanel({
             />
           </div>
           <Button type="submit" disabled={pending}>
-            Save
+            Save webhooks
           </Button>
         </form>
       </section>
+
+      <PromoCodesPanel promos={promos} />
 
       <section className="rounded-xl border border-white/5 bg-card/40 p-6">
         <h2 className="font-heading text-lg font-semibold">Add review</h2>

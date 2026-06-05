@@ -19,11 +19,14 @@ type CheckoutRow = {
   marketplace_listing_id: string | null;
   pricing_item_id: string | null;
   line_item_name: string;
+  promo_code_id: string | null;
+  discount_cents: number;
   service_order_id: string | null;
   paypal_order_id: string | null;
   payload: {
     unbanDetails?: Record<string, string | null> | null;
     predatorDetails?: Record<string, string | null> | null;
+    relinkingDetails?: Record<string, string | null> | null;
   } | null;
 };
 
@@ -149,6 +152,8 @@ export async function completePaidCheckout(
       marketplace_listing_id: row.marketplace_listing_id,
       pricing_item_id: row.pricing_item_id,
       line_item_name: row.line_item_name,
+      promo_code_id: row.promo_code_id,
+      discount_cents: row.discount_cents,
       payload: row.payload,
     });
   } catch (err) {

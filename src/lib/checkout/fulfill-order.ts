@@ -1,6 +1,8 @@
 import "server-only";
 
+import { sendNewOrderNotification } from "@/lib/discord/notify-new-order";
 import { sendMarketplaceSoldNotification } from "@/lib/discord/notify-marketplace-sold";
+import { recordPromoRedemption } from "@/lib/db/promo-codes";
 import { sendOrderConfirmationEmail } from "@/lib/email/send-order-confirmation";
 import { generateOrderNumber } from "@/lib/orders/order-number";
 import { progressPercentForStatus } from "@/lib/orders/progress";
@@ -22,9 +24,12 @@ type CheckoutRow = {
   marketplace_listing_id: string | null;
   pricing_item_id: string | null;
   line_item_name: string;
+  promo_code_id?: string | null;
+  discount_cents?: number;
   payload?: {
     unbanDetails?: Record<string, string | null> | null;
     predatorDetails?: Record<string, string | null> | null;
+    relinkingDetails?: Record<string, string | null> | null;
   } | null;
 };
 
@@ -77,6 +82,7 @@ export async function fulfillCheckoutAsOrder(
       metadata: {
         unban: checkout.payload?.unbanDetails ?? null,
         predator: checkout.payload?.predatorDetails ?? null,
+        relinking: checkout.payload?.relinkingDetails ?? null,
       },
       completed_at: null,
       cancelled_at: null,
@@ -167,6 +173,28 @@ export async function fulfillCheckoutAsOrder(
       currency: checkout.currency,
     });
   }
+
+  if (checkout.promo_code_id && (checkout.discount_cents ?? 0) > 0) {
+    await recordPromoRedemption({
+      promoCodeId: checkout.promo_code_id,
+      checkoutId: checkout.id,
+      orderId: order.id,
+      discountCents: checkout.discount_cents ?? 0,
+    }).catch(() => undefined);
+  }
+
+  await sendNewOrderNotification({
+    orderNumber: order.order_number,
+    orderType: checkout.checkout_kind,
+    serviceName: checkout.line_item_name,
+    customerDiscord: checkout.customer_discord,
+    customerEmail: checkout.customer_email,
+    amountCents: checkout.amount_cents,
+    currency: checkout.currency,
+    currentRank: checkout.current_rank,
+    targetRank: checkout.target_rank,
+    serviceDetail: checkout.service_detail,
+  }).catch(() => undefined);
 
   return { orderId: order.id, orderNumber: order.order_number };
 }

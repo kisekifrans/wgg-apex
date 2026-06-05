@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { Award, Clock, Shield, ShieldCheck, ShoppingBag } from "lucide-react";
+import { Award, Clock, Link2, Shield, ShieldCheck, ShoppingBag } from "lucide-react";
 
 import { RankIcon } from "@/components/shared/rank-icon";
 import { Badge } from "@/components/ui/badge";
@@ -49,6 +49,14 @@ function OrderTypeIcon({ order }: { order: HeroDashboardOrder }) {
     return (
       <span className="flex size-6 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/5">
         <Shield className="size-3.5 text-muted-foreground" aria-hidden />
+      </span>
+    );
+  }
+
+  if (order.orderType === "relinking_service") {
+    return (
+      <span className="flex size-6 shrink-0 items-center justify-center rounded-md border border-primary/25 bg-primary/10">
+        <Link2 className="size-3.5 text-primary" aria-hidden />
       </span>
     );
   }

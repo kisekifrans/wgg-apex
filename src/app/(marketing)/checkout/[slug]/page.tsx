@@ -12,7 +12,7 @@ import { getPayPalEnv } from "@/lib/paypal/env";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ bundle?: string }>;
+  searchParams: Promise<{ bundle?: string; promo?: string }>;
 };
 
 export async function generateMetadata({ params }: PageProps) {
@@ -26,13 +26,17 @@ export default async function ServiceCheckoutPage({
   searchParams,
 }: PageProps) {
   const { slug } = await params;
-  const { bundle } = await searchParams;
+  const { bundle, promo } = await searchParams;
   const masterPredatorPreset =
     bundle === MASTER_PREDATOR_BUNDLE_QUERY &&
     (slug === "ranked-boosting" || slug === "self-play-boosting");
 
   if (slug === "predator-maintenance") {
     redirect("/services/predator-maintenance");
+  }
+
+  if (slug === "relinking") {
+    redirect("/services/relinking");
   }
 
   if (!slugToCheckoutKind(slug)) {
@@ -84,6 +88,7 @@ export default async function ServiceCheckoutPage({
           serviceSlug={slug}
           paymentsEnabled={isCheckoutConfigured}
           masterPredatorPreset={masterPredatorPreset}
+          initialPromoCode={promo ?? ""}
         />
       </div>
     </div>

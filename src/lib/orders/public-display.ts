@@ -16,6 +16,7 @@ const ORDER_TYPE_LABELS: Record<ServiceOrderType, string> = {
   predator_maintenance: "Predator plan",
   kills_farming: "Kills farming",
   unban_service: "Unban case",
+  relinking_service: "Account relinking",
   marketplace: "Marketplace purchase",
 };
 
@@ -86,6 +87,8 @@ export function getEtaLabel(
       return "1–3 days";
     case "unban_service":
       return "5–14 days";
+    case "relinking_service":
+      return "1–3 days";
     case "marketplace":
       return "Transfer pending";
     default:

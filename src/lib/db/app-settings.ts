@@ -33,12 +33,15 @@ export async function setAppSetting(
 
 export type DiscordWebhookSettings = {
   soldWebhookUrl?: string;
+  ordersWebhookUrl?: string;
 };
 
 export async function getDiscordWebhookSettings(): Promise<DiscordWebhookSettings> {
-  const envUrl = process.env.DISCORD_MARKETPLACE_SOLD_WEBHOOK_URL?.trim();
+  const soldEnvUrl = process.env.DISCORD_MARKETPLACE_SOLD_WEBHOOK_URL?.trim();
+  const ordersEnvUrl = process.env.DISCORD_ORDERS_WEBHOOK_URL?.trim();
   const db = await getAppSetting<DiscordWebhookSettings>("discord_webhooks", {});
   return {
-    soldWebhookUrl: db.soldWebhookUrl || envUrl || undefined,
+    soldWebhookUrl: db.soldWebhookUrl || soldEnvUrl || undefined,
+    ordersWebhookUrl: db.ordersWebhookUrl || ordersEnvUrl || undefined,
   };
 }

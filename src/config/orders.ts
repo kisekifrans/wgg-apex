@@ -11,6 +11,7 @@ export const ORDER_TYPE_LABELS: Record<ServiceOrderType, string> = {
   predator_maintenance: "Predator Maintenance",
   kills_farming: "Kills Farming",
   unban_service: "Unban Service",
+  relinking_service: "Account Relinking",
   marketplace: "Account Marketplace",
 };
 
@@ -151,6 +152,17 @@ export const ORDER_TYPE_FIELDS: Record<ServiceOrderType, OrderFieldConfig> = {
     requireCurrentRank: false,
     requireTargetRank: false,
     requireServiceDetail: false,
+  },
+  relinking_service: {
+    showCurrentRank: false,
+    showTargetRank: false,
+    showServiceDetail: true,
+    currentRankLabel: "Current rank",
+    targetRankLabel: "Target rank",
+    serviceDetailLabel: "Platform",
+    requireCurrentRank: false,
+    requireTargetRank: false,
+    requireServiceDetail: true,
   },
   marketplace: {
     showCurrentRank: false,

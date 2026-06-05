@@ -39,6 +39,9 @@ const SLUG_VISUAL: Record<
   "apex-unban": {
     gradient: "from-zinc-800/80 via-card to-[#0a0a0a]",
   },
+  relinking: {
+    gradient: "from-primary/15 via-card to-[#0a0a0a]",
+  },
   "kills-farming": {
     gradient: "from-[#7f1d1d]/25 via-card to-[#0a0a0a]",
   },
