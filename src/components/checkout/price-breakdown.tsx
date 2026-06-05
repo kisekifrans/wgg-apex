@@ -8,13 +8,14 @@ type PriceBreakdownProps = {
 };
 
 export function PriceBreakdown({ quote, loading }: PriceBreakdownProps) {
-  if (loading) {
-    return (
-      <p className="text-sm text-muted-foreground">Calculating price…</p>
-    );
+  if (!quote) {
+    if (loading) {
+      return (
+        <p className="text-sm text-muted-foreground">Calculating price…</p>
+      );
+    }
+    return null;
   }
-
-  if (!quote) return null;
 
   return (
     <div className="space-y-2 border-t border-white/5 pt-3 text-sm">

@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { BundleRankSpan } from "@/components/marketing/bundle-rank-span";
+import { isMasterPredatorBundleItem } from "@/config/master-predator-pricing";
 import { getBundleAdditionalCents } from "@/config/ranked-bundles";
 import { formatPriceFromCents } from "@/lib/services/format-price";
 import { cn } from "@/lib/utils";
@@ -92,7 +93,9 @@ export function RankPricingSection({
                         {row.subtitle ?? "Bundle package"}
                       </td>
                       <td className="px-5 py-4 font-mono font-semibold tabular-nums">
-                        {formatPriceFromCents(row.priceCents)}
+                        {isMasterPredatorBundleItem(row)
+                          ? `From ${formatPriceFromCents(row.priceCents)}`
+                          : formatPriceFromCents(row.priceCents)}
                       </td>
                       <td className="px-5 py-4 font-mono tabular-nums text-muted-foreground">
                         {additional != null
@@ -104,7 +107,11 @@ export function RankPricingSection({
                       </td>
                       <td className="px-5 py-4 text-right">
                         <Link
-                          href="/checkout/ranked-boosting"
+                          href={
+                            isMasterPredatorBundleItem(row)
+                              ? "/checkout/ranked-boosting?bundle=master-predator"
+                              : "/checkout/ranked-boosting"
+                          }
                           className="text-sm font-medium text-primary hover:underline"
                         >
                           Configure
@@ -164,14 +171,20 @@ export function RankPricingSection({
                           {row.subtitle ?? "—"}
                         </td>
                         <td className="px-5 py-4 font-mono font-semibold tabular-nums text-primary">
-                          {formatPriceFromCents(row.priceCents)}
+                          {isMasterPredatorBundleItem(row)
+                            ? `From ${formatPriceFromCents(row.priceCents)}`
+                            : formatPriceFromCents(row.priceCents)}
                         </td>
                         <td className="px-5 py-4 text-muted-foreground">
                           {row.etaLabel ?? "—"}
                         </td>
                         <td className="px-5 py-4 text-right">
                           <Link
-                            href="/checkout/self-play-boosting"
+                            href={
+                              isMasterPredatorBundleItem(row)
+                                ? "/checkout/self-play-boosting?bundle=master-predator"
+                                : "/checkout/self-play-boosting"
+                            }
                             className="text-sm font-medium text-primary hover:underline"
                           >
                             Configure

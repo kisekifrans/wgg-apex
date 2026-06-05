@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { MarketingNavLink } from "@/components/layout/marketing-nav-link";
 import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
 import { getDiscordCommunityConfig } from "@/config/discord-community";
@@ -50,13 +51,13 @@ export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
 
         <nav className="hidden items-center gap-8 md:flex" aria-label="Main">
           {mainNav.map((item) => (
-            <Link
+            <MarketingNavLink
               key={item.href}
               href={item.href}
               className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               {item.label}
-            </Link>
+            </MarketingNavLink>
           ))}
         </nav>
 
@@ -73,7 +74,9 @@ export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
           <Button
             size="sm"
             className="bg-primary font-medium text-primary-foreground shadow-[0_0_24px_-6px] shadow-[rgba(249,115,22,0.35)] hover:bg-[var(--brand-orange-deep)]"
-            render={<Link href="#services" />}
+            render={
+              <MarketingNavLink href="#services" className="inline-flex items-center justify-center" />
+            }
           >
             Get Started
           </Button>
@@ -97,14 +100,14 @@ export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
             aria-label="Mobile"
           >
             {mainNav.map((item) => (
-              <Link
+              <MarketingNavLink
                 key={item.href}
                 href={item.href}
                 className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground hover:bg-white/5 hover:text-foreground"
                 onClick={() => setMobileOpen(false)}
               >
                 {item.label}
-              </Link>
+              </MarketingNavLink>
             ))}
             <div className="mt-3 flex flex-col gap-2 border-t border-white/5 pt-4">
               <Button
@@ -118,7 +121,7 @@ export function MarketingHeader({ isSignedIn = false }: MarketingHeaderProps) {
               </Button>
               <Button
                 className="w-full bg-primary text-primary-foreground"
-                render={<Link href="#services" />}
+                render={<MarketingNavLink href="#services" />}
                 onClick={() => setMobileOpen(false)}
               >
                 Get Started

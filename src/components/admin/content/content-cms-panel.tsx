@@ -45,7 +45,9 @@ export function ContentCmsPanel({
           Discord sold webhook
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Posts a SOLD embed when an admin marks a marketplace listing as sold.
+          Automatically posts a SOLD embed when a marketplace account is sold
+          (PayPal checkout, admin status change, or edit form). Env fallback:{" "}
+          <code className="text-xs">DISCORD_MARKETPLACE_SOLD_WEBHOOK_URL</code>.
         </p>
         <form
           className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end"

@@ -6,11 +6,13 @@ import { CheckoutForm } from "@/components/checkout/checkout-form";
 import { PaymentPreviewNotice } from "@/components/checkout/payment-preview-notice";
 import { Button } from "@/components/ui/button";
 import { slugToCheckoutKind } from "@/config/checkout";
+import { MASTER_PREDATOR_BUNDLE_QUERY } from "@/config/master-predator-pricing";
 import { getServiceBySlug } from "@/lib/db/services-catalog";
 import { getPayPalEnv } from "@/lib/paypal/env";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ bundle?: string }>;
 };
 
 export async function generateMetadata({ params }: PageProps) {
@@ -19,8 +21,15 @@ export async function generateMetadata({ params }: PageProps) {
   return { title: service ? `Checkout — ${service.name}` : "Checkout" };
 }
 
-export default async function ServiceCheckoutPage({ params }: PageProps) {
+export default async function ServiceCheckoutPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { slug } = await params;
+  const { bundle } = await searchParams;
+  const masterPredatorPreset =
+    bundle === MASTER_PREDATOR_BUNDLE_QUERY &&
+    (slug === "ranked-boosting" || slug === "self-play-boosting");
 
   if (slug === "predator-maintenance") {
     redirect("/services/predator-maintenance");
@@ -74,6 +83,7 @@ export default async function ServiceCheckoutPage({ params }: PageProps) {
           service={service}
           serviceSlug={slug}
           paymentsEnabled={isCheckoutConfigured}
+          masterPredatorPreset={masterPredatorPreset}
         />
       </div>
     </div>

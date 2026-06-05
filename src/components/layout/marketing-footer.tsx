@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { Shield } from "lucide-react";
 
+import { MarketingNavLink } from "@/components/layout/marketing-nav-link";
 import { Logo } from "@/components/shared/logo";
 import { Separator } from "@/components/ui/separator";
 import { getDiscordCommunityConfig } from "@/config/discord-community";
@@ -87,12 +87,12 @@ function FooterColumn({
                 {link.label}
               </a>
             ) : (
-              <Link
+              <MarketingNavLink
                 href={link.href}
                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {link.label}
-              </Link>
+              </MarketingNavLink>
             )}
           </li>
         ))}

@@ -71,7 +71,11 @@ export async function buildCheckoutQuote(
     const baseCents = computeRankSpanBaseCents(
       service.pricingItems,
       currentRank,
-      targetRank
+      targetRank,
+      {
+        platform,
+        duoBoost: serviceSlug === "self-play-boosting",
+      }
     );
     if (baseCents == null) {
       return {

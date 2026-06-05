@@ -1,3 +1,7 @@
+import {
+  computeMasterPredatorBaseCents,
+  isMasterPredatorSpan,
+} from "@/config/master-predator-pricing";
 import { computeBundleSpanCents } from "@/config/ranked-bundles";
 import { ORDER_RANK_OPTIONS } from "@/config/orders";
 import {
@@ -74,7 +78,21 @@ export function formatCheckoutOptionsNote(
 export function computeRankSpanBaseCents(
   pricingItems: CatalogPricingItem[],
   currentRank: string,
-  targetRank: string
+  targetRank: string,
+  options?: {
+    platform?: CheckoutPlatform | null;
+    duoBoost?: boolean;
+  }
 ): number | null {
+  if (
+    isMasterPredatorSpan(currentRank, targetRank) &&
+    options?.platform
+  ) {
+    return computeMasterPredatorBaseCents(
+      options.platform,
+      options.duoBoost ?? false
+    );
+  }
+
   return computeBundleSpanCents(pricingItems, currentRank, targetRank);
 }

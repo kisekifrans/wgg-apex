@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, Lock } from "lucide-react";
 import { toast } from "sonner";
 
@@ -20,7 +20,12 @@ import {
   getKillsFarmingConfig,
 } from "@/config/kills-farming-pricing";
 import { ORDER_RANK_OPTIONS } from "@/config/orders";
+import { MasterPredatorPricingPanel } from "@/components/checkout/master-predator-pricing-panel";
 import { PriceBreakdown } from "@/components/checkout/price-breakdown";
+import {
+  MASTER_PREDATOR_FROM_RANK,
+  MASTER_PREDATOR_TO_RANK,
+} from "@/config/master-predator-pricing";
 import { formatPriceFromCents } from "@/lib/services/format-price";
 import type { CheckoutQuote } from "@/types/checkout";
 import type { CatalogPricingItem, CatalogService } from "@/types/services";
@@ -28,6 +33,7 @@ import type { MarketplaceListing } from "@/types/marketplace";
 
 type CheckoutFormProps = {
   paymentsEnabled: boolean;
+  masterPredatorPreset?: boolean;
 } & (
   | {
       mode: "service";
@@ -40,7 +46,11 @@ type CheckoutFormProps = {
     }
 );
 
-export function CheckoutForm({ paymentsEnabled, ...props }: CheckoutFormProps) {
+export function CheckoutForm({
+  paymentsEnabled,
+  masterPredatorPreset = false,
+  ...props
+}: CheckoutFormProps) {
   const [loading, setLoading] = useState(false);
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [quote, setQuote] = useState<CheckoutQuote | null>(null);
@@ -51,30 +61,52 @@ export function CheckoutForm({ paymentsEnabled, ...props }: CheckoutFormProps) {
       ? props.service.pricingItems[0].id
       : ""
   );
-  const [currentRank, setCurrentRank] = useState("");
-  const [targetRank, setTargetRank] = useState("");
-  const [platform, setPlatform] = useState("");
+  const [currentRank, setCurrentRank] = useState(
+    masterPredatorPreset ? MASTER_PREDATOR_FROM_RANK : ""
+  );
+  const [targetRank, setTargetRank] = useState(
+    masterPredatorPreset ? MASTER_PREDATOR_TO_RANK : ""
+  );
+  const [platform, setPlatform] = useState(
+    masterPredatorPreset ? "xbox" : ""
+  );
   const [priority, setPriority] = useState("standard");
-  const killsConfig =
-    props.mode === "service" && props.serviceSlug === "kills-farming"
-      ? getKillsFarmingConfig(props.service.pricingItems)
-      : null;
+  const serviceSlug = props.mode === "service" ? props.serviceSlug : null;
+  const pricingItems =
+    props.mode === "service" ? props.service.pricingItems : null;
+
+  const killsConfig = useMemo(
+    () =>
+      serviceSlug === "kills-farming" && pricingItems
+        ? getKillsFarmingConfig(pricingItems)
+        : null,
+    [serviceSlug, pricingItems]
+  );
   const [killCount, setKillCount] = useState(
     killsConfig?.minKills ?? 100
   );
 
-  const isKillsFarming =
-    props.mode === "service" && props.serviceSlug === "kills-farming";
+  const isKillsFarming = serviceSlug === "kills-farming";
 
   const isRankedTier =
-    props.mode === "service" &&
-    (props.serviceSlug === "ranked-boosting" ||
-      props.serviceSlug === "self-play-boosting");
+    serviceSlug === "ranked-boosting" || serviceSlug === "self-play-boosting";
 
   const requiresRanks =
     props.mode === "service" &&
     props.service.pricingEngine === "tier_table" &&
     isRankedTier;
+
+  const lockedMasterPredator =
+    masterPredatorPreset && requiresRanks && isRankedTier;
+
+  const rankPlatforms = lockedMasterPredator
+    ? CHECKOUT_PLATFORMS.filter(
+        (p) =>
+          p.value === "xbox" ||
+          p.value === "pc" ||
+          p.value === "playstation"
+      )
+    : CHECKOUT_PLATFORMS;
 
   const showPricingItems =
     props.mode === "service" &&
@@ -95,13 +127,18 @@ export function CheckoutForm({ paymentsEnabled, ...props }: CheckoutFormProps) {
         : (selectedItem?.priceCents ?? 0);
 
   const amountCents = quote?.amountCents ?? staticAmountCents;
+  const quoteRequestId = useRef(0);
+  const minKills = killsConfig?.minKills ?? 100;
 
   const fetchQuote = useCallback(async () => {
     if (props.mode === "marketplace") {
       setQuote(null);
       setQuoteError(null);
+      setQuoteLoading(false);
       return;
     }
+
+    if (!serviceSlug) return;
 
     const input = {
       customerDiscord: "quote",
@@ -118,22 +155,30 @@ export function CheckoutForm({ paymentsEnabled, ...props }: CheckoutFormProps) {
       if (!currentRank || !targetRank || !platform) {
         setQuote(null);
         setQuoteError(null);
+        setQuoteLoading(false);
         return;
       }
     } else if (isKillsFarming) {
-      if (!killCount || killCount < (killsConfig?.minKills ?? 100)) {
+      if (!killCount || killCount < minKills) {
         setQuote(null);
         setQuoteError(null);
+        setQuoteLoading(false);
         return;
       }
     } else if (!selectedItemId) {
       setQuote(null);
       setQuoteError(null);
+      setQuoteLoading(false);
       return;
     }
 
+    const requestId = ++quoteRequestId.current;
     setQuoteLoading(true);
-    const result = await getCheckoutQuote(props.serviceSlug, input);
+
+    const result = await getCheckoutQuote(serviceSlug, input);
+
+    if (requestId !== quoteRequestId.current) return;
+
     setQuoteLoading(false);
 
     if (result.success) {
@@ -144,7 +189,8 @@ export function CheckoutForm({ paymentsEnabled, ...props }: CheckoutFormProps) {
       setQuoteError(result.error);
     }
   }, [
-    props,
+    props.mode,
+    serviceSlug,
     currentRank,
     targetRank,
     platform,
@@ -153,7 +199,7 @@ export function CheckoutForm({ paymentsEnabled, ...props }: CheckoutFormProps) {
     requiresRanks,
     isKillsFarming,
     killCount,
-    killsConfig,
+    minKills,
   ]);
 
   useEffect(() => {
@@ -256,6 +302,13 @@ export function CheckoutForm({ paymentsEnabled, ...props }: CheckoutFormProps) {
             </p>
           </div>
 
+          {lockedMasterPredator && (
+            <MasterPredatorPricingPanel
+              duoBoost={serviceSlug === "self-play-boosting"}
+              selectedPlatform={platform}
+            />
+          )}
+
           {requiresRanks && (
             <>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -266,8 +319,9 @@ export function CheckoutForm({ paymentsEnabled, ...props }: CheckoutFormProps) {
                     name="currentRank"
                     required
                     value={currentRank}
+                    disabled={lockedMasterPredator}
                     onChange={(e) => setCurrentRank(e.target.value)}
-                    className="field-select flex h-9 w-full rounded-lg border border-white/10 bg-background/50 px-3 text-sm"
+                    className="field-select flex h-9 w-full rounded-lg border border-white/10 bg-background/50 px-3 text-sm disabled:opacity-70"
                   >
                     <option value="">Select…</option>
                     {ORDER_RANK_OPTIONS.map((r) => (
@@ -284,8 +338,9 @@ export function CheckoutForm({ paymentsEnabled, ...props }: CheckoutFormProps) {
                     name="targetRank"
                     required
                     value={targetRank}
+                    disabled={lockedMasterPredator}
                     onChange={(e) => setTargetRank(e.target.value)}
-                    className="field-select flex h-9 w-full rounded-lg border border-white/10 bg-background/50 px-3 text-sm"
+                    className="field-select flex h-9 w-full rounded-lg border border-white/10 bg-background/50 px-3 text-sm disabled:opacity-70"
                   >
                     <option value="">Select…</option>
                     {ORDER_RANK_OPTIONS.map((r) => (
@@ -308,13 +363,19 @@ export function CheckoutForm({ paymentsEnabled, ...props }: CheckoutFormProps) {
                     onChange={(e) => setPlatform(e.target.value)}
                     className="field-select flex h-9 w-full rounded-lg border border-white/10 bg-background/50 px-3 text-sm"
                   >
-                    <option value="">Select…</option>
-                    {CHECKOUT_PLATFORMS.map((p) => (
+                    {!lockedMasterPredator && <option value="">Select…</option>}
+                    {rankPlatforms.map((p) => (
                       <option key={p.value} value={p.value}>
                         {p.label}
                       </option>
                     ))}
                   </select>
+                  {lockedMasterPredator && (
+                    <p className="text-xs text-muted-foreground">
+                      Xbox $170 · PC $350 · PlayStation $300
+                      {serviceSlug === "self-play-boosting" ? " (duo 2×)" : ""}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="priority">Priority</Label>
@@ -469,7 +530,7 @@ export function CheckoutForm({ paymentsEnabled, ...props }: CheckoutFormProps) {
             size="lg"
             disabled={
               loading ||
-              quoteLoading ||
+              (quoteLoading && !quote) ||
               amountCents <= 0 ||
               !!quoteError ||
               !paymentsEnabled

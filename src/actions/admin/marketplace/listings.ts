@@ -85,6 +85,15 @@ export async function createMarketplaceListing(
     return { success: false, error: error?.message ?? "Failed to create listing" };
   }
 
+  if (input.status === "sold") {
+    const { notifyMarketplaceSold } = await import(
+      "@/actions/admin/marketplace/notify-sold"
+    );
+    await notifyMarketplaceSold(listing.id, { soldVia: "admin" }).catch(
+      () => undefined
+    );
+  }
+
   revalidateMarketplace();
   revalidatePath(`/marketplace/${listing.id}`);
   return { success: true, data: { id: listing.id } };
@@ -120,25 +129,44 @@ export async function updateMarketplaceListing(
   const input = parsed.data;
   const supabase = createAdminClient();
 
+  const { data: existing } = await supabase
+    .from("marketplace_listings")
+    .select("status")
+    .eq("id", id)
+    .maybeSingle();
+
+  const updates: Record<string, unknown> = {
+    title: input.title,
+    description: input.description ?? null,
+    rank_label: input.rankLabel,
+    rp_label: input.rpLabel ?? null,
+    platform: input.platform,
+    price_cents: dollarsToCents(input.priceDollars),
+    heirloom_count: input.heirloomCount,
+    baller_count: input.ballerCount,
+    status: input.status,
+    is_featured: input.isFeatured,
+    tags: parseTags(input.tags),
+  };
+
+  if (input.status === "sold" && existing?.status !== "sold") {
+    updates.sold_at = new Date().toISOString();
+  }
+
   const { error } = await supabase
     .from("marketplace_listings")
-    .update({
-      title: input.title,
-      description: input.description ?? null,
-      rank_label: input.rankLabel,
-      rp_label: input.rpLabel ?? null,
-      platform: input.platform,
-      price_cents: dollarsToCents(input.priceDollars),
-      heirloom_count: input.heirloomCount,
-      baller_count: input.ballerCount,
-      status: input.status,
-      is_featured: input.isFeatured,
-      tags: parseTags(input.tags),
-    })
+    .update(updates)
     .eq("id", id);
 
   if (error) {
     return { success: false, error: error.message };
+  }
+
+  if (input.status === "sold" && existing?.status !== "sold") {
+    const { notifyMarketplaceSold } = await import(
+      "@/actions/admin/marketplace/notify-sold"
+    );
+    await notifyMarketplaceSold(id, { soldVia: "admin" }).catch(() => undefined);
   }
 
   const removeIds = formData
@@ -221,7 +249,7 @@ export async function updateListingStatus(
     const { notifyMarketplaceSold } = await import(
       "@/actions/admin/marketplace/notify-sold"
     );
-    await notifyMarketplaceSold(id).catch(() => undefined);
+    await notifyMarketplaceSold(id, { soldVia: "admin" }).catch(() => undefined);
   }
 
   revalidateMarketplace();

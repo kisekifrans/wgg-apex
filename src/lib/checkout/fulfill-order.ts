@@ -77,6 +77,14 @@ export async function fulfillCheckoutAsOrder(
     if (listingError) {
       throw new Error(listingError.message);
     }
+
+    const { notifyMarketplaceSold } = await import(
+      "@/actions/admin/marketplace/notify-sold"
+    );
+    await notifyMarketplaceSold(checkout.marketplace_listing_id, {
+      orderNumber: order.order_number,
+      soldVia: "checkout",
+    }).catch(() => undefined);
   }
 
   const { error: linkError } = await supabase
