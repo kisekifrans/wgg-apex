@@ -5,9 +5,51 @@ import { isRequestAdmin } from "@/lib/auth/middleware-admin";
 import { safeRedirectPath } from "@/lib/auth/safe-redirect";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
-export async function middleware(request: NextRequest) {
-  const { url, anonKey, isConfigured } = getSupabaseEnv();
+function redirectMisplacedAuthCode(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (pathname === "/api/auth/callback") {
+    return null;
+  }
+
+  const code = request.nextUrl.searchParams.get("code");
+  const tokenHash = request.nextUrl.searchParams.get("token_hash");
+  const otpType = request.nextUrl.searchParams.get("type");
+
+  if (!code && !(tokenHash && otpType)) {
+    return null;
+  }
+
+  const callbackUrl = new URL("/api/auth/callback", request.url);
+  request.nextUrl.searchParams.forEach((value, key) => {
+    callbackUrl.searchParams.set(key, value);
+  });
+
+  if (!callbackUrl.searchParams.has("redirectTo")) {
+    callbackUrl.searchParams.set("redirectTo", "/account");
+  }
+
+  return NextResponse.redirect(callbackUrl);
+}
+
+export async function middleware(request: NextRequest) {
+  const misplacedAuth = redirectMisplacedAuthCode(request);
+  if (misplacedAuth) {
+    return misplacedAuth;
+  }
+
+  const { pathname } = request.nextUrl;
+  const isProtectedRoute =
+    pathname.startsWith("/admin") ||
+    pathname === "/login" ||
+    pathname === "/account" ||
+    pathname.startsWith("/account/");
+
+  if (!isProtectedRoute) {
+    return NextResponse.next();
+  }
+
+  const { url, anonKey, isConfigured } = getSupabaseEnv();
 
   let response = NextResponse.next({ request });
 
@@ -92,5 +134,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/login", "/account", "/account/:path*"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|icon|apple-icon|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+  ],
 };

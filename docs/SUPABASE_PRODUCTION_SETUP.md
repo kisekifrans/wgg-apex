@@ -2,13 +2,15 @@
 
 Apply these settings in the **Supabase Dashboard** for your production project before go-live.
 
-## 1. Disable public sign-up (AUTH-02)
+## 1. Email provider & sign-up policy
 
-Admin access must not be obtainable by self-service registration.
+**Customer accounts** (`/account/login`) use magic links with `shouldCreateUser: true`.  
+**Admin access** (`/login`) uses email + password and is gated by `ADMIN_EMAILS` / `profiles.role`.
 
 1. Open **Authentication → Providers → Email**.
-2. Turn **off** “Enable sign ups” (or use **Invite only** if your plan supports it).
-3. Create admin users manually:
+2. Keep **Enable sign ups** **ON** so checkout customers can create an account from the magic link.
+3. Do **not** expose `/login` on the marketing site — only staff should know that URL.
+4. Create admin users manually:
    - **Authentication → Users → Add user** (email + password), or
    - Invite by email from the dashboard.
 
@@ -34,16 +36,31 @@ SELECT id, email, role FROM public.profiles WHERE email = 'ops@yourdomain.com';
 
 Use the same email as in **Authentication → Users**. After this, you can remove that address from `ADMIN_EMAILS` if you want role-only access.
 
-## 2. Auth URL configuration
+## 2. Auth URL configuration (required for customer sign-in)
 
 **Authentication → URL configuration**
 
+If these are wrong, email links land on the homepage and the user stays logged out.
+
 | Setting | Value |
 |---------|--------|
-| Site URL | `https://your-production-domain.com` |
-| Redirect URLs | `https://your-production-domain.com/api/auth/callback` |
+| Site URL | `https://www.wggapex.com` (use the host customers actually browse) |
+| Redirect URLs | Add **every** variant below (www and non-www are different): |
 
-Match `NEXT_PUBLIC_SITE_URL` in your hosting env.
+```
+https://www.wggapex.com/api/auth/callback
+https://www.wggapex.com/api/auth/callback/**
+https://wggapex.com/api/auth/callback
+https://wggapex.com/api/auth/callback/**
+http://localhost:3000/api/auth/callback
+http://localhost:3000/api/auth/callback/**
+```
+
+Also set **Vercel** env `NEXT_PUBLIC_SITE_URL` to the same canonical host (`https://www.wggapex.com`).
+
+**Quick test:** Request a link at `/account/login`, then hover the email **Sign in** button. The link should contain  
+`redirect_to=...%2Fapi%2Fauth%2Fcallback...`  
+If it only points at `https://www.wggapex.com/` with no `/api/auth/callback`, Supabase rejected your redirect URL — fix the allow list above.
 
 ## 3. Run all migrations
 
