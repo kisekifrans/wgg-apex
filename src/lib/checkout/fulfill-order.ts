@@ -2,6 +2,8 @@ import "server-only";
 
 import { sendOrderConfirmationEmail } from "@/lib/email/send-order-confirmation";
 import { generateOrderNumber } from "@/lib/orders/order-number";
+import { progressPercentForStatus } from "@/lib/orders/progress";
+import { recordOrderStatusUpdate } from "@/lib/orders/status-updates";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ServiceOrderType } from "@/types/orders";
 
@@ -44,6 +46,7 @@ export async function fulfillCheckoutAsOrder(
       notes: checkout.notes,
       status: "paid",
       payment_status: "paid",
+      progress_percent: progressPercentForStatus("paid"),
       amount_cents: checkout.amount_cents,
       currency: checkout.currency,
       stripe_checkout_id: checkout.id,
@@ -88,6 +91,10 @@ export async function fulfillCheckoutAsOrder(
   if (linkError) {
     throw new Error(linkError.message);
   }
+
+  await recordOrderStatusUpdate(order.id, "paid", {
+    message: "Payment confirmed — assigning operator",
+  });
 
   if (checkout.customer_email) {
     await sendOrderConfirmationEmail({

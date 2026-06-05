@@ -93,6 +93,34 @@ export function OrderLookupCard({ order }: OrderLookupCardProps) {
         </div>
       </div>
 
+      {order.timeline.length > 0 && (
+        <div className="mt-8">
+          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Timeline
+          </h3>
+          <ol className="mt-4 space-y-4 border-l border-white/10 pl-4">
+            {order.timeline.map((entry, index) => (
+              <li key={`${entry.createdAt}-${index}`} className="relative">
+                <span
+                  className="absolute -left-[21px] top-1.5 size-2.5 rounded-full border-2 border-background bg-primary"
+                  aria-hidden
+                />
+                <p className="text-sm font-medium">{entry.statusLabel}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {entry.message}
+                </p>
+                <time
+                  dateTime={entry.createdAt}
+                  className="mt-1 block text-xs text-muted-foreground/80"
+                >
+                  {new Date(entry.createdAt).toLocaleString()}
+                </time>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
       <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
         Operators reach out on Discord for fulfillment. If you need help, email{" "}
         <a

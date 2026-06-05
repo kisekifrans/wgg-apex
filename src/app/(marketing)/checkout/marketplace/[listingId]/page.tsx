@@ -1,11 +1,18 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { CheckoutForm } from "@/components/checkout/checkout-form";
 import { StripePreviewNotice } from "@/components/checkout/stripe-preview-notice";
 import { Button } from "@/components/ui/button";
-import { getPublicMarketplaceListingById } from "@/lib/db/marketplace-listings";
+import {
+  getPublicMarketplaceListingByRef,
+  isMarketplaceListingUuid,
+} from "@/lib/db/marketplace-listings";
+import {
+  marketplaceCheckoutPath,
+  marketplaceListingPath,
+} from "@/lib/marketplace/paths";
 import { getStripeEnv } from "@/lib/stripe/env";
 
 type PageProps = {
@@ -15,9 +22,13 @@ type PageProps = {
 export default async function MarketplaceCheckoutPage({ params }: PageProps) {
   const { listingId } = await params;
 
-  const listing = await getPublicMarketplaceListingById(listingId);
+  const listing = await getPublicMarketplaceListingByRef(listingId);
   if (!listing || listing.status !== "available") {
     notFound();
+  }
+
+  if (isMarketplaceListingUuid(listingId)) {
+    redirect(marketplaceCheckoutPath(listing));
   }
 
   const { isCheckoutConfigured } = getStripeEnv();
@@ -28,7 +39,7 @@ export default async function MarketplaceCheckoutPage({ params }: PageProps) {
         variant="ghost"
         size="sm"
         className="-ml-2 mb-6 text-muted-foreground"
-        render={<Link href={`/marketplace/${listingId}`} />}
+        render={<Link href={marketplaceListingPath(listing)} />}
       >
         <ArrowLeft className="size-4" data-icon="inline-start" />
         Back to listing

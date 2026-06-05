@@ -150,6 +150,7 @@ export async function createCheckoutSession(
     ...input,
     customerDiscord: discord,
     customerEmail,
+    notes: input.notes?.trim() || null,
   });
 
   if (!quoteResult.success) {

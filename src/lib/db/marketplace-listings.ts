@@ -52,6 +52,13 @@ const PUBLIC_STATUSES: MarketplaceListingStatus[] = [
   "sold",
 ];
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export function isMarketplaceListingUuid(ref: string): boolean {
+  return UUID_RE.test(ref.trim());
+}
+
 function mapImage(row: ImageRow): MarketplaceListingImage {
   return {
     id: row.id,
@@ -193,15 +200,14 @@ export async function getPublicMarketplaceListings(
   return sortListings(listings, query.sort ?? "newest");
 }
 
-export async function getPublicMarketplaceListingById(
-  id: string
+async function fetchPublicListingWithImages(
+  client: Awaited<ReturnType<typeof getPublicDataClient>>,
+  listingId: string
 ): Promise<MarketplaceListing | null> {
-  const client = await getPublicDataClient();
-
   const { data, error } = await client
     .from("marketplace_listings")
     .select("*")
-    .eq("id", id)
+    .eq("id", listingId)
     .in("status", PUBLIC_STATUSES)
     .maybeSingle();
 
@@ -211,10 +217,43 @@ export async function getPublicMarketplaceListingById(
   const { data: images } = await client
     .from("marketplace_listing_images")
     .select("*")
-    .eq("listing_id", id)
+    .eq("listing_id", listingId)
     .order("sort_order", { ascending: true });
 
   return mapListing(data as ListingRow, (images as ImageRow[]) ?? []);
+}
+
+export async function getPublicMarketplaceListingById(
+  id: string
+): Promise<MarketplaceListing | null> {
+  const client = await getPublicDataClient();
+  return fetchPublicListingWithImages(client, id);
+}
+
+/** Resolve by UUID or human listing number (e.g. ACC-2026-00001). */
+export async function getPublicMarketplaceListingByRef(
+  ref: string
+): Promise<MarketplaceListing | null> {
+  const trimmed = ref.trim();
+  if (!trimmed) return null;
+
+  const client = await getPublicDataClient();
+
+  if (isMarketplaceListingUuid(trimmed)) {
+    return fetchPublicListingWithImages(client, trimmed);
+  }
+
+  const { data, error } = await client
+    .from("marketplace_listings")
+    .select("id")
+    .ilike("listing_number", trimmed)
+    .in("status", PUBLIC_STATUSES)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+
+  return fetchPublicListingWithImages(client, data.id);
 }
 
 export async function getAdminMarketplaceListings(

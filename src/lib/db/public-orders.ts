@@ -1,6 +1,7 @@
 import "server-only";
 
 import { toPublicOrderSnapshot } from "@/lib/orders/public-display";
+import { getCustomerOrderTimeline } from "@/lib/orders/status-updates";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { PublicOrderSnapshot } from "@/types/public-order";
 import type {
@@ -10,6 +11,7 @@ import type {
 } from "@/types/orders";
 
 type PublicOrderRow = {
+  id: string;
   order_number: string;
   order_type: ServiceOrderType;
   customer_email: string | null;
@@ -18,13 +20,24 @@ type PublicOrderRow = {
   service_detail: string | null;
   status: ServiceOrderStatus;
   payment_status: ServiceOrderPaymentStatus;
+  progress_percent: number;
   amount_cents: number | null;
   currency: string;
   updated_at: string;
   completed_at: string | null;
 };
 
-function mapPublicRow(row: PublicOrderRow): PublicOrderSnapshot {
+async function mapPublicRow(
+  row: PublicOrderRow,
+  orderId: string
+): Promise<PublicOrderSnapshot> {
+  let timeline: Awaited<ReturnType<typeof getCustomerOrderTimeline>> = [];
+  try {
+    timeline = await getCustomerOrderTimeline(orderId);
+  } catch {
+    timeline = [];
+  }
+
   return toPublicOrderSnapshot({
     orderNumber: row.order_number,
     orderType: row.order_type,
@@ -33,15 +46,17 @@ function mapPublicRow(row: PublicOrderRow): PublicOrderSnapshot {
     serviceDetail: row.service_detail,
     status: row.status,
     paymentStatus: row.payment_status,
+    progressPercent: row.progress_percent,
     amountCents: row.amount_cents,
     currency: row.currency,
     updatedAt: row.updated_at,
     completedAt: row.completed_at,
+    timeline,
   });
 }
 
 const PUBLIC_ORDER_COLUMNS =
-  "order_number, order_type, customer_email, current_rank, target_rank, service_detail, status, payment_status, amount_cents, currency, updated_at, completed_at";
+  "id, order_number, order_type, customer_email, current_rank, target_rank, service_detail, status, payment_status, progress_percent, amount_cents, currency, updated_at, completed_at";
 
 /** Most recent paid order for homepage hero (no PII beyond order number). */
 export async function getRecentPublicHeroOrder(): Promise<PublicOrderSnapshot | null> {
@@ -59,7 +74,7 @@ export async function getRecentPublicHeroOrder(): Promise<PublicOrderSnapshot | 
 
     if (error || !data) return null;
 
-    return mapPublicRow(data as PublicOrderRow);
+    return mapPublicRow(data as PublicOrderRow, data.id);
   } catch {
     return null;
   }
@@ -103,7 +118,7 @@ export async function lookupPublicOrder(
       return null;
     }
 
-    return mapPublicRow(row);
+    return mapPublicRow(row, row.id);
   } catch {
     return null;
   }

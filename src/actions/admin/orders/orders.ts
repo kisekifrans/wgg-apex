@@ -5,6 +5,11 @@ import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth/guards";
 import { generateOrderNumber } from "@/lib/orders/order-number";
+import {
+  applyOrderStatusChange,
+  statusTimestamps,
+} from "@/lib/orders/status-change";
+import { progressPercentForStatus } from "@/lib/orders/progress";
 import { dollarsToCents } from "@/lib/validations/marketplace";
 import {
   parseAmountDollars,
@@ -29,17 +34,6 @@ export type ActionResult<T = void> =
 function emptyToNull(value: string | null | undefined): string | null {
   const trimmed = value?.trim();
   return trimmed ? trimmed : null;
-}
-
-function statusTimestamps(status: ServiceOrderStatus): {
-  completed_at: string | null;
-  cancelled_at: string | null;
-} {
-  const now = new Date().toISOString();
-  return {
-    completed_at: status === "completed" ? now : null,
-    cancelled_at: status === "cancelled" ? now : null,
-  };
 }
 
 function parseFormData(formData: FormData) {
@@ -76,6 +70,7 @@ function rowFromInput(
     payment_status: input.paymentStatus,
     amount_cents: amount !== null ? dollarsToCents(amount) : null,
     customer_email: emptyToNull(input.customerEmail ?? undefined),
+    progress_percent: progressPercentForStatus(input.status),
     ...timestamps,
   };
 }
@@ -129,14 +124,35 @@ export async function updateServiceOrder(
   }
 
   const supabase = createAdminClient();
-
-  const { error } = await supabase
+  const { data: existing } = await supabase
     .from("service_orders")
-    .update(rowFromInput(parsed.data))
-    .eq("id", id);
+    .select("status")
+    .eq("id", id)
+    .maybeSingle();
 
-  if (error) {
-    return { success: false, error: error.message };
+  const statusChanged =
+    existing?.status && existing.status !== parsed.data.status;
+
+  if (statusChanged) {
+    const statusResult = await applyOrderStatusChange(id, parsed.data.status);
+    if (!statusResult.success) {
+      return statusResult;
+    }
+
+    const { status: _status, ...rest } = rowFromInput(parsed.data);
+    const { error } = await supabase.from("service_orders").update(rest).eq("id", id);
+    if (error) {
+      return { success: false, error: error.message };
+    }
+  } else {
+    const { error } = await supabase
+      .from("service_orders")
+      .update(rowFromInput(parsed.data))
+      .eq("id", id);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
   }
 
   revalidateOrders();
@@ -167,18 +183,9 @@ export async function quickUpdateOrderStatus(
 ): Promise<ActionResult> {
   await requireAdmin();
 
-  const supabase = createAdminClient();
-
-  const { error } = await supabase
-    .from("service_orders")
-    .update({
-      status,
-      ...statusTimestamps(status),
-    })
-    .eq("id", id);
-
-  if (error) {
-    return { success: false, error: error.message };
+  const result = await applyOrderStatusChange(id, status);
+  if (!result.success) {
+    return result;
   }
 
   revalidateOrders();

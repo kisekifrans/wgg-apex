@@ -4,6 +4,14 @@ import type {
   ServiceOrderType,
 } from "@/types/orders";
 
+export type PublicOrderTimelineEntry = {
+  status: ServiceOrderStatus;
+  statusLabel: string;
+  message: string;
+  progressPercent: number | null;
+  createdAt: string;
+};
+
 /** Safe fields for hero widget and customer order lookup (no credentials). */
 export type PublicOrderSnapshot = {
   orderNumber: string;
@@ -22,6 +30,7 @@ export type PublicOrderSnapshot = {
   etaLabel: string;
   updatedAt: string;
   completedAt: string | null;
+  timeline: PublicOrderTimelineEntry[];
 };
 
 export type HeroOrderPreviewData = {

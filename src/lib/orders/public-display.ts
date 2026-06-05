@@ -1,4 +1,7 @@
-import type { HeroOrderPreviewData, PublicOrderSnapshot } from "@/types/public-order";
+import type {
+  HeroOrderPreviewData,
+  PublicOrderSnapshot,
+} from "@/types/public-order";
 import type {
   ServiceOrderPaymentStatus,
   ServiceOrderStatus,
@@ -37,7 +40,17 @@ export function getCustomerStatusLabel(status: ServiceOrderStatus): string {
   return STATUS_LABELS[status];
 }
 
-export function getProgressPercent(status: ServiceOrderStatus): number {
+export function getProgressPercent(
+  status: ServiceOrderStatus,
+  storedPercent?: number | null
+): number {
+  if (
+    typeof storedPercent === "number" &&
+    storedPercent >= 0 &&
+    storedPercent <= 100
+  ) {
+    return storedPercent;
+  }
   switch (status) {
     case "pending":
       return 5;
@@ -84,10 +97,12 @@ export function toPublicOrderSnapshot(order: {
   serviceDetail: string | null;
   status: ServiceOrderStatus;
   paymentStatus: ServiceOrderPaymentStatus;
+  progressPercent?: number | null;
   amountCents: number | null;
   currency: string;
   updatedAt: string;
   completedAt: string | null;
+  timeline?: PublicOrderSnapshot["timeline"];
 }): PublicOrderSnapshot {
   return {
     orderNumber: order.orderNumber,
@@ -102,7 +117,8 @@ export function toPublicOrderSnapshot(order: {
     serviceDetail: order.serviceDetail,
     amountCents: order.amountCents,
     currency: order.currency,
-    progressPercent: getProgressPercent(order.status),
+    progressPercent: getProgressPercent(order.status, order.progressPercent),
+    timeline: order.timeline ?? [],
     etaLabel: getEtaLabel(order.orderType, order.status),
     updatedAt: order.updatedAt,
     completedAt: order.completedAt,

@@ -4,6 +4,11 @@ import type { UnbanIntakeDetails } from "@/types/unban";
 
 export type CheckoutKind = ServiceOrderType;
 
+export type CheckoutQuoteAdjustment = {
+  label: string;
+  cents: number;
+};
+
 export type CheckoutQuote = {
   amountCents: number;
   currency: string;
@@ -14,6 +19,7 @@ export type CheckoutQuote = {
   pricingItemId: string | null;
   marketplaceListingId: string | null;
   serviceDetail: string | null;
+  adjustments?: CheckoutQuoteAdjustment[];
 };
 
 export type CheckoutFormInput = {
@@ -24,6 +30,8 @@ export type CheckoutFormInput = {
   notes?: string | null;
   pricingItemId?: string | null;
   listingId?: string | null;
+  platform?: string | null;
+  priority?: string | null;
   unbanDetails?: UnbanIntakeDetails | null;
   predatorDetails?: PredatorIntakeDetails | null;
 };

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, Monitor, ShieldCheck } from "lucide-react";
 
 import { ListingImageGallery } from "@/components/marketplace/listing-image-gallery";
@@ -7,8 +7,15 @@ import { ListingStatusBadge } from "@/components/marketplace/listing-status-badg
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { getPublicMarketplaceListingById } from "@/lib/db/marketplace-listings";
+import {
+  getPublicMarketplaceListingByRef,
+  isMarketplaceListingUuid,
+} from "@/lib/db/marketplace-listings";
 import { formatListingPrice } from "@/lib/marketplace/format";
+import {
+  marketplaceCheckoutPath,
+  marketplaceListingPath,
+} from "@/lib/marketplace/paths";
 import { MARKETPLACE_PLATFORMS } from "@/types/marketplace";
 
 type PageProps = {
@@ -21,7 +28,7 @@ function platformLabel(platform: string) {
 
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
-  const listing = await getPublicMarketplaceListingById(id).catch(() => null);
+  const listing = await getPublicMarketplaceListingByRef(id).catch(() => null);
 
   if (!listing) {
     return { title: "Listing not found" };
@@ -40,13 +47,17 @@ export default async function MarketplaceDetailPage({ params }: PageProps) {
 
   let listing = null;
   try {
-    listing = await getPublicMarketplaceListingById(id);
+    listing = await getPublicMarketplaceListingByRef(id);
   } catch {
     notFound();
   }
 
   if (!listing) {
     notFound();
+  }
+
+  if (isMarketplaceListingUuid(id)) {
+    redirect(marketplaceListingPath(listing));
   }
 
   const isAvailable = listing.status === "available";
@@ -151,7 +162,7 @@ export default async function MarketplaceDetailPage({ params }: PageProps) {
                   size="lg"
                   className="h-11 w-full bg-primary text-primary-foreground hover:bg-[var(--brand-orange-deep)]"
                   render={
-                    <Link href={`/checkout/marketplace/${listing.id}`} />
+                    <Link href={marketplaceCheckoutPath(listing)} />
                   }
                 >
                   Purchase with Stripe

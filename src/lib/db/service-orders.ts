@@ -28,6 +28,7 @@ type OrderRow = {
   updated_at: string;
   completed_at: string | null;
   cancelled_at: string | null;
+  progress_percent: number;
 };
 
 function mapOrder(row: OrderRow): ServiceOrder {
@@ -45,6 +46,7 @@ function mapOrder(row: OrderRow): ServiceOrder {
     amountCents: row.amount_cents,
     currency: row.currency,
     customerEmail: row.customer_email,
+    progressPercent: row.progress_percent ?? 0,
     metadata: (row.metadata ?? {}) as ServiceOrderMetadata,
     createdAt: row.created_at,
     updatedAt: row.updated_at,

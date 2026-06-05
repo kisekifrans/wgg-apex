@@ -2,12 +2,14 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { Plus } from "lucide-react";
 
+import { PendingCheckoutsPanel } from "@/components/admin/checkout/pending-checkouts-panel";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { OrdersDashboard } from "@/components/admin/orders/orders-dashboard";
 import { OrdersFilters } from "@/components/admin/orders/orders-filters";
 import { OrdersRevenueStats } from "@/components/admin/orders/orders-revenue-stats";
 import { OrdersStatusPills } from "@/components/admin/orders/orders-status-pills";
 import { Button } from "@/components/ui/button";
+import { getPendingStripeCheckouts } from "@/lib/db/checkout";
 import {
   getAdminServiceOrders,
   getServiceOrderRevenueMetrics,
@@ -46,18 +48,22 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
     (filters.orderType && filters.orderType !== "all");
 
   let orders: Awaited<ReturnType<typeof getAdminServiceOrders>> = [];
+  let pendingCheckouts: Awaited<ReturnType<typeof getPendingStripeCheckouts>> =
+    [];
   let revenueMetrics: Awaited<
     ReturnType<typeof getServiceOrderRevenueMetrics>
   > | null = null;
   let error: string | null = null;
 
   try {
-    const [ordersData, metrics] = await Promise.all([
+    const [ordersData, metrics, pending] = await Promise.all([
       getAdminServiceOrders(filters),
       getServiceOrderRevenueMetrics(),
+      getPendingStripeCheckouts(),
     ]);
     orders = ordersData;
     revenueMetrics = metrics;
+    pendingCheckouts = pending;
   } catch (e) {
     error =
       e instanceof Error
@@ -89,6 +95,8 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
         </div>
       ) : (
         <>
+          <PendingCheckoutsPanel checkouts={pendingCheckouts} />
+
           {revenueMetrics && (
             <OrdersRevenueStats
               metrics={revenueMetrics}

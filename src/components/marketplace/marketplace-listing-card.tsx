@@ -6,6 +6,7 @@ import { RankIcon } from "@/components/shared/rank-icon";
 import { ListingStatusBadge } from "@/components/marketplace/listing-status-badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatListingPrice } from "@/lib/marketplace/format";
+import { marketplaceListingPath } from "@/lib/marketplace/paths";
 import type { MarketplaceListing } from "@/types/marketplace";
 import { MARKETPLACE_PLATFORMS } from "@/types/marketplace";
 
@@ -23,7 +24,7 @@ export function MarketplaceListingCard({
   const isAvailable = listing.status === "available";
 
   return (
-    <Link href={`/marketplace/${listing.id}`} className="group block h-full">
+    <Link href={marketplaceListingPath(listing)} className="group block h-full">
       <Card className="flex h-full flex-col overflow-hidden border-white/5 bg-card/50 transition-all duration-300 hover:border-primary/25 hover:bg-card/80">
         <CardHeader className="p-0">
           <ListingCardImage

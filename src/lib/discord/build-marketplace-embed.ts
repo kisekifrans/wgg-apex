@@ -79,7 +79,7 @@ export function buildMarketplaceEmbed(
   options: BuildMarketplaceEmbedOptions
 ): DiscordWebhookPayload {
   const siteUrl = options.siteUrl.replace(/\/$/, "");
-  const listingUrl = `${siteUrl}/marketplace/${listing.id}`;
+  const listingUrl = `${siteUrl}/marketplace/${encodeURIComponent(listing.listingNumber)}`;
   const ownerUserId = options.ownerUserId ?? DISCORD_OWNER_USER_ID_DEFAULT;
   const price = formatListingPrice(listing.priceCents, listing.currency);
   const title = truncate(`${listing.title} — ${price}`, DISCORD_EMBED_LIMITS.title);

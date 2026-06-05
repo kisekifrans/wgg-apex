@@ -59,6 +59,7 @@ export type ServiceOrder = {
   amountCents: number | null;
   currency: string;
   customerEmail: string | null;
+  progressPercent: number;
   metadata: ServiceOrderMetadata;
   createdAt: string;
   updatedAt: string;
