@@ -112,14 +112,19 @@ export function CheckoutForm({ stripeEnabled, ...props }: CheckoutFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="customerEmail">Email (for receipt)</Label>
+            <Label htmlFor="customerEmail">Email *</Label>
             <Input
               id="customerEmail"
               name="customerEmail"
               type="email"
+              required
+              autoComplete="email"
               placeholder="you@email.com"
               className="border-white/10 bg-background/50"
             />
+            <p className="text-xs text-muted-foreground">
+              Used for your confirmation email and order tracking.
+            </p>
           </div>
 
           {requiresRanks && (

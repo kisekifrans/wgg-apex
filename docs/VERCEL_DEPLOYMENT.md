@@ -18,6 +18,10 @@ Add these for **Production** (and **Preview** if you use preview deployments):
 | `STRIPE_WEBHOOK_SECRET` | Stripe → **Webhooks → signing secret** for your production endpoint |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe → publishable key (optional for Checkout redirect flow) |
 | `ADMIN_EMAILS` | Comma-separated admin emails (optional bootstrap until `profiles.role = admin`) |
+| `RESEND_API_KEY` | [Resend](https://resend.com) → API Keys (order confirmation emails after payment) |
+| `EMAIL_FROM` | Verified sender, e.g. `WGG Apex <orders@wggapex.com>` |
+| `EMAIL_REPLY_TO` | Reply address, e.g. `support@wggapex.com` |
+| `EMAIL_OPS_NOTIFY` | Optional ops inbox for new-order alerts |
 | `DISCORD_MARKETPLACE_WEBHOOK_URL` | Discord webhook for marketplace listing embeds (optional) |
 | `DISCORD_WEBHOOK_USERNAME` | Bot display name (optional, default `WGG Apex`) |
 | `DISCORD_PUBLISH_COOLDOWN_SECONDS` | Seconds between republishes per listing (optional, default `300`) |

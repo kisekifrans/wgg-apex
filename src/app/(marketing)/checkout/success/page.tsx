@@ -55,8 +55,8 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
         </p>
       ) : (
         <p className="mt-3 text-muted-foreground">
-          Thank you. Our operators will reach out on Discord to begin
-          fulfillment.
+          Thank you. A confirmation email is on its way. Our operators will
+          reach out on Discord to begin fulfillment.
         </p>
       )}
       {orderNumber && (

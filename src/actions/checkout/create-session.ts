@@ -16,6 +16,16 @@ import { formatPredatorNotes } from "@/types/predator";
 import { formatUnbanNotes } from "@/types/unban";
 import type { CheckoutFormInput } from "@/types/checkout";
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function requireCustomerEmail(email: string | null | undefined): string | null {
+  const trimmed = email?.trim() ?? "";
+  if (!trimmed || !EMAIL_PATTERN.test(trimmed)) {
+    return null;
+  }
+  return trimmed;
+}
+
 export type CheckoutActionResult =
   | { success: true; url: string }
   | { success: false; error: string };
@@ -127,9 +137,19 @@ export async function createCheckoutSession(
     notes = formatUnbanNotes(unbanDetails, discord);
   }
 
+  customerEmail = requireCustomerEmail(customerEmail);
+  if (!customerEmail) {
+    return {
+      success: false,
+      error:
+        "A valid email is required for your confirmation and order tracking.",
+    };
+  }
+
   const quoteResult = await buildCheckoutQuote(serviceSlug, {
     ...input,
     customerDiscord: discord,
+    customerEmail,
   });
 
   if (!quoteResult.success) {
@@ -158,7 +178,7 @@ export async function createCheckoutSession(
       pricing_item_id: quote.pricingItemId,
       marketplace_listing_id: quote.marketplaceListingId,
       customer_discord: discord,
-      customer_email: customerEmail,
+      customer_email: customerEmail.toLowerCase(),
       current_rank: input.currentRank?.trim() || null,
       target_rank: input.targetRank?.trim() || null,
       notes,
@@ -193,7 +213,7 @@ export async function createCheckoutSession(
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
-      customer_email: input.customerEmail?.trim() || undefined,
+      customer_email: customerEmail,
       line_items: [
         {
           quantity: 1,

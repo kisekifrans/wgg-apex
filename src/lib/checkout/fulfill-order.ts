@@ -1,5 +1,6 @@
 import "server-only";
 
+import { sendOrderConfirmationEmail } from "@/lib/email/send-order-confirmation";
 import { generateOrderNumber } from "@/lib/orders/order-number";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ServiceOrderType } from "@/types/orders";
@@ -86,6 +87,21 @@ export async function fulfillCheckoutAsOrder(
 
   if (linkError) {
     throw new Error(linkError.message);
+  }
+
+  if (checkout.customer_email) {
+    await sendOrderConfirmationEmail({
+      orderNumber: order.order_number,
+      orderType: checkout.checkout_kind,
+      serviceName: checkout.line_item_name,
+      customerEmail: checkout.customer_email,
+      customerDiscord: checkout.customer_discord,
+      currentRank: checkout.current_rank,
+      targetRank: checkout.target_rank,
+      serviceDetail: checkout.service_detail,
+      amountCents: checkout.amount_cents,
+      currency: checkout.currency,
+    });
   }
 
   return { orderId: order.id, orderNumber: order.order_number };
