@@ -39,6 +39,9 @@ const SLUG_VISUAL: Record<
   "apex-unban": {
     gradient: "from-zinc-800/80 via-card to-[#0a0a0a]",
   },
+  "kills-farming": {
+    gradient: "from-[#7f1d1d]/25 via-card to-[#0a0a0a]",
+  },
   "account-marketplace": {
     gradient: "from-[#1c1c1c] via-card to-[#0a0a0a]",
   },
@@ -58,7 +61,14 @@ export function ServiceProductCard({
   const priceFormatted = formatPriceFromCents(service.fromPriceCents);
   const href = service.href.startsWith("/") ? service.href : service.href;
   const description =
-    service.shortDescription ?? service.description ?? "";
+    service.slug === "predator-maintenance"
+      ? "Predator RP maintenance on Nintendo (Switch)."
+      : (service.shortDescription ?? service.description ?? "");
+
+  const displayPriceLabel =
+    service.priceLabel && !/\/?\s*week/i.test(service.priceLabel)
+      ? service.priceLabel
+      : null;
 
   const handleMouseMove = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
@@ -220,15 +230,15 @@ export function ServiceProductCard({
                 {priceFormatted !== null ? (
                   <>
                     {priceFormatted}
-                    {service.priceLabel && (
+                    {displayPriceLabel ? (
                       <span className="ml-1 text-sm font-normal text-muted-foreground">
-                        {service.priceLabel}
+                        {displayPriceLabel}
                       </span>
-                    )}
+                    ) : null}
                   </>
                 ) : (
                   <span className="text-lg font-sans font-medium">
-                    {service.priceLabel ?? "Contact for quote"}
+                    {displayPriceLabel ?? "Contact for quote"}
                   </span>
                 )}
               </p>

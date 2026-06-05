@@ -123,13 +123,13 @@ export default function RefundPolicyPage() {
             <a href={`mailto:${siteConfig.supportEmail}`}>
               {siteConfig.supportEmail}
             </a>{" "}
-            with your order reference (e.g. WGG order number or Stripe receipt).
+            with your order reference (e.g. WGG order number or PayPal receipt).
           </li>
           <li>Describe the issue and whether work has started on your order.</li>
           <li>Allow up to 5 business days for review and response.</li>
         </ol>
         <p>
-          Approved refunds are issued to the original payment method via Stripe
+          Approved refunds are issued to the original payment method via PayPal
           where possible.
         </p>
       </section>

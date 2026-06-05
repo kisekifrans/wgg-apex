@@ -2,7 +2,7 @@ import "server-only";
 
 import { headers } from "next/headers";
 
-import { getSiteUrl } from "@/lib/stripe/env";
+import { getSiteUrl } from "@/lib/site-url";
 
 /** Origin for auth redirects — matches the host the user is actually on (www vs apex). */
 export async function getRequestOrigin(): Promise<string> {

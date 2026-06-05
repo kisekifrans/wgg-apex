@@ -42,6 +42,7 @@ type ItemRow = {
   eta_label: string | null;
   difficulty: string | null;
   features: string[] | null;
+  metadata: Record<string, unknown> | null;
   is_featured: boolean;
   is_active: boolean;
   sort_order: number;
@@ -58,6 +59,7 @@ function mapItem(row: ItemRow): CatalogPricingItem {
     etaLabel: row.eta_label,
     difficulty: row.difficulty,
     features: Array.isArray(row.features) ? row.features : [],
+    metadata: (row.metadata ?? {}) as CatalogPricingItem["metadata"],
     isFeatured: row.is_featured,
     isActive: row.is_active,
     sortOrder: row.sort_order,
@@ -70,6 +72,10 @@ function mapService(row: ServiceRow, items: ItemRow[] = []): CatalogService {
     .map(mapItem)
     .sort((a, b) => a.sortOrder - b.sortOrder);
 
+  const fromPriceCents =
+    computeFromPriceCents(pricingItems, row.pricing_engine) ??
+    row.from_price_cents;
+
   return {
     id: row.id,
     slug: row.slug,
@@ -80,7 +86,7 @@ function mapService(row: ServiceRow, items: ItemRow[] = []): CatalogService {
     icon: row.icon,
     href: row.href,
     priceLabel: row.price_label,
-    fromPriceCents: row.from_price_cents,
+    fromPriceCents,
     isActive: row.is_active,
     isFeatured: row.is_featured ?? false,
     sortOrder: row.sort_order,

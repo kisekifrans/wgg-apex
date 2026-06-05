@@ -66,8 +66,8 @@ export default function TermsPage() {
         <h2>4. Payments</h2>
         <p>
           Prices shown on the site are starting rates or catalog prices unless
-          otherwise stated. Final quotes are confirmed before Stripe checkout.
-          Payments are processed by Stripe; we do not store full card details on
+          otherwise stated. Final quotes are confirmed before PayPal checkout.
+          Payments are processed by PayPal; we do not store payment credentials on
           our servers.
         </p>
         <p>

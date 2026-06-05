@@ -6,14 +6,18 @@ import { FaqSection } from "@/components/marketing/faq-section";
 import { FeaturedAccountsSection } from "@/components/marketing/featured-accounts-section";
 import { HeroSection } from "@/components/marketing/hero-section";
 import { RankPricingSection } from "@/components/marketing/rank-pricing-section";
-import { getRecentPublicHeroOrder } from "@/lib/db/public-orders";
+import { getRecentPublicHeroOrders } from "@/lib/db/public-orders";
 import {
+  buildHeroDashboardPreview,
   HERO_ORDER_PREVIEW_FALLBACK,
-  toHeroOrderPreview,
 } from "@/lib/orders/public-display";
 import { ServicesOverviewSection } from "@/components/marketing/services-overview-section";
 import { UnbanServiceSection } from "@/components/marketing/unban-service-section";
+import { CompletedBoostsSection } from "@/components/marketing/completed-boosts-section";
+import { ReviewsSection } from "@/components/marketing/reviews-section";
 import { WhyChooseSection } from "@/components/marketing/why-choose-section";
+import { getPublicCompletedBoosts } from "@/lib/db/completed-boosts";
+import { getPublicCustomerReviews } from "@/lib/db/customer-reviews";
 import { getPublicServicesCatalog } from "@/lib/db/services-catalog";
 
 export default async function HomePage() {
@@ -28,13 +32,16 @@ export default async function HomePage() {
 
   let orderPreview = HERO_ORDER_PREVIEW_FALLBACK;
   try {
-    const recentOrder = await getRecentPublicHeroOrder();
-    if (recentOrder) {
-      orderPreview = toHeroOrderPreview(recentOrder);
-    }
+    const recentOrders = await getRecentPublicHeroOrders(5);
+    orderPreview = buildHeroDashboardPreview(recentOrders);
   } catch {
     orderPreview = HERO_ORDER_PREVIEW_FALLBACK;
   }
+
+  const [reviews, completedBoosts] = await Promise.all([
+    getPublicCustomerReviews().catch(() => []),
+    getPublicCompletedBoosts().catch(() => []),
+  ]);
 
   return (
     <>
@@ -60,6 +67,8 @@ export default async function HomePage() {
         </div>
       )}
       <FeaturedAccountsSection />
+      <CompletedBoostsSection boosts={completedBoosts} />
+      <ReviewsSection reviews={reviews} />
       <CustomerProcessSection />
       <FaqSection />
       <DiscordCommunitySection />

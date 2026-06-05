@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { OrderForm } from "@/components/admin/orders/order-form";
+import { PredatorProgressPanel } from "@/components/admin/orders/predator-progress-panel";
 import { Button } from "@/components/ui/button";
 import { ORDER_TYPE_LABELS } from "@/config/orders";
+import { getPredatorProgressForOrder } from "@/lib/db/predator-progress";
 import { getServiceOrderById } from "@/lib/db/service-orders";
 
 type PageProps = {
@@ -46,6 +48,11 @@ export default async function EditOrderPage({ params }: PageProps) {
     notFound();
   }
 
+  const predatorProgress =
+    order.orderType === "predator_maintenance"
+      ? await getPredatorProgressForOrder(order.id, true).catch(() => [])
+      : [];
+
   return (
     <div className="space-y-6">
       <Button
@@ -69,6 +76,13 @@ export default async function EditOrderPage({ params }: PageProps) {
           {order.customerDiscord}
         </p>
       </div>
+
+      {order.orderType === "predator_maintenance" ? (
+        <PredatorProgressPanel
+          orderId={order.id}
+          progress={predatorProgress}
+        />
+      ) : null}
 
       <OrderForm mode="edit" order={order} />
     </div>

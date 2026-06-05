@@ -3,6 +3,7 @@ export const SERVICE_ORDER_TYPES = [
   "self_play_boost",
   "badge_boost",
   "predator_maintenance",
+  "kills_farming",
   "unban_service",
   "marketplace",
 ] as const;

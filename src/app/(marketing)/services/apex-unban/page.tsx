@@ -7,19 +7,19 @@ import {
   Shield,
 } from "lucide-react";
 
-import { StripePreviewNotice } from "@/components/checkout/stripe-preview-notice";
+import { PaymentPreviewNotice } from "@/components/checkout/payment-preview-notice";
 import { UnbanIntakeForm } from "@/components/unban/unban-intake-form";
 import { UnbanNoticeCards } from "@/components/unban/unban-notice-cards";
 import { Button } from "@/components/ui/button";
 import { unbanProcessSteps } from "@/config/unban-service";
 import { getServiceBySlug } from "@/lib/db/services-catalog";
-import { getStripeEnv } from "@/lib/stripe/env";
+import { getPayPalEnv } from "@/lib/paypal/env";
 import { formatPriceFromCents } from "@/lib/services/format-price";
 
 export const metadata = {
   title: "Apex Unban Service",
   description:
-    "Structured EA account recovery support with eligibility screening, documented timelines, and secure Stripe checkout.",
+    "Structured EA account recovery support with eligibility screening, documented timelines, and secure PayPal checkout.",
 };
 
 export default async function ApexUnbanServicePage() {
@@ -40,7 +40,7 @@ export default async function ApexUnbanServicePage() {
     notFound();
   }
 
-  const { isCheckoutConfigured } = getStripeEnv();
+  const { isConfigured: isCheckoutConfigured } = getPayPalEnv();
   const features = service.displayConfig?.features ?? [];
 
   return (
@@ -139,11 +139,11 @@ export default async function ApexUnbanServicePage() {
           </div>
 
           <div className="lg:col-span-3 space-y-6">
-            {!isCheckoutConfigured && <StripePreviewNotice />}
+            {!isCheckoutConfigured && <PaymentPreviewNotice />}
             <UnbanIntakeForm
               service={service}
               pricingItem={pricingItem}
-              stripeEnabled={isCheckoutConfigured}
+              paymentsEnabled={isCheckoutConfigured}
             />
           </div>
         </div>

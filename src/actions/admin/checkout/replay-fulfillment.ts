@@ -3,9 +3,12 @@
 import { revalidatePath } from "next/cache";
 
 import { requireAdmin } from "@/lib/auth/guards";
-import { handleCheckoutSessionCompleted } from "@/lib/stripe/webhook";
-import { getStripe } from "@/lib/stripe/client";
-import { getStripeEnv } from "@/lib/stripe/env";
+import { completePaidCheckout } from "@/lib/checkout/complete-paid-checkout";
+import { getPayPalEnv } from "@/lib/paypal/env";
+import {
+  extractCaptureFromOrder,
+  getPayPalOrder,
+} from "@/lib/paypal/orders";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export type ReplayFulfillmentResult =
@@ -17,9 +20,9 @@ export async function replayCheckoutFulfillment(
 ): Promise<ReplayFulfillmentResult> {
   await requireAdmin();
 
-  const { isCheckoutConfigured } = getStripeEnv();
-  if (!isCheckoutConfigured) {
-    return { success: false, error: "Stripe is not configured" };
+  const { isConfigured } = getPayPalEnv();
+  if (!isConfigured) {
+    return { success: false, error: "PayPal is not configured" };
   }
 
   const supabase = createAdminClient();
@@ -27,7 +30,7 @@ export async function replayCheckoutFulfillment(
   const { data: checkout, error } = await supabase
     .from("stripe_checkouts")
     .select(
-      "id, status, stripe_session_id, service_order_id, customer_discord, line_item_name"
+      "id, status, paypal_order_id, service_order_id, customer_discord, line_item_name, amount_cents, currency"
     )
     .eq("id", checkoutId)
     .maybeSingle();
@@ -40,27 +43,30 @@ export async function replayCheckoutFulfillment(
     return { success: false, error: "Checkout already fulfilled" };
   }
 
-  if (!checkout.stripe_session_id) {
+  if (!checkout.paypal_order_id) {
     return {
       success: false,
-      error: "No Stripe session on this checkout — customer may not have paid",
+      error: "No PayPal order on this checkout — customer may not have paid",
     };
   }
 
   try {
-    const stripe = getStripe();
-    const session = await stripe.checkout.sessions.retrieve(
-      checkout.stripe_session_id
-    );
+    const order = await getPayPalOrder(checkout.paypal_order_id);
+    const { captureId, paidCents, currency } = extractCaptureFromOrder(order);
 
-    if (session.payment_status !== "paid") {
+    if (!captureId || paidCents == null || !currency) {
       return {
         success: false,
-        error: `Stripe session is not paid (status: ${session.payment_status})`,
+        error: `PayPal order is not captured (status: ${order.status})`,
       };
     }
 
-    await handleCheckoutSessionCompleted(session);
+    await completePaidCheckout(checkoutId, {
+      paidCents,
+      currency,
+      paypalOrderId: order.id,
+      paypalCaptureId: captureId,
+    });
 
     const { data: refreshed } = await supabase
       .from("stripe_checkouts")

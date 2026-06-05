@@ -1,3 +1,15 @@
+export type PredatorRankProgressStatus = "pending" | "in_progress" | "completed";
+
+export type PredatorRankProgress = {
+  id: string;
+  orderId: string;
+  rankLabel: string;
+  status: PredatorRankProgressStatus;
+  completedAt: string | null;
+  sortOrder: number;
+  notes: string | null;
+};
+
 export type PredatorIntakeDetails = {
   nintendoEmail: string;
   nintendoPassword: string;

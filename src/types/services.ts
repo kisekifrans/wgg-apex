@@ -8,11 +8,37 @@ export const PRICING_ENGINES = [
 
 export type PricingEngine = (typeof PRICING_ENGINES)[number];
 
+export type PredatorPlanPlatformPrices = {
+  Core: number;
+  Pro: number;
+  Elite: number;
+};
+
+export type PredatorPlatformPricingConfig = {
+  switch?: PredatorPlanPlatformPrices | number;
+  pc?: PredatorPlanPlatformPrices | number;
+  xbox?: PredatorPlanPlatformPrices | number;
+  playstation?: PredatorPlanPlatformPrices | number;
+};
+
 export type ServiceDisplayConfig = {
   homepage_section?: string;
   features?: string[];
   /** Public path, e.g. /heroes/thumbnail2.jpg */
   thumbnail_path?: string;
+  predator_platform_pricing?: PredatorPlatformPricingConfig;
+};
+
+export type PricingItemMetadata = {
+  bundle_from?: string;
+  bundle_to?: string;
+  additional_rank_cents?: number;
+  tier?: string;
+  kills_step?: number;
+  min_kills?: number;
+  cents_per_100_kills?: number;
+  reference_kills?: number;
+  reference_price_cents?: number;
 };
 
 export type CatalogService = {
@@ -45,6 +71,7 @@ export type CatalogPricingItem = {
   etaLabel: string | null;
   difficulty: string | null;
   features: string[];
+  metadata: PricingItemMetadata;
   isFeatured: boolean;
   isActive: boolean;
   sortOrder: number;

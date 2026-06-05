@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock, Package } from "lucide-react";
 
+import { PredatorProgressDisplay } from "@/components/orders/predator-progress-display";
 import { RankIcon } from "@/components/shared/rank-icon";
 import { formatPriceFromCents } from "@/lib/services/format-price";
 import type { PublicOrderSnapshot } from "@/types/public-order";
@@ -92,6 +93,10 @@ export function OrderLookupCard({ order }: OrderLookupCardProps) {
           />
         </div>
       </div>
+
+      {order.predatorProgress && order.predatorProgress.length > 0 ? (
+        <PredatorProgressDisplay progress={order.predatorProgress} />
+      ) : null}
 
       {order.timeline.length > 0 && (
         <div className="mt-8">

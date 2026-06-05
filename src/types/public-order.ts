@@ -1,3 +1,4 @@
+import type { PredatorRankProgress } from "@/types/predator";
 import type {
   ServiceOrderPaymentStatus,
   ServiceOrderStatus,
@@ -31,12 +32,15 @@ export type PublicOrderSnapshot = {
   updatedAt: string;
   completedAt: string | null;
   timeline: PublicOrderTimelineEntry[];
+  predatorProgress?: PredatorRankProgress[];
 };
 
-export type HeroOrderPreviewData = {
+export type HeroDashboardOrder = {
   orderNumber: string;
-  isLive: boolean;
-  services: { label: string; status: string; active: boolean }[];
+  orderType: ServiceOrderType;
+  serviceLabel: string;
+  statusLabel: string;
+  active: boolean;
   currentRank: string | null;
   targetRank: string | null;
   serviceDetail: string | null;
@@ -44,4 +48,9 @@ export type HeroOrderPreviewData = {
   etaLabel: string;
   amountCents: number | null;
   currency: string;
+};
+
+export type HeroOrderPreviewData = {
+  isLive: boolean;
+  orders: HeroDashboardOrder[];
 };

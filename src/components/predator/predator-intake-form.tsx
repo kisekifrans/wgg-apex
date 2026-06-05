@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Loader2, Lock } from "lucide-react";
 import { toast } from "sonner";
 
 import { createCheckoutSession } from "@/actions/checkout/create-session";
+import { getCheckoutQuote } from "@/actions/checkout/get-quote";
+import { PriceBreakdown } from "@/components/checkout/price-breakdown";
 import {
   Accordion,
   AccordionContent,
@@ -20,22 +22,32 @@ import {
   nintendoAccountGuide,
   nintendoBackupCodeGuide,
 } from "@/config/predator-maintenance";
+import {
+  computePredatorPlanPriceCents,
+  parsePredatorPlatformPricing,
+  PREDATOR_PLATFORMS,
+} from "@/config/predator-platform-pricing";
+import type { CheckoutPlatform } from "@/config/checkout-options";
 import { formatPriceFromCents } from "@/lib/services/format-price";
 import { cn } from "@/lib/utils";
+import type { CheckoutQuote } from "@/types/checkout";
 import type { CatalogPricingItem, CatalogService } from "@/types/services";
 
 type PredatorIntakeFormProps = {
   service: CatalogService;
-  stripeEnabled: boolean;
+  paymentsEnabled: boolean;
 };
 
 export function PredatorIntakeForm({
   service,
-  stripeEnabled,
+  paymentsEnabled,
 }: PredatorIntakeFormProps) {
   const [loading, setLoading] = useState(false);
+  const [quoteLoading, setQuoteLoading] = useState(false);
+  const [quote, setQuote] = useState<CheckoutQuote | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [acknowledged, setAcknowledged] = useState(false);
+  const [platform, setPlatform] = useState("switch");
   const [selectedItemId, setSelectedItemId] = useState(
     service.pricingItems.find((i) => i.isFeatured)?.id ??
       service.pricingItems[0]?.id ??
@@ -45,11 +57,43 @@ export function PredatorIntakeForm({
   const selectedItem: CatalogPricingItem | null =
     service.pricingItems.find((i) => i.id === selectedItemId) ?? null;
 
+  const platformPricing = parsePredatorPlatformPricing(service.displayConfig);
+  const selectedPlatform = platform as CheckoutPlatform;
+
+  function planPriceCents(planName: string): number {
+    return computePredatorPlanPriceCents(
+      planName,
+      selectedPlatform,
+      platformPricing
+    );
+  }
+
+  const fetchQuote = useCallback(async () => {
+    if (!selectedItemId) {
+      setQuote(null);
+      return;
+    }
+    setQuoteLoading(true);
+    const result = await getCheckoutQuote("predator-maintenance", {
+      customerDiscord: "quote",
+      pricingItemId: selectedItemId,
+      platform,
+    });
+    setQuoteLoading(false);
+    if (result.success) setQuote(result.quote);
+    else setQuote(null);
+  }, [selectedItemId, platform]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => void fetchQuote(), 200);
+    return () => clearTimeout(timer);
+  }, [fetchQuote]);
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setFormError(null);
 
-    if (!stripeEnabled) {
+    if (!paymentsEnabled) {
       const message =
         "Payments are not configured yet. Contact support to complete your order.";
       setFormError(message);
@@ -80,6 +124,7 @@ export function PredatorIntakeForm({
         customerDiscord: String(formData.get("customerDiscord") ?? ""),
         currentRank: String(formData.get("currentRank") ?? ""),
         pricingItemId: selectedItemId,
+        platform,
         predatorDetails: {
           nintendoEmail: String(formData.get("nintendoEmail") ?? ""),
           nintendoPassword: String(formData.get("nintendoPassword") ?? ""),
@@ -296,8 +341,54 @@ export function PredatorIntakeForm({
         </label>
       </section>
 
+      <section className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 sm:p-5">
+        <p className="text-sm leading-relaxed text-amber-100/90">
+          <strong className="text-amber-200">Nintendo notice:</strong> Predator
+          Maintenance on Nintendo starts from{" "}
+          <strong className="text-foreground">Rookie</strong> rank progression.
+        </p>
+      </section>
+
+      <section className="rounded-2xl border border-white/5 bg-card/40 p-6 sm:p-8">
+        <h2 className="font-heading text-lg font-semibold">Platform</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Nintendo (Switch) is the default and lowest-cost option. PC, Xbox, and
+          PlayStation are available on request.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {PREDATOR_PLATFORMS.map((p) => (
+            <label
+              key={p.value}
+              className={cn(
+                "flex cursor-pointer flex-col rounded-lg border border-white/10 bg-background/30 px-4 py-3 transition-colors",
+                platform === p.value && "border-primary/40 bg-primary/5"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <input
+                  type="radio"
+                  name="platform"
+                  value={p.value}
+                  checked={platform === p.value}
+                  onChange={() => setPlatform(p.value)}
+                  className="accent-primary"
+                />
+                <span className="font-medium">{p.label}</span>
+              </div>
+              <span className="mt-1 pl-6 text-xs text-muted-foreground">
+                {p.description}
+              </span>
+            </label>
+          ))}
+        </div>
+      </section>
+
       <section className="rounded-2xl border border-white/5 bg-card/40 p-6 sm:p-8">
         <h2 className="font-heading text-lg font-semibold">Select Plan</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Core · Elite · Pro — prices update for the platform selected above
+          (before 4% processing fee).
+        </p>
         <div className="mt-4 space-y-2">
           {service.pricingItems.map((item) => (
             <label
@@ -327,7 +418,7 @@ export function PredatorIntakeForm({
                 </div>
               </div>
               <span className="font-mono font-semibold tabular-nums">
-                {formatPriceFromCents(item.priceCents)}
+                {formatPriceFromCents(planPriceCents(item.name))}
               </span>
             </label>
           ))}
@@ -344,17 +435,12 @@ export function PredatorIntakeForm({
               {formError}
             </p>
           ) : null}
-          <p className="text-sm text-muted-foreground">Total due today</p>
-          <p className="font-mono text-3xl font-semibold tabular-nums">
-            {selectedItem
-              ? formatPriceFromCents(selectedItem.priceCents)
-              : "—"}
-          </p>
+          <PriceBreakdown quote={quote} loading={quoteLoading} />
         </div>
         <Button
           type="submit"
           size="lg"
-          disabled={loading || !stripeEnabled || !selectedItem}
+          disabled={loading || !paymentsEnabled || !selectedItem}
           className="min-w-[220px] bg-primary text-primary-foreground hover:bg-[var(--brand-orange-deep)]"
         >
           {loading ? (
@@ -367,7 +453,7 @@ export function PredatorIntakeForm({
       </div>
 
       <p className="text-center text-xs text-muted-foreground">
-        Stripe-hosted checkout · Card details never stored on WGG servers
+        PayPal-hosted checkout · Payment details never stored on WGG servers
       </p>
     </form>
   );

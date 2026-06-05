@@ -9,7 +9,7 @@ import {
   buildOrderConfirmationText,
   type OrderConfirmationEmailData,
 } from "@/lib/email/templates/order-confirmation";
-import { getSiteUrl } from "@/lib/stripe/env";
+import { getSiteUrl } from "@/lib/site-url";
 import { siteConfig } from "@/config/site";
 import type { ServiceOrderType } from "@/types/orders";
 

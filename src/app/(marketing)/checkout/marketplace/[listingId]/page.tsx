@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { CheckoutForm } from "@/components/checkout/checkout-form";
-import { StripePreviewNotice } from "@/components/checkout/stripe-preview-notice";
+import { PaymentPreviewNotice } from "@/components/checkout/payment-preview-notice";
 import { Button } from "@/components/ui/button";
 import {
   getPublicMarketplaceListingByRef,
@@ -13,7 +13,7 @@ import {
   marketplaceCheckoutPath,
   marketplaceListingPath,
 } from "@/lib/marketplace/paths";
-import { getStripeEnv } from "@/lib/stripe/env";
+import { getPayPalEnv } from "@/lib/paypal/env";
 
 type PageProps = {
   params: Promise<{ listingId: string }>;
@@ -31,7 +31,7 @@ export default async function MarketplaceCheckoutPage({ params }: PageProps) {
     redirect(marketplaceCheckoutPath(listing));
   }
 
-  const { isCheckoutConfigured } = getStripeEnv();
+  const { isConfigured: isCheckoutConfigured } = getPayPalEnv();
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
@@ -56,11 +56,11 @@ export default async function MarketplaceCheckoutPage({ params }: PageProps) {
       </div>
 
       <div className="space-y-6">
-        {!isCheckoutConfigured && <StripePreviewNotice />}
+        {!isCheckoutConfigured && <PaymentPreviewNotice />}
         <CheckoutForm
           mode="marketplace"
           listing={listing}
-          stripeEnabled={isCheckoutConfigured}
+          paymentsEnabled={isCheckoutConfigured}
         />
       </div>
     </div>

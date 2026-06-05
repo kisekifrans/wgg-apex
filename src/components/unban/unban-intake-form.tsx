@@ -24,13 +24,13 @@ const APPEAL_OPTIONS = [
 type UnbanIntakeFormProps = {
   service: CatalogService;
   pricingItem: CatalogPricingItem;
-  stripeEnabled: boolean;
+  paymentsEnabled: boolean;
 };
 
 export function UnbanIntakeForm({
   service,
   pricingItem,
-  stripeEnabled,
+  paymentsEnabled,
 }: UnbanIntakeFormProps) {
   const [loading, setLoading] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
@@ -214,7 +214,7 @@ export function UnbanIntakeForm({
         <Button
           type="submit"
           size="lg"
-          disabled={loading || !stripeEnabled}
+          disabled={loading || !paymentsEnabled}
           className="h-12 min-w-[220px] bg-primary px-8 text-primary-foreground hover:bg-[var(--brand-orange-deep)]"
         >
           {loading ? (
@@ -227,7 +227,7 @@ export function UnbanIntakeForm({
       </div>
 
       <p className="text-center text-xs text-muted-foreground">
-        Stripe-hosted checkout · Card details never stored on WGG servers
+        PayPal-hosted checkout · Payment details never stored on WGG servers
       </p>
     </form>
   );

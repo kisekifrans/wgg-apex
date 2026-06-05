@@ -14,7 +14,7 @@ export const whyWggItems = [
   {
     title: "Complete Transparency, Every Order",
     description:
-      "Exact pricing before you pay, order timelines, and Stripe checkout. You always know what you paid and where your order stands.",
+      "Exact pricing before you pay, order timelines, and PayPal checkout. You always know what you paid and where your order stands.",
   },
   {
     title: "A Real Person Reviews Every Order",
@@ -45,7 +45,7 @@ export const customerProcessSteps = [
     step: "03",
     title: "Secure Checkout",
     description:
-      "Pay through Stripe. Your order is logged instantly with a trackable reference.",
+      "Pay through PayPal. Your order is logged instantly with a trackable reference.",
   },
   {
     step: "04",
@@ -84,6 +84,6 @@ export const faqItems = [
   {
     question: "What payment methods do you accept?",
     answer:
-      "Stripe handles all payments—major cards and digital wallets where supported. We never store card data on WGG servers.",
+      "PayPal handles all payments—balance, cards, and bank where supported. We never store payment credentials on WGG servers.",
   },
 ] as const;

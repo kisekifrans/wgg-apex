@@ -14,9 +14,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { BundleRankSpan } from "@/components/marketing/bundle-rank-span";
+import { getBundleAdditionalCents } from "@/config/ranked-bundles";
 import { formatPriceFromCents } from "@/lib/services/format-price";
 import { cn } from "@/lib/utils";
-import type { CatalogService } from "@/types/services";
+import type { CatalogPricingItem, CatalogService } from "@/types/services";
+
+/** Homepage tables show official bundle tiers only (not configure-at-checkout examples). */
+function isOfficialBundleRow(row: CatalogPricingItem): boolean {
+  const subtitle = row.subtitle?.toLowerCase() ?? "";
+  return !subtitle.includes("example") && !subtitle.includes("configure at checkout");
+}
 
 type RankPricingSectionProps = {
   rankedBoost: CatalogService | null;
@@ -29,8 +37,8 @@ export function RankPricingSection({
   selfPlayBoost,
   predatorMaintenance,
 }: RankPricingSectionProps) {
-  const tiers = rankedBoost?.pricingItems ?? [];
-  const duoTiers = selfPlayBoost?.pricingItems ?? [];
+  const tiers = (rankedBoost?.pricingItems ?? []).filter(isOfficialBundleRow);
+  const duoTiers = (selfPlayBoost?.pricingItems ?? []).filter(isOfficialBundleRow);
   const plans = predatorMaintenance?.pricingItems ?? [];
 
   return (
@@ -42,7 +50,7 @@ export function RankPricingSection({
         <SectionHeader
           eyebrow="Pricing"
           title="Rank Boosting Pricing"
-          description="Starting rates by tier. Final price reflects division span, platform, duo options, and express priority—locked in before you pay."
+          description="Official bundle packages with per-rank add-ons. Pick a starting tier or configure your exact rank span at checkout."
         />
 
         {tiers.length > 0 ? (
@@ -55,10 +63,13 @@ export function RankPricingSection({
                       Tier
                     </th>
                     <th className="px-5 py-4 font-medium text-muted-foreground">
-                      Scope
+                      Bundle package
                     </th>
                     <th className="px-5 py-4 font-medium text-muted-foreground">
-                      From
+                      Price
+                    </th>
+                    <th className="px-5 py-4 font-medium text-muted-foreground">
+                      +/rank
                     </th>
                     <th className="px-5 py-4 font-medium text-muted-foreground">
                       Typical ETA
@@ -67,22 +78,26 @@ export function RankPricingSection({
                   </tr>
                 </thead>
                 <tbody>
-                  {tiers.map((row) => (
+                  {tiers.map((row) => {
+                    const additional = getBundleAdditionalCents(row);
+                    return (
                     <tr
                       key={row.id}
                       className="border-b border-white/5 transition-colors last:border-0 hover:bg-white/[0.02]"
                     >
                       <td className="px-5 py-4">
-                        <div className="flex items-center gap-3 font-medium">
-                          <RankIcon tier={row.name} size="md" />
-                          <span>{row.name}</span>
-                        </div>
+                        <BundleRankSpan item={row} />
                       </td>
                       <td className="px-5 py-4 text-muted-foreground">
-                        {row.subtitle ?? "—"}
+                        {row.subtitle ?? "Bundle package"}
                       </td>
                       <td className="px-5 py-4 font-mono font-semibold tabular-nums">
                         {formatPriceFromCents(row.priceCents)}
+                      </td>
+                      <td className="px-5 py-4 font-mono tabular-nums text-muted-foreground">
+                        {additional != null
+                          ? formatPriceFromCents(additional)
+                          : "—"}
                       </td>
                       <td className="px-5 py-4 text-muted-foreground">
                         {row.etaLabel ?? "—"}
@@ -96,7 +111,8 @@ export function RankPricingSection({
                         </Link>
                       </td>
                     </tr>
-                  ))}
+                  );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -124,7 +140,7 @@ export function RankPricingSection({
                         Tier
                       </th>
                       <th className="px-5 py-4 font-medium text-muted-foreground">
-                        Scope
+                        Bundle package
                       </th>
                       <th className="px-5 py-4 font-medium text-muted-foreground">
                         Duo rate
@@ -142,10 +158,7 @@ export function RankPricingSection({
                         className="border-b border-white/5 transition-colors last:border-0 hover:bg-white/[0.02]"
                       >
                         <td className="px-5 py-4">
-                          <div className="flex items-center gap-3 font-medium">
-                            <RankIcon tier={row.name} size="md" />
-                            <span>{row.name}</span>
-                          </div>
+                          <BundleRankSpan item={row} />
                         </td>
                         <td className="px-5 py-4 text-muted-foreground">
                           {row.subtitle ?? "—"}
@@ -178,7 +191,7 @@ export function RankPricingSection({
             <SectionHeader
               eyebrow="Predator"
               title="Predator Maintenance Plans"
-              description="Weekly plans for players who need RP held—not a one-time push."
+              description="Hold Predator RP with operator sessions, progress reports, and platform-specific pricing. Nintendo is our default and lowest-cost option."
               className="mb-0"
             />
 
@@ -208,12 +221,6 @@ export function RankPricingSection({
                       <span className="font-mono text-3xl font-semibold tabular-nums text-foreground">
                         {formatPriceFromCents(plan.priceCents)}
                       </span>
-                      {plan.subtitle && (
-                        <span className="text-muted-foreground">
-                          {" "}
-                          {plan.subtitle}
-                        </span>
-                      )}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>

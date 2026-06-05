@@ -165,10 +165,10 @@ export default async function MarketplaceDetailPage({ params }: PageProps) {
                     <Link href={marketplaceCheckoutPath(listing)} />
                   }
                 >
-                  Purchase with Stripe
+                  Purchase with PayPal
                 </Button>
                 <p className="text-center text-xs text-muted-foreground">
-                  Secure checkout powered by Stripe. You will confirm Discord
+                  Secure checkout powered by PayPal. You will confirm Discord
                   contact before payment.
                 </p>
               </div>

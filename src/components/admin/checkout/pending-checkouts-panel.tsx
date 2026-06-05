@@ -7,10 +7,10 @@ import { toast } from "sonner";
 import { replayCheckoutFulfillment } from "@/actions/admin/checkout/replay-fulfillment";
 import { Button } from "@/components/ui/button";
 import { formatPriceFromCents } from "@/lib/services/format-price";
-import type { PendingStripeCheckout } from "@/lib/db/checkout";
+import type { PendingPayPalCheckout } from "@/lib/db/checkout";
 
 type PendingCheckoutsPanelProps = {
-  checkouts: PendingStripeCheckout[];
+  checkouts: PendingPayPalCheckout[];
 };
 
 export function PendingCheckoutsPanel({
@@ -49,9 +49,9 @@ export function PendingCheckoutsPanel({
               Paid checkouts awaiting fulfillment
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Stripe sessions that paid but did not create an order (usually a
+              PayPal orders that paid but did not create an order (usually a
               missed webhook). Replay fulfillment after confirming payment in
-              Stripe.
+              PayPal.
             </p>
           </div>
 

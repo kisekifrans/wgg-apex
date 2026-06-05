@@ -203,13 +203,25 @@ export async function updateListingStatus(
   await requireAdmin();
   const supabase = createAdminClient();
 
+  const updates: Record<string, unknown> = { status };
+  if (status === "sold") {
+    updates.sold_at = new Date().toISOString();
+  }
+
   const { error } = await supabase
     .from("marketplace_listings")
-    .update({ status })
+    .update(updates)
     .eq("id", id);
 
   if (error) {
     return { success: false, error: error.message };
+  }
+
+  if (status === "sold") {
+    const { notifyMarketplaceSold } = await import(
+      "@/actions/admin/marketplace/notify-sold"
+    );
+    await notifyMarketplaceSold(id).catch(() => undefined);
   }
 
   revalidateMarketplace();

@@ -2,7 +2,7 @@ import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export async function getCheckoutByStripeSessionId(sessionId: string) {
+export async function getCheckoutByPayPalOrderId(paypalOrderId: string) {
   const supabase = createAdminClient();
 
   const { data, error } = await supabase
@@ -18,6 +18,7 @@ export async function getCheckoutByStripeSessionId(sessionId: string) {
       customer_email,
       line_item_name,
       service_order_id,
+      paypal_order_id,
       service_orders (
         order_number,
         status,
@@ -25,7 +26,7 @@ export async function getCheckoutByStripeSessionId(sessionId: string) {
       )
     `
     )
-    .eq("stripe_session_id", sessionId)
+    .eq("paypal_order_id", paypalOrderId)
     .maybeSingle();
 
   if (error) throw new Error(error.message);
@@ -33,7 +34,39 @@ export async function getCheckoutByStripeSessionId(sessionId: string) {
   return data;
 }
 
-export type PendingStripeCheckout = {
+export async function getCheckoutById(checkoutId: string) {
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase
+    .from("stripe_checkouts")
+    .select(
+      `
+      id,
+      status,
+      amount_cents,
+      currency,
+      checkout_kind,
+      customer_discord,
+      customer_email,
+      line_item_name,
+      service_order_id,
+      paypal_order_id,
+      service_orders (
+        order_number,
+        status,
+        payment_status
+      )
+    `
+    )
+    .eq("id", checkoutId)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+
+  return data;
+}
+
+export type PendingPayPalCheckout = {
   id: string;
   status: string;
   amountCents: number;
@@ -41,22 +74,22 @@ export type PendingStripeCheckout = {
   customerDiscord: string;
   customerEmail: string | null;
   lineItemName: string;
-  stripeSessionId: string | null;
+  paypalOrderId: string | null;
   createdAt: string;
 };
 
-export async function getPendingStripeCheckouts(
+export async function getPendingPayPalCheckouts(
   limit = 10
-): Promise<PendingStripeCheckout[]> {
+): Promise<PendingPayPalCheckout[]> {
   const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from("stripe_checkouts")
     .select(
-      "id, status, amount_cents, currency, customer_discord, customer_email, line_item_name, stripe_session_id, created_at"
+      "id, status, amount_cents, currency, customer_discord, customer_email, line_item_name, paypal_order_id, created_at"
     )
     .eq("status", "pending")
-    .not("stripe_session_id", "is", null)
+    .not("paypal_order_id", "is", null)
     .order("created_at", { ascending: false })
     .limit(limit);
 
@@ -70,7 +103,7 @@ export async function getPendingStripeCheckouts(
     customerDiscord: row.customer_discord,
     customerEmail: row.customer_email,
     lineItemName: row.line_item_name,
-    stripeSessionId: row.stripe_session_id,
+    paypalOrderId: row.paypal_order_id,
     createdAt: row.created_at,
   }));
 }

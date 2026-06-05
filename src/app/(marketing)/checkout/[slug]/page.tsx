@@ -3,11 +3,11 @@ import { notFound, redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { CheckoutForm } from "@/components/checkout/checkout-form";
-import { StripePreviewNotice } from "@/components/checkout/stripe-preview-notice";
+import { PaymentPreviewNotice } from "@/components/checkout/payment-preview-notice";
 import { Button } from "@/components/ui/button";
 import { slugToCheckoutKind } from "@/config/checkout";
 import { getServiceBySlug } from "@/lib/db/services-catalog";
-import { getStripeEnv } from "@/lib/stripe/env";
+import { getPayPalEnv } from "@/lib/paypal/env";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -41,7 +41,7 @@ export default async function ServiceCheckoutPage({ params }: PageProps) {
     notFound();
   }
 
-  const { isCheckoutConfigured } = getStripeEnv();
+  const { isConfigured: isCheckoutConfigured } = getPayPalEnv();
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
@@ -68,12 +68,12 @@ export default async function ServiceCheckoutPage({ params }: PageProps) {
       </div>
 
       <div className="space-y-6">
-        {!isCheckoutConfigured && <StripePreviewNotice />}
+        {!isCheckoutConfigured && <PaymentPreviewNotice />}
         <CheckoutForm
           mode="service"
           service={service}
           serviceSlug={slug}
-          stripeEnabled={isCheckoutConfigured}
+          paymentsEnabled={isCheckoutConfigured}
         />
       </div>
     </div>

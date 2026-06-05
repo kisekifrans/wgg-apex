@@ -9,6 +9,7 @@ export const ORDER_TYPE_LABELS: Record<ServiceOrderType, string> = {
   self_play_boost: "Duo Ranked Boost",
   badge_boost: "Badge Boost",
   predator_maintenance: "Predator Maintenance",
+  kills_farming: "Kills Farming",
   unban_service: "Unban Service",
   marketplace: "Account Marketplace",
 };
@@ -58,9 +59,9 @@ export const ORDER_RANK_OPTIONS = [
 ] as const;
 
 export const PREDATOR_PLAN_OPTIONS = [
-  "Core — $199/wk",
-  "Pro — $349/wk",
-  "Elite — $549/wk",
+  "Core",
+  "Elite",
+  "Pro",
 ] as const;
 
 export const BADGE_OPTIONS = [
@@ -126,6 +127,17 @@ export const ORDER_TYPE_FIELDS: Record<ServiceOrderType, OrderFieldConfig> = {
     targetRankLabel: "Target rank",
     serviceDetailLabel: "Maintenance plan",
     requireCurrentRank: true,
+    requireTargetRank: false,
+    requireServiceDetail: true,
+  },
+  kills_farming: {
+    showCurrentRank: false,
+    showTargetRank: false,
+    showServiceDetail: true,
+    currentRankLabel: "Current rank",
+    targetRankLabel: "Target rank",
+    serviceDetailLabel: "Kill target",
+    requireCurrentRank: false,
     requireTargetRank: false,
     requireServiceDetail: true,
   },

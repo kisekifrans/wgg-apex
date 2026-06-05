@@ -2,6 +2,7 @@ import "server-only";
 
 import { normalizeDiscordHandle } from "@/lib/orders/discord";
 import { toPublicOrderSnapshot } from "@/lib/orders/public-display";
+import { getPredatorProgressForOrder } from "@/lib/db/predator-progress";
 import { getCustomerOrderTimeline } from "@/lib/orders/status-updates";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { PublicOrderSnapshot } from "@/types/public-order";
@@ -40,28 +41,45 @@ async function mapPublicRow(
     timeline = [];
   }
 
-  return toPublicOrderSnapshot({
-    orderNumber: row.order_number,
-    orderType: row.order_type,
-    currentRank: row.current_rank,
-    targetRank: row.target_rank,
-    serviceDetail: row.service_detail,
-    status: row.status,
-    paymentStatus: row.payment_status,
-    progressPercent: row.progress_percent,
-    amountCents: row.amount_cents,
-    currency: row.currency,
-    updatedAt: row.updated_at,
-    completedAt: row.completed_at,
-    timeline,
-  });
+  let predatorProgress: Awaited<
+    ReturnType<typeof getPredatorProgressForOrder>
+  > = [];
+  if (row.order_type === "predator_maintenance") {
+    try {
+      predatorProgress = await getPredatorProgressForOrder(orderId, false);
+    } catch {
+      predatorProgress = [];
+    }
+  }
+
+  return {
+    ...toPublicOrderSnapshot({
+      orderNumber: row.order_number,
+      orderType: row.order_type,
+      currentRank: row.current_rank,
+      targetRank: row.target_rank,
+      serviceDetail: row.service_detail,
+      status: row.status,
+      paymentStatus: row.payment_status,
+      progressPercent: row.progress_percent,
+      amountCents: row.amount_cents,
+      currency: row.currency,
+      updatedAt: row.updated_at,
+      completedAt: row.completed_at,
+      timeline,
+    }),
+    predatorProgress:
+      predatorProgress.length > 0 ? predatorProgress : undefined,
+  };
 }
 
 const PUBLIC_ORDER_COLUMNS =
   "id, order_number, order_type, customer_discord, customer_email, current_rank, target_rank, service_detail, status, payment_status, progress_percent, amount_cents, currency, updated_at, completed_at";
 
-/** Most recent paid order for homepage hero (no PII beyond order number). */
-export async function getRecentPublicHeroOrder(): Promise<PublicOrderSnapshot | null> {
+/** Recent paid orders for homepage live dashboard (no PII beyond order numbers). */
+export async function getRecentPublicHeroOrders(
+  limit = 5
+): Promise<PublicOrderSnapshot[]> {
   try {
     const supabase = createAdminClient();
 
@@ -71,15 +89,22 @@ export async function getRecentPublicHeroOrder(): Promise<PublicOrderSnapshot | 
       .eq("payment_status", "paid")
       .neq("status", "cancelled")
       .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .limit(limit);
 
-    if (error || !data) return null;
+    if (error || !data?.length) return [];
 
-    return mapPublicRow(data as PublicOrderRow, data.id);
+    return Promise.all(
+      (data as PublicOrderRow[]).map((row) => mapPublicRow(row, row.id))
+    );
   } catch {
-    return null;
+    return [];
   }
+}
+
+/** @deprecated Use getRecentPublicHeroOrders */
+export async function getRecentPublicHeroOrder(): Promise<PublicOrderSnapshot | null> {
+  const orders = await getRecentPublicHeroOrders(1);
+  return orders[0] ?? null;
 }
 
 export function normalizeOrderNumber(input: string): string {

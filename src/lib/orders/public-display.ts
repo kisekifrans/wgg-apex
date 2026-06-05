@@ -1,4 +1,5 @@
 import type {
+  HeroDashboardOrder,
   HeroOrderPreviewData,
   PublicOrderSnapshot,
 } from "@/types/public-order";
@@ -13,6 +14,7 @@ const ORDER_TYPE_LABELS: Record<ServiceOrderType, string> = {
   self_play_boost: "Duo ranked boost",
   badge_boost: "Badge order",
   predator_maintenance: "Predator plan",
+  kills_farming: "Kills farming",
   unban_service: "Unban case",
   marketplace: "Marketplace purchase",
 };
@@ -77,7 +79,9 @@ export function getEtaLabel(
 
   switch (orderType) {
     case "predator_maintenance":
-      return "Weekly plan";
+      return "RP maintenance";
+    case "kills_farming":
+      return "1–5 days";
     case "badge_boost":
       return "1–3 days";
     case "unban_service":
@@ -125,24 +129,102 @@ export function toPublicOrderSnapshot(order: {
   };
 }
 
-export function toHeroOrderPreview(
+const HERO_DASHBOARD_DEMO_ORDERS: HeroDashboardOrder[] = [
+  {
+    orderNumber: "ORD-2026-00006",
+    orderType: "predator_maintenance",
+    serviceLabel: "Predator plan",
+    statusLabel: "In progress",
+    active: true,
+    currentRank: null,
+    targetRank: null,
+    serviceDetail: "Core",
+    progressPercent: 50,
+    etaLabel: "RP maintenance",
+    amountCents: 18500,
+    currency: "USD",
+  },
+  {
+    orderNumber: "ORD-2026-00012",
+    orderType: "ranked_boost",
+    serviceLabel: "Ranked boost",
+    statusLabel: "In progress",
+    active: true,
+    currentRank: "Gold IV",
+    targetRank: "Platinum IV",
+    serviceDetail: null,
+    progressPercent: 62,
+    etaLabel: "3–5 days",
+    amountCents: 1600,
+    currency: "USD",
+  },
+  {
+    orderNumber: "ORD-2026-00009",
+    orderType: "self_play_boost",
+    serviceLabel: "Duo ranked boost",
+    statusLabel: "Queued",
+    active: true,
+    currentRank: "Silver IV",
+    targetRank: "Gold IV",
+    serviceDetail: null,
+    progressPercent: 20,
+    etaLabel: "Assigning operator",
+    amountCents: 2600,
+    currency: "USD",
+  },
+  {
+    orderNumber: "ORD-2026-00004",
+    orderType: "predator_maintenance",
+    serviceLabel: "Predator plan",
+    statusLabel: "In progress",
+    active: true,
+    currentRank: null,
+    targetRank: null,
+    serviceDetail: "Pro",
+    progressPercent: 74,
+    etaLabel: "RP maintenance",
+    amountCents: 26500,
+    currency: "USD",
+  },
+  {
+    orderNumber: "ORD-2026-00018",
+    orderType: "ranked_boost",
+    serviceLabel: "Ranked boost",
+    statusLabel: "In progress",
+    active: true,
+    currentRank: "Diamond IV",
+    targetRank: "Master",
+    serviceDetail: null,
+    progressPercent: 41,
+    etaLabel: "5–8 days",
+    amountCents: 4500,
+    currency: "USD",
+  },
+];
+
+export function formatHeroServiceDetail(
+  detail: string | null | undefined
+): string | null {
+  if (!detail) return null;
+  const cleaned = detail.replace(/\s*·?\s*per\s+week/gi, "").trim();
+  return cleaned || null;
+}
+
+function snapshotToDashboardOrder(
   snapshot: PublicOrderSnapshot
-): HeroOrderPreviewData {
-  const active = snapshot.status === "in_progress" || snapshot.status === "paid";
+): HeroDashboardOrder {
+  const active =
+    snapshot.status === "in_progress" || snapshot.status === "paid";
 
   return {
     orderNumber: snapshot.orderNumber,
-    isLive: true,
-    services: [
-      {
-        label: snapshot.serviceLabel,
-        status: snapshot.statusLabel,
-        active,
-      },
-    ],
+    orderType: snapshot.orderType,
+    serviceLabel: snapshot.serviceLabel,
+    statusLabel: snapshot.statusLabel,
+    active,
     currentRank: snapshot.currentRank,
     targetRank: snapshot.targetRank,
-    serviceDetail: snapshot.serviceDetail,
+    serviceDetail: formatHeroServiceDetail(snapshot.serviceDetail),
     progressPercent: snapshot.progressPercent,
     etaLabel: snapshot.etaLabel,
     amountCents: snapshot.amountCents,
@@ -150,19 +232,40 @@ export function toHeroOrderPreview(
   };
 }
 
-export const HERO_ORDER_PREVIEW_FALLBACK: HeroOrderPreviewData = {
-  orderNumber: "WGG-2026-00421",
-  isLive: false,
-  services: [
-    { label: "Ranked boost", status: "In progress", active: true },
-    { label: "Predator plan", status: "Scheduled", active: false },
-    { label: "Badge order", status: "Completed", active: false },
-  ],
-  currentRank: "Master",
-  targetRank: "Predator",
-  serviceDetail: null,
-  progressPercent: 68,
-  etaLabel: "2 days",
-  amountCents: 19900,
-  currency: "USD",
-};
+const HERO_DASHBOARD_MIN_ORDERS = 5;
+
+export function buildHeroDashboardPreview(
+  snapshots: PublicOrderSnapshot[]
+): HeroOrderPreviewData {
+  const seen = new Set<string>();
+  const orders: HeroDashboardOrder[] = [];
+
+  for (const snapshot of snapshots) {
+    if (orders.length >= HERO_DASHBOARD_MIN_ORDERS) break;
+    if (seen.has(snapshot.orderNumber)) continue;
+    seen.add(snapshot.orderNumber);
+    orders.push(snapshotToDashboardOrder(snapshot));
+  }
+
+  for (const demo of HERO_DASHBOARD_DEMO_ORDERS) {
+    if (orders.length >= HERO_DASHBOARD_MIN_ORDERS) break;
+    if (seen.has(demo.orderNumber)) continue;
+    seen.add(demo.orderNumber);
+    orders.push(demo);
+  }
+
+  return {
+    isLive: snapshots.length > 0,
+    orders,
+  };
+}
+
+/** @deprecated Use buildHeroDashboardPreview — kept for single-order call sites */
+export function toHeroOrderPreview(
+  snapshot: PublicOrderSnapshot
+): HeroOrderPreviewData {
+  return buildHeroDashboardPreview([snapshot]);
+}
+
+export const HERO_ORDER_PREVIEW_FALLBACK: HeroOrderPreviewData =
+  buildHeroDashboardPreview([]);

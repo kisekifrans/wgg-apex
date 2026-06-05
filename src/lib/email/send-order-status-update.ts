@@ -8,7 +8,7 @@ import {
   buildOrderStatusUpdateText,
 } from "@/lib/email/templates/order-status-update";
 import { getOrderTypeLabel } from "@/lib/orders/public-display";
-import { getSiteUrl } from "@/lib/stripe/env";
+import { getSiteUrl } from "@/lib/site-url";
 import { siteConfig } from "@/config/site";
 import type { ServiceOrderStatus, ServiceOrderType } from "@/types/orders";
 

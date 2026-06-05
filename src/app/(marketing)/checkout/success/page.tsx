@@ -1,24 +1,36 @@
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 
+import { captureAndFulfillPayPalOrder } from "@/actions/checkout/capture-paypal-order";
 import { Button } from "@/components/ui/button";
+import { getCheckoutByPayPalOrderId } from "@/lib/db/checkout";
 import { formatPriceFromCents } from "@/lib/services/format-price";
-import { getCheckoutByStripeSessionId } from "@/lib/db/checkout";
 
 type PageProps = {
-  searchParams: Promise<{ session_id?: string }>;
+  searchParams: Promise<{ token?: string }>;
 };
 
 export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
-  const { session_id: sessionId } = await searchParams;
+  const { token } = await searchParams;
 
   let orderNumber: string | null = null;
   let amountCents: number | null = null;
   let pending = false;
 
-  if (sessionId) {
+  if (token) {
     try {
-      const checkout = await getCheckoutByStripeSessionId(sessionId);
+      if (token) {
+        try {
+          await captureAndFulfillPayPalOrder(token);
+        } catch {
+          pending = true;
+        }
+      }
+
+      const checkout = token
+        ? await getCheckoutByPayPalOrderId(token)
+        : null;
+
       if (checkout) {
         amountCents = checkout.amount_cents;
         const orders = checkout.service_orders as

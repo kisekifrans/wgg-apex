@@ -1,3 +1,7 @@
+/** Customer reviews / feedback channel (deep link). */
+export const DISCORD_REVIEWS_CHANNEL_URL =
+  "https://discord.com/channels/939038877342113832/946637267433291827";
+
 /**
  * Public Discord community panel (homepage).
  * Live member list requires Server Settings → Widget → Enable Server Widget.

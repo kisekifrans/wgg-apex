@@ -17,7 +17,7 @@ import type { HeroOrderPreviewData } from "@/types/public-order";
 
 const trustSignals = [
   { icon: Shield, label: "Every order verified" },
-  { icon: Lock, label: "Secure Stripe checkout" },
+  { icon: Lock, label: "Secure PayPal checkout" },
   { icon: CheckCircle2, label: "Live order tracking" },
 ];
 

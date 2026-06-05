@@ -10,7 +10,11 @@ export type CheckoutQuoteAdjustment = {
 };
 
 export type CheckoutQuote = {
+  /** Total charged (service + processing fee). */
   amountCents: number;
+  /** Service subtotal before processing fee. */
+  serviceCents: number;
+  processingFeeCents: number;
   currency: string;
   lineItemName: string;
   lineItemDescription?: string;
@@ -32,6 +36,7 @@ export type CheckoutFormInput = {
   listingId?: string | null;
   platform?: string | null;
   priority?: string | null;
+  killCount?: number | null;
   unbanDetails?: UnbanIntakeDetails | null;
   predatorDetails?: PredatorIntakeDetails | null;
 };

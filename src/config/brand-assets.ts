@@ -17,6 +17,7 @@ export const serviceArtworkBySlug: Record<string, string> = {
   "badge-boosting": "/heroes/thumbnail3.jpg",
   "account-marketplace": "/heroes/thumbnail4.jpg",
   "apex-unban": "/heroes/thumbnail5.png",
+  "kills-farming": "/heroes/thumbnail8.jpg",
 };
 
 function isSafePublicPath(path: string): boolean {

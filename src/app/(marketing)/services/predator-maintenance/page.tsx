@@ -2,12 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
-import { StripePreviewNotice } from "@/components/checkout/stripe-preview-notice";
+import { PaymentPreviewNotice } from "@/components/checkout/payment-preview-notice";
 import { PredatorIntakeForm } from "@/components/predator/predator-intake-form";
 import { PredatorNoticeCards } from "@/components/predator/predator-notice-cards";
 import { Button } from "@/components/ui/button";
 import { getServiceBySlug } from "@/lib/db/services-catalog";
-import { getStripeEnv } from "@/lib/stripe/env";
+import { getPayPalEnv } from "@/lib/paypal/env";
 
 export const metadata = {
   title: "Predator Maintenance",
@@ -28,7 +28,7 @@ export default async function PredatorMaintenanceServicePage() {
     notFound();
   }
 
-  const { isCheckoutConfigured } = getStripeEnv();
+  const { isConfigured: isCheckoutConfigured } = getPayPalEnv();
 
   return (
     <div className="relative overflow-hidden pb-24 pt-28">
@@ -60,10 +60,10 @@ export default async function PredatorMaintenanceServicePage() {
         </div>
 
         <div className="mt-16 space-y-6">
-          {!isCheckoutConfigured && <StripePreviewNotice />}
+          {!isCheckoutConfigured && <PaymentPreviewNotice />}
           <PredatorIntakeForm
             service={service}
-            stripeEnabled={isCheckoutConfigured}
+            paymentsEnabled={isCheckoutConfigured}
           />
         </div>
       </div>

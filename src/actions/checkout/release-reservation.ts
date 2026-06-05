@@ -3,7 +3,7 @@
 import { releaseMarketplaceListingReservation } from "@/lib/checkout/marketplace-reservation";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-/** Release marketplace hold when user abandons Stripe checkout. */
+/** Release marketplace hold when user abandons PayPal checkout. */
 export async function releaseCheckoutReservation(
   checkoutId: string
 ): Promise<void> {

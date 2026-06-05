@@ -277,6 +277,48 @@
   .field-select {
     @apply flex h-9 w-full rounded-lg border border-white/10 bg-background/50 px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50;
   }
+
+  /* Dark thin scrollbar — replaces default light Windows/WebKit bars */
+  .scrollbar-wgg {
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(249 115 22 / 40%) rgb(255 255 255 / 6%);
+  }
+
+  .scrollbar-wgg::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+
+  .scrollbar-wgg::-webkit-scrollbar-track {
+    background: rgb(255 255 255 / 5%);
+    border-radius: 9999px;
+    margin-block: 6px;
+  }
+
+  .scrollbar-wgg::-webkit-scrollbar-thumb {
+    background: rgb(255 255 255 / 16%);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    border-radius: 9999px;
+  }
+
+  .scrollbar-wgg::-webkit-scrollbar-thumb:hover {
+    background: rgb(249 115 22 / 50%);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  .scrollbar-wgg::-webkit-scrollbar-button,
+  .scrollbar-wgg::-webkit-scrollbar-button:single-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  .scrollbar-wgg::-webkit-scrollbar-corner {
+    background: transparent;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -304,8 +346,44 @@
   }
 }
 
+@keyframes review-marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes review-marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.review-marquee-left {
+  animation: review-marquee-left var(--review-marquee-duration, 48s) linear infinite;
+}
+
+.review-marquee-right {
+  animation: review-marquee-right var(--review-marquee-duration, 52s) linear infinite;
+}
+
+.review-marquee-track:hover .review-marquee-left,
+.review-marquee-track:hover .review-marquee-right {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .review-marquee-left,
+  .review-marquee-right {
+    animation: none;
   }
 }

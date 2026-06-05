@@ -38,7 +38,7 @@ export default function PrivacyPage() {
         <ul>
           <li>Device and browser metadata, IP address, and request logs.</li>
           <li>Session cookies required for authentication.</li>
-          <li>Checkout and webhook metadata from Stripe (payment status, not full card numbers).</li>
+          <li>Checkout and webhook metadata from PayPal (payment status, not payment credentials).</li>
         </ul>
       </section>
 
@@ -59,7 +59,7 @@ export default function PrivacyPage() {
         <ul>
           <li>
             <strong className="text-foreground">Service providers</strong> — e.g.
-            Supabase (hosting/database), Stripe (payments), and infrastructure
+            Supabase (hosting/database), PayPal (payments), and infrastructure
             vendors under contractual confidentiality obligations.
           </li>
           <li>
@@ -80,7 +80,7 @@ export default function PrivacyPage() {
           services, meet legal requirements, and resolve disputes. Technical and
           organizational measures include encrypted transport (HTTPS), access
           controls, and server-side handling of sensitive payment data via
-          Stripe.
+          PayPal.
         </p>
         <p>
           No method of transmission over the internet is 100% secure. Report

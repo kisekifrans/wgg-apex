@@ -5,6 +5,7 @@ import {
   ShoppingBag,
   MessageSquare,
   ClipboardList,
+  Star,
   type LucideIcon,
 } from "lucide-react";
 
@@ -45,6 +46,12 @@ export const adminNavItems: AdminNavItem[] = [
     href: "/admin/discord",
     icon: MessageSquare,
     description: "Integrations and notifications",
+  },
+  {
+    title: "Content",
+    href: "/admin/content",
+    icon: Star,
+    description: "Reviews, boosts, sold webhook",
   },
   {
     title: "Settings",

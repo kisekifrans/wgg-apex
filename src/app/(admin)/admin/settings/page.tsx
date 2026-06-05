@@ -75,7 +75,7 @@ export default async function AdminSettingsPage() {
         <div className="lg:col-span-2">
           <PagePlaceholder
             title="General settings coming soon"
-            description="Business name, support email, notification templates, and Stripe configuration."
+            description="Business name, support email, notification templates, and PayPal configuration."
           />
         </div>
       </div>

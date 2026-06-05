@@ -13,6 +13,7 @@ export const footerLinks = {
     { label: "Predator Maintenance", href: "/services/predator-maintenance" },
     { label: "Duo Ranked Boost", href: "#self-play-boosting" },
     { label: "Badge Boosting", href: "#badges" },
+    { label: "Kills Farming", href: "/checkout/kills-farming" },
     { label: "Unban Service", href: "/services/apex-unban" },
     { label: "Account Marketplace", href: "/marketplace" },
   ],

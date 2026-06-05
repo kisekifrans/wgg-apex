@@ -14,14 +14,20 @@ import {
   CHECKOUT_PLATFORMS,
   CHECKOUT_PRIORITIES,
 } from "@/config/checkout-options";
+import {
+  computeKillsFarmingCents,
+  formatKillCountLabel,
+  getKillsFarmingConfig,
+} from "@/config/kills-farming-pricing";
 import { ORDER_RANK_OPTIONS } from "@/config/orders";
+import { PriceBreakdown } from "@/components/checkout/price-breakdown";
 import { formatPriceFromCents } from "@/lib/services/format-price";
 import type { CheckoutQuote } from "@/types/checkout";
 import type { CatalogPricingItem, CatalogService } from "@/types/services";
 import type { MarketplaceListing } from "@/types/marketplace";
 
 type CheckoutFormProps = {
-  stripeEnabled: boolean;
+  paymentsEnabled: boolean;
 } & (
   | {
       mode: "service";
@@ -34,7 +40,7 @@ type CheckoutFormProps = {
     }
 );
 
-export function CheckoutForm({ stripeEnabled, ...props }: CheckoutFormProps) {
+export function CheckoutForm({ paymentsEnabled, ...props }: CheckoutFormProps) {
   const [loading, setLoading] = useState(false);
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [quote, setQuote] = useState<CheckoutQuote | null>(null);
@@ -49,6 +55,16 @@ export function CheckoutForm({ stripeEnabled, ...props }: CheckoutFormProps) {
   const [targetRank, setTargetRank] = useState("");
   const [platform, setPlatform] = useState("");
   const [priority, setPriority] = useState("standard");
+  const killsConfig =
+    props.mode === "service" && props.serviceSlug === "kills-farming"
+      ? getKillsFarmingConfig(props.service.pricingItems)
+      : null;
+  const [killCount, setKillCount] = useState(
+    killsConfig?.minKills ?? 100
+  );
+
+  const isKillsFarming =
+    props.mode === "service" && props.serviceSlug === "kills-farming";
 
   const isRankedTier =
     props.mode === "service" &&
@@ -63,7 +79,8 @@ export function CheckoutForm({ stripeEnabled, ...props }: CheckoutFormProps) {
   const showPricingItems =
     props.mode === "service" &&
     props.service.pricingEngine !== "marketplace" &&
-    !requiresRanks;
+    !requiresRanks &&
+    !isKillsFarming;
 
   const selectedItem: CatalogPricingItem | null =
     props.mode === "service"
@@ -73,7 +90,9 @@ export function CheckoutForm({ stripeEnabled, ...props }: CheckoutFormProps) {
   const staticAmountCents =
     props.mode === "marketplace"
       ? props.listing.priceCents
-      : (selectedItem?.priceCents ?? 0);
+      : isKillsFarming && killsConfig
+        ? computeKillsFarmingCents(killCount, killsConfig)
+        : (selectedItem?.priceCents ?? 0);
 
   const amountCents = quote?.amountCents ?? staticAmountCents;
 
@@ -90,12 +109,19 @@ export function CheckoutForm({ stripeEnabled, ...props }: CheckoutFormProps) {
       targetRank: targetRank || null,
       platform: platform || null,
       priority: priority || null,
-      pricingItemId: requiresRanks ? null : selectedItemId || null,
+      pricingItemId: requiresRanks || isKillsFarming ? null : selectedItemId || null,
+      killCount: isKillsFarming ? killCount : null,
       listingId: null,
     };
 
     if (requiresRanks) {
       if (!currentRank || !targetRank || !platform) {
+        setQuote(null);
+        setQuoteError(null);
+        return;
+      }
+    } else if (isKillsFarming) {
+      if (!killCount || killCount < (killsConfig?.minKills ?? 100)) {
         setQuote(null);
         setQuoteError(null);
         return;
@@ -125,6 +151,9 @@ export function CheckoutForm({ stripeEnabled, ...props }: CheckoutFormProps) {
     priority,
     selectedItemId,
     requiresRanks,
+    isKillsFarming,
+    killCount,
+    killsConfig,
   ]);
 
   useEffect(() => {
@@ -137,9 +166,9 @@ export function CheckoutForm({ stripeEnabled, ...props }: CheckoutFormProps) {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!stripeEnabled) {
+    if (!paymentsEnabled) {
       toast.error(
-        "Payments are not configured. Add STRIPE_SECRET_KEY to test checkout."
+        "Payments are not configured. Add PayPal credentials to test checkout."
       );
       return;
     }
@@ -167,8 +196,9 @@ export function CheckoutForm({ stripeEnabled, ...props }: CheckoutFormProps) {
         notes: String(formData.get("notes") ?? "") || null,
         platform: requiresRanks ? platform : null,
         priority: requiresRanks ? priority : null,
+        killCount: isKillsFarming ? killCount : null,
         pricingItemId:
-          props.mode === "service" && !requiresRanks
+          props.mode === "service" && !requiresRanks && !isKillsFarming
             ? selectedItemId || null
             : null,
         listingId:
@@ -319,6 +349,54 @@ export function CheckoutForm({ stripeEnabled, ...props }: CheckoutFormProps) {
           </div>
         </section>
 
+        {isKillsFarming && killsConfig && (
+          <section className="space-y-4 rounded-xl border border-white/5 bg-card/40 p-6">
+            <h2 className="font-heading text-lg font-semibold">
+              Configure kills
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Minimum {formatKillCountLabel(killsConfig.minKills)}. Priced at{" "}
+              <span className="font-medium text-foreground">$45 per 1,000 kills</span>{" "}
+              ({formatPriceFromCents(killsConfig.centsPer100Kills)} per 100).
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+              {[100, 500, 1000, 2000, 5000].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setKillCount(preset)}
+                  className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                    killCount === preset
+                      ? "border-primary/40 bg-primary/10 text-primary"
+                      : "border-white/10 bg-background/30 text-muted-foreground hover:border-white/20"
+                  }`}
+                >
+                  {formatKillCountLabel(preset)}
+                </button>
+              ))}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="killCount">Custom amount *</Label>
+              <Input
+                id="killCount"
+                name="killCount"
+                type="number"
+                min={killsConfig.minKills}
+                step={killsConfig.killsStep}
+                required
+                value={killCount}
+                onChange={(e) => setKillCount(Number(e.target.value))}
+                className="border-white/10 bg-background/50 font-mono tabular-nums"
+              />
+              <p className="text-xs text-muted-foreground">
+                Increments of {killsConfig.killsStep} kills.
+              </p>
+            </div>
+          </section>
+        )}
+
         {showPricingItems && (
           <section className="space-y-4 rounded-xl border border-white/5 bg-card/40 p-6">
             <h2 className="font-heading text-lg font-semibold">
@@ -368,7 +446,10 @@ export function CheckoutForm({ stripeEnabled, ...props }: CheckoutFormProps) {
               {quote.lineItemDescription}
             </p>
           )}
-          {selectedItem && !requiresRanks && (
+          {isKillsFarming && (
+            <p className="text-sm">{formatKillCountLabel(killCount)}</p>
+          )}
+          {selectedItem && !requiresRanks && !isKillsFarming && (
             <p className="text-sm">{selectedItem.name}</p>
           )}
           {props.mode === "marketplace" && (
@@ -377,34 +458,7 @@ export function CheckoutForm({ stripeEnabled, ...props }: CheckoutFormProps) {
             </p>
           )}
 
-          {quote?.adjustments && quote.adjustments.length > 0 && (
-            <ul className="space-y-1 border-t border-white/5 pt-3 text-sm">
-              {quote.adjustments.map((adj) => (
-                <li
-                  key={adj.label}
-                  className="flex justify-between gap-2 text-muted-foreground"
-                >
-                  <span>{adj.label}</span>
-                  <span className="font-mono tabular-nums">
-                    {adj.cents > 0
-                      ? `+${formatPriceFromCents(adj.cents)}`
-                      : "—"}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <p className="font-mono text-3xl font-semibold tabular-nums">
-            {quoteLoading ? (
-              <span className="inline-flex items-center gap-2 text-lg text-muted-foreground">
-                <Loader2 className="size-4 animate-spin" />
-                Calculating…
-              </span>
-            ) : (
-              formatPriceFromCents(amountCents)
-            )}
-          </p>
+          <PriceBreakdown quote={quote} loading={quoteLoading} />
 
           {quoteError && (
             <p className="text-xs text-destructive">{quoteError}</p>
@@ -418,7 +472,7 @@ export function CheckoutForm({ stripeEnabled, ...props }: CheckoutFormProps) {
               quoteLoading ||
               amountCents <= 0 ||
               !!quoteError ||
-              !stripeEnabled
+              !paymentsEnabled
             }
             className="w-full bg-primary text-primary-foreground hover:bg-[var(--brand-orange-deep)]"
           >
@@ -427,12 +481,12 @@ export function CheckoutForm({ stripeEnabled, ...props }: CheckoutFormProps) {
             ) : (
               <Lock className="size-4" data-icon="inline-start" />
             )}
-            {stripeEnabled ? "Continue to Secure Checkout" : "Checkout Unavailable"}
+            {paymentsEnabled ? "Continue to Secure Checkout" : "Checkout Unavailable"}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
-            {stripeEnabled
-              ? "You will be redirected to Stripe. Card details are never stored on WGG servers."
-              : "Configure Stripe test keys in .env.local to try the full payment flow."}
+            {paymentsEnabled
+              ? "You will be redirected to PayPal. Payment details are never stored on WGG servers."
+              : "Configure PayPal sandbox credentials in .env.local to try the full payment flow."}
           </p>
         </div>
       </aside>

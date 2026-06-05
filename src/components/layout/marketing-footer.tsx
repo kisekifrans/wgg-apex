@@ -22,7 +22,7 @@ export function MarketingFooter() {
             </p>
             <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
               <Shield className="size-3.5 text-primary" aria-hidden />
-              <span>Payments Secured by Stripe</span>
+              <span>Payments Secured by PayPal</span>
             </div>
           </div>
 

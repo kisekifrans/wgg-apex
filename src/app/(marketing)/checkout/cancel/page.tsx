@@ -15,7 +15,7 @@ export default async function CheckoutCancelPage({ searchParams }: PageProps) {
     try {
       await releaseCheckoutReservation(checkoutId);
     } catch {
-      // Stripe expiry webhook will release if this fails
+      // PayPal void webhook will release if this fails
     }
   }
 

@@ -9,7 +9,7 @@ import { OrdersFilters } from "@/components/admin/orders/orders-filters";
 import { OrdersRevenueStats } from "@/components/admin/orders/orders-revenue-stats";
 import { OrdersStatusPills } from "@/components/admin/orders/orders-status-pills";
 import { Button } from "@/components/ui/button";
-import { getPendingStripeCheckouts } from "@/lib/db/checkout";
+import { getPendingPayPalCheckouts } from "@/lib/db/checkout";
 import {
   getAdminServiceOrders,
   getServiceOrderRevenueMetrics,
@@ -48,7 +48,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
     (filters.orderType && filters.orderType !== "all");
 
   let orders: Awaited<ReturnType<typeof getAdminServiceOrders>> = [];
-  let pendingCheckouts: Awaited<ReturnType<typeof getPendingStripeCheckouts>> =
+  let pendingCheckouts: Awaited<ReturnType<typeof getPendingPayPalCheckouts>> =
     [];
   let revenueMetrics: Awaited<
     ReturnType<typeof getServiceOrderRevenueMetrics>
@@ -59,7 +59,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
     const [ordersData, metrics, pending] = await Promise.all([
       getAdminServiceOrders(filters),
       getServiceOrderRevenueMetrics(),
-      getPendingStripeCheckouts(),
+      getPendingPayPalCheckouts(),
     ]);
     orders = ordersData;
     revenueMetrics = metrics;

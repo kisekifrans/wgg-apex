@@ -5,10 +5,11 @@ import { headers } from "next/headers";
 import { reserveMarketplaceListing, releaseMarketplaceListingReservation } from "@/lib/checkout/marketplace-reservation";
 import { buildCheckoutQuote } from "@/lib/checkout/quote";
 import { getServiceBySlug } from "@/lib/db/services-catalog";
+import { getPayPalEnv } from "@/lib/paypal/env";
+import { createPayPalOrder } from "@/lib/paypal/orders";
 import { getClientIp } from "@/lib/security/client-ip";
 import { checkRateLimit } from "@/lib/security/rate-limit";
-import { getStripe } from "@/lib/stripe/client";
-import { getSiteUrl, getStripeEnv } from "@/lib/stripe/env";
+import { getSiteUrl } from "@/lib/site-url";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { predatorIntakeSchema } from "@/lib/validations/predator-intake";
 import { unbanIntakeSchema } from "@/lib/validations/unban-intake";
@@ -48,9 +49,9 @@ export async function createCheckoutSession(
     };
   }
 
-  const { isCheckoutConfigured } = getStripeEnv();
+  const { isConfigured } = getPayPalEnv();
 
-  if (!isCheckoutConfigured) {
+  if (!isConfigured) {
     return {
       success: false,
       error: "Payments are not configured. Contact support.",
@@ -155,6 +156,10 @@ export async function createCheckoutSession(
     customerDiscord: discord,
     customerEmail,
     notes: input.notes?.trim() || null,
+    platform:
+      serviceSlug === "predator-maintenance"
+        ? input.platform ?? "switch"
+        : input.platform,
   });
 
   if (!quoteResult.success) {
@@ -213,42 +218,19 @@ export async function createCheckoutSession(
   const checkoutId = checkoutRow.id;
 
   try {
-    const stripe = getStripe();
-
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      payment_method_types: ["card"],
-      customer_email: customerEmail,
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: quote.currency.toLowerCase(),
-            unit_amount: quote.amountCents,
-            product_data: {
-              name: quote.lineItemName,
-              description: quote.lineItemDescription,
-            },
-          },
-        },
-      ],
-      metadata: {
-        checkout_id: checkoutId,
-        checkout_kind: quote.checkoutKind,
-        service_slug: quote.serviceSlug,
-      },
-      success_url: `${siteUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/checkout/cancel?checkout_id=${checkoutId}`,
-      expires_at: Math.floor(Date.now() / 1000) + 60 * 60,
+    const { orderId, approvalUrl } = await createPayPalOrder({
+      checkoutId,
+      amountCents: quote.amountCents,
+      currency: quote.currency,
+      lineItemName: quote.lineItemName,
+      lineItemDescription: quote.lineItemDescription ?? quote.lineItemName,
+      returnUrl: `${siteUrl}/checkout/success`,
+      cancelUrl: `${siteUrl}/checkout/cancel?checkout_id=${checkoutId}`,
     });
-
-    if (!session.url) {
-      return { success: false, error: "Stripe did not return a checkout URL" };
-    }
 
     const { error: updateError } = await supabase
       .from("stripe_checkouts")
-      .update({ stripe_session_id: session.id })
+      .update({ paypal_order_id: orderId })
       .eq("id", checkoutId);
 
     if (updateError) {
@@ -258,7 +240,7 @@ export async function createCheckoutSession(
       return { success: false, error: updateError.message };
     }
 
-    return { success: true, url: session.url };
+    return { success: true, url: approvalUrl };
   } catch (e) {
     await supabase
       .from("stripe_checkouts")

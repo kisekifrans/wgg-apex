@@ -1,7 +1,7 @@
 import "server-only";
 
 import { brandAssets } from "@/config/brand-assets";
-import { getSiteUrl } from "@/lib/stripe/env";
+import { getSiteUrl } from "@/lib/site-url";
 
 export type EmailBrandUrls = {
   siteUrl: string;

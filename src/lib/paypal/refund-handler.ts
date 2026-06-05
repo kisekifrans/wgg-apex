@@ -1,7 +1,5 @@
 import "server-only";
 
-import type Stripe from "stripe";
-
 import { releaseMarketplaceListingReservation } from "@/lib/checkout/marketplace-reservation";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -13,24 +11,26 @@ type CheckoutRefundRow = {
   amount_cents: number;
 };
 
-export async function handleChargeRefunded(
-  charge: Stripe.Charge
-): Promise<void> {
-  const paymentIntentId =
-    typeof charge.payment_intent === "string"
-      ? charge.payment_intent
-      : charge.payment_intent?.id;
+type PayPalRefundResource = {
+  id?: string;
+  amount?: { value?: string; currency_code?: string };
+  supplementary_data?: {
+    related_ids?: { order_id?: string };
+  };
+};
 
-  if (!paymentIntentId) {
-    return;
-  }
+export async function handlePayPalCaptureRefunded(
+  resource: PayPalRefundResource
+): Promise<void> {
+  const captureId = resource.id;
+  if (!captureId) return;
 
   const supabase = createAdminClient();
 
   const { data: checkout, error } = await supabase
     .from("stripe_checkouts")
     .select("id, service_order_id, marketplace_listing_id, status, amount_cents")
-    .eq("stripe_payment_intent_id", paymentIntentId)
+    .eq("paypal_capture_id", captureId)
     .maybeSingle();
 
   if (error) {
@@ -38,18 +38,15 @@ export async function handleChargeRefunded(
   }
 
   if (!checkout) {
-    console.warn(
-      "[stripe refund] No checkout for payment_intent",
-      paymentIntentId
-    );
+    console.warn("[paypal refund] No checkout for capture", captureId);
     return;
   }
 
   const row = checkout as CheckoutRefundRow;
-  const isFullRefund =
-    charge.refunded ||
-    charge.amount_refunded >= charge.amount ||
-    charge.amount_refunded >= row.amount_cents;
+  const refundedCents = resource.amount?.value
+    ? Math.round(parseFloat(resource.amount.value) * 100)
+    : row.amount_cents;
+  const isFullRefund = refundedCents >= row.amount_cents;
 
   if (row.service_order_id) {
     const { data: order } = await supabase
@@ -71,10 +68,10 @@ export async function handleChargeRefunded(
         cancelled_at: new Date().toISOString(),
         metadata: {
           ...priorMeta,
-          stripeRefund: {
-            chargeId: charge.id,
-            amountRefunded: charge.amount_refunded,
-            currency: charge.currency,
+          paypalRefund: {
+            captureId,
+            amountRefunded: refundedCents,
+            currency: resource.amount?.currency_code ?? "USD",
             fullRefund: isFullRefund,
             refundedAt: new Date().toISOString(),
           },
@@ -110,20 +107,16 @@ export async function handleChargeRefunded(
   }
 }
 
-export async function handlePaymentIntentFailed(
-  paymentIntent: Stripe.PaymentIntent
+export async function handlePayPalOrderVoided(
+  orderId: string
 ): Promise<void> {
   const supabase = createAdminClient();
 
-  const { data: checkout, error } = await supabase
+  const { data: checkout } = await supabase
     .from("stripe_checkouts")
     .select("id, marketplace_listing_id, status")
-    .eq("stripe_payment_intent_id", paymentIntent.id)
+    .eq("paypal_order_id", orderId)
     .maybeSingle();
-
-  if (error) {
-    throw new Error(error.message);
-  }
 
   if (!checkout || checkout.status !== "pending") {
     return;
@@ -131,13 +124,11 @@ export async function handlePaymentIntentFailed(
 
   await supabase
     .from("stripe_checkouts")
-    .update({ status: "failed" })
+    .update({ status: "expired" })
     .eq("id", checkout.id)
     .eq("status", "pending");
 
   if (checkout.marketplace_listing_id) {
-    await releaseMarketplaceListingReservation(
-      checkout.marketplace_listing_id
-    );
+    await releaseMarketplaceListingReservation(checkout.marketplace_listing_id);
   }
 }
