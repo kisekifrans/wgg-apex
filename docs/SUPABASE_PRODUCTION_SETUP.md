@@ -87,7 +87,40 @@ In **Database → Tables**, confirm **RLS enabled** on:
 
 Bucket `marketplace-listings` (or as configured): restrict uploads to authenticated admins via policies; keep `allowed_mime_types` aligned with `src/lib/marketplace/storage.ts`.
 
-## 7. PayPal webhook (production)
+## 7. Branded auth emails (magic link / confirm signup)
+
+Customer sign-in at `/account/login` sends email through **Supabase Auth**, not Resend. The default template is plain text from `noreply@mail.app.supabase.io`.
+
+### A — Custom HTML templates (quick win)
+
+1. Open **Authentication → Email Templates**.
+2. For **Magic Link**:
+   - Subject: `Sign in to WGG Apex`
+   - Body: paste contents of `supabase/email-templates/magic-link.html`
+3. For **Confirm signup** (first-time customers):
+   - Subject: `Confirm your WGG Apex account`
+   - Body: paste contents of `supabase/email-templates/confirm-signup.html`
+4. Save each template. Request a new link at `/account/login` to preview.
+
+Templates use `{{ .ConfirmationURL }}` and `{{ .SiteURL }}` — keep **Site URL** set to `https://www.wggapex.com` (section 2) so logo/hero images load.
+
+### B — Send from your domain (recommended)
+
+Use the same Resend domain as order email so auth mail comes from **WGG Apex** instead of Supabase:
+
+1. In Resend, verify `wggapex.com` and add a sender such as `auth@wggapex.com` (or reuse `orders@wggapex.com`).
+2. In Supabase: **Project Settings → Authentication → SMTP Settings** → enable custom SMTP:
+   - Host: `smtp.resend.com`
+   - Port: `465` (SSL)
+   - Username: `resend`
+   - Password: your `RESEND_API_KEY`
+   - Sender email: `auth@wggapex.com` (must match a verified Resend sender)
+   - Sender name: `WGG Apex`
+3. Apply the HTML templates from section A above.
+
+After SMTP is enabled, new magic-link emails should show the dark branded layout and your domain in the From field.
+
+## 8. PayPal webhook (production)
 
 In **PayPal Developer → Live**, create webhook:
 
@@ -99,4 +132,4 @@ Copy the webhook ID (`WH-...`) into `PAYPAL_WEBHOOK_ID` on Vercel Production.
 
 ---
 
-See also: [GO_LIVE.md](./GO_LIVE.md), [PRODUCTION_SECURITY_AUDIT.md](./PRODUCTION_SECURITY_AUDIT.md)
+See also: [GO_LIVE.md](./GO_LIVE.md), [PRODUCTION_SECURITY_AUDIT.md](./PRODUCTION_SECURITY_AUDIT.md), branded templates in `supabase/email-templates/`

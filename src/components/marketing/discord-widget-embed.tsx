@@ -16,7 +16,6 @@ export function DiscordWidgetEmbed({ serverId }: DiscordWidgetEmbedProps) {
         width={350}
         height={500}
         className="block w-full border-0"
-        allowTransparency={true}
         sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
       />
     </div>
