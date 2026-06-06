@@ -52,6 +52,7 @@ export const badgeAssetsMultiByCatalogName: Record<string, string[]> = {
 
 /** Ranked boost tier names from `service_pricing_items.name`. */
 export const rankAssetsByTierName: Record<string, string> = {
+  Rookie: "/ranks/rookie.png",
   Bronze: "/ranks/bronze.png",
   Silver: "/ranks/silver.png",
   Gold: "/ranks/gold.png",
@@ -62,7 +63,7 @@ export const rankAssetsByTierName: Record<string, string> = {
 };
 
 const RANK_TIER_PATTERN =
-  /^(bronze|silver|gold|platinum|diamond|master|predator)\b/i;
+  /^(rookie|bronze|silver|gold|platinum|diamond|master|predator)\b/i;
 
 export function parseRankTierFromLabel(label: string): string | undefined {
   const trimmed = label.trim();

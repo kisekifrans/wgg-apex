@@ -1,7 +1,9 @@
 import "server-only";
 
+import { formatRankClimbForDiscord } from "@/config/discord-rank-emojis";
 import { DISCORD_EMBED_COLOR, DISCORD_EMBED_LIMITS } from "@/lib/discord/constants";
 import { resolveDiscordPublicUrl } from "@/lib/discord/resolve-public-url";
+import { buildDiscordServiceCta } from "@/lib/discord/service-cta";
 import type { DiscordWebhookPayload } from "@/lib/discord/types";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -53,7 +55,7 @@ export function buildCompletedBoostEmbed(
       {
         name: "Rank climb",
         value: truncate(
-          `${input.fromRank} → ${input.toRank}`,
+          formatRankClimbForDiscord(input.fromRank, input.toRank),
           DISCORD_EMBED_LIMITS.fieldValue
         ),
         inline: true,
@@ -68,9 +70,16 @@ export function buildCompletedBoostEmbed(
     timestamp,
   };
 
-  const description = input.description?.trim();
-  if (description) {
-    embed.description = truncate(description, DISCORD_EMBED_LIMITS.description);
+  const descriptionParts = [
+    input.description?.trim(),
+    buildDiscordServiceCta(siteUrl),
+  ].filter(Boolean);
+
+  if (descriptionParts.length > 0) {
+    embed.description = truncate(
+      descriptionParts.join("\n\n"),
+      DISCORD_EMBED_LIMITS.description
+    );
   }
 
   if (imageUrl) {

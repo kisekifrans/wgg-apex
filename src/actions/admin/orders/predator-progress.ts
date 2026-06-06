@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { requireAdmin } from "@/lib/auth/guards";
 import {
+  alignPredatorLadderForRp,
   ensurePredatorProgressLadder,
   syncPredatorOrderProgress,
   type PredatorRankProgressStatus,
@@ -94,6 +95,9 @@ export async function updatePredatorCustomRp(
   }
 
   try {
+    if (rp != null && rp > 0) {
+      await alignPredatorLadderForRp(orderId, rp);
+    }
     await syncPredatorOrderProgress(orderId);
   } catch (e) {
     return {
@@ -104,6 +108,7 @@ export async function updatePredatorCustomRp(
 
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath("/track-order");
+  revalidatePath("/");
   revalidatePath("/account");
   return { success: true };
 }

@@ -13,3 +13,6 @@ export const DISCORD_WEBHOOK_KEY_MARKETPLACE = "marketplace";
 
 /** Discord user ID for owner DM / mention on Available listings */
 export const DISCORD_OWNER_USER_ID_DEFAULT = "1119290295281008650";
+
+/** #boosting-services (or primary sales channel) for completed-boost CTAs */
+export const DISCORD_BOOSTING_SERVICES_CHANNEL_ID = "1113157820385329282";

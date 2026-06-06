@@ -1,4 +1,5 @@
 import { brandAssets } from "@/config/brand-assets";
+import { formatRankLabelForDiscord } from "@/config/discord-rank-emojis";
 import {
   DISCORD_EMBED_COLOR,
   DISCORD_EMBED_LIMITS,
@@ -102,7 +103,11 @@ export function buildMarketplaceEmbed(
   );
 
   const fields = [
-    { name: "Rank", value: truncate(listing.rankLabel, 1024), inline: true },
+    {
+      name: "Rank",
+      value: truncate(formatRankLabelForDiscord(listing.rankLabel), 1024),
+      inline: true,
+    },
     { name: "Platform", value: platformLabel(listing.platform), inline: true },
     {
       name: "Heirlooms",

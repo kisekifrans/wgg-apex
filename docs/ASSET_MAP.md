@@ -7,7 +7,7 @@
 | `/ranks/predator.png` | Homepage `#badges` | Maps to catalog item **Apex Predator Badge** |
 | `/badges/20kill.png` | Homepage `#badges` | Maps to catalog item **20 Kill Badge** |
 | `/badges/4kdamage.png` | Homepage `#badges` | Maps to catalog item **4000 Damage Badge** |
-| `/ranks/bronze.png` … `/ranks/predator.png` | `#rank-pricing`, hero preview, services grid, marketplace cards | Maps to tier name (Bronze, Silver, Gold, Platinum, Diamond, Master, Predator) |
+| `/ranks/rookie.png` … `/ranks/predator.png` | `#rank-pricing`, hero preview, predator rank tracker, marketplace cards | Maps to tier name (Rookie, Bronze, Silver, Gold, Platinum, Diamond, Master, Predator) |
 | `/images/wgg-brand-hero.png` | Hero (desktop), bottom CTA | Valkyrie + WGG banner behind order preview |
 | `/heroes/thumbnail1.png` | Services **Ranked Boosting** card | Default; overridable in Admin → Services → Card thumbnail |
 | `/heroes/thumbnail2.jpg` | Services **Predator Maintenance** card | Default; overridable in Admin → Services → Card thumbnail |

@@ -1,7 +1,10 @@
 import "server-only";
 
 import { PREDATOR_RANK_LADDER } from "@/config/predator-platform-pricing";
-import { computePredatorDerivedPercent } from "@/lib/orders/predator-rank-progress";
+import {
+  computePredatorDerivedPercent,
+  getCurrentPredatorRankLabel,
+} from "@/lib/orders/predator-rank-progress";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPublicDataClient } from "@/lib/supabase/public-data";
 import type {
@@ -71,9 +74,52 @@ export async function ensurePredatorProgressLadder(
   return ((data as Row[]) ?? []).map(mapRow);
 }
 
+/** When custom Predator RP is set, align ladder rows so customers see Predator tier. */
+export async function alignPredatorLadderForRp(
+  orderId: string,
+  rp: number | null
+): Promise<void> {
+  if (rp == null || rp <= 0) return;
+
+  const supabase = createAdminClient();
+  let progress = await getPredatorProgressForOrder(orderId, true);
+  if (progress.length === 0) {
+    progress = await ensurePredatorProgressLadder(orderId);
+  }
+
+  const predatorIdx = PREDATOR_RANK_LADDER.length - 1;
+  const now = new Date().toISOString();
+
+  for (const step of progress) {
+    const idx = PREDATOR_RANK_LADDER.indexOf(
+      step.rankLabel as (typeof PREDATOR_RANK_LADDER)[number]
+    );
+    if (idx < 0) continue;
+
+    let nextStatus: PredatorRankProgressStatus;
+    if (idx < predatorIdx) {
+      nextStatus = "completed";
+    } else {
+      nextStatus = step.status === "completed" ? "completed" : "in_progress";
+    }
+
+    if (step.status === nextStatus) continue;
+
+    const { error } = await supabase
+      .from("predator_rank_progress")
+      .update({
+        status: nextStatus,
+        completed_at: nextStatus === "completed" ? now : null,
+      })
+      .eq("id", step.id);
+
+    if (error) throw new Error(error.message);
+  }
+}
+
 export async function syncPredatorOrderProgress(orderId: string): Promise<void> {
   const supabase = createAdminClient();
-  const progress = await getPredatorProgressForOrder(orderId, true);
+  let progress = await getPredatorProgressForOrder(orderId, true);
   if (progress.length === 0) return;
 
   const { data: order } = await supabase
@@ -82,10 +128,18 @@ export async function syncPredatorOrderProgress(orderId: string): Promise<void> 
     .eq("id", orderId)
     .maybeSingle();
 
-  const percent = computePredatorDerivedPercent(
-    progress,
-    order?.predator_custom_rp ?? null
-  );
+  const customRp = order?.predator_custom_rp ?? null;
+
+  if (
+    customRp != null &&
+    customRp > 0 &&
+    getCurrentPredatorRankLabel(progress) !== "Predator"
+  ) {
+    await alignPredatorLadderForRp(orderId, customRp);
+    progress = await getPredatorProgressForOrder(orderId, true);
+  }
+
+  const percent = computePredatorDerivedPercent(progress, customRp);
 
   const { error } = await supabase
     .from("service_orders")

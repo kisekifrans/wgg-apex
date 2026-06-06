@@ -1,5 +1,6 @@
 import "server-only";
 
+import { formatRankLabelForDiscord } from "@/config/discord-rank-emojis";
 import { DISCORD_EMBED_COLOR } from "@/lib/discord/constants";
 import type { DiscordEmbedField, DiscordWebhookPayload } from "@/lib/discord/types";
 import { formatPriceFromCents } from "@/lib/services/format-price";
@@ -46,6 +47,7 @@ export function buildNewOrderEmbed(
       value:
         [input.currentRank, input.targetRank]
           .filter((v): v is string => Boolean(v))
+          .map(formatRankLabelForDiscord)
           .join(" → ") || "—",
       inline: false,
     });

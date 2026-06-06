@@ -6,6 +6,7 @@ import {
   formatPredatorRp,
   getPredatorProgressHeadline,
   predatorRankHasIcon,
+  resolvePredatorDisplayLadder,
 } from "@/lib/orders/predator-rank-progress";
 import type { PredatorRankProgress } from "@/types/predator";
 
@@ -64,6 +65,8 @@ export function PredatorRankLadder({
 }: PredatorRankLadderProps) {
   const headline = getPredatorProgressHeadline(progress, customRp);
   const isAdmin = variant === "admin";
+  const displayProgress =
+    isAdmin ? progress : resolvePredatorDisplayLadder(progress, customRp);
 
   return (
     <div className="space-y-4">
@@ -73,7 +76,7 @@ export function PredatorRankLadder({
       </div>
 
       <ol className={cn("grid gap-2", isAdmin ? "space-y-2" : "sm:grid-cols-2")}>
-        {progress.map((step) => {
+        {displayProgress.map((step) => {
           const isPredator = step.rankLabel === "Predator";
           const rpLabel =
             isPredator && customRp != null ? formatPredatorRp(customRp) : null;

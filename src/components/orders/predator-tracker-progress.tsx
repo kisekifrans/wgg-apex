@@ -5,10 +5,11 @@ import { RankIcon } from "@/components/shared/rank-icon";
 import { PREDATOR_RANK_LADDER } from "@/config/predator-platform-pricing";
 import {
   formatPredatorRp,
-  getCurrentPredatorRankLabel,
+  getPredatorDisplayRank,
   getPredatorTrackerLabel,
   getPredatorTrackerRp,
   predatorRankHasIcon,
+  resolvePredatorDisplayLadder,
 } from "@/lib/orders/predator-rank-progress";
 import { cn } from "@/lib/utils";
 import type { PredatorRankProgress } from "@/types/predator";
@@ -97,6 +98,7 @@ export function PredatorTrackerProgress({
   variant = "full",
   className,
 }: PredatorTrackerProgressProps) {
+  const displayProgress = resolvePredatorDisplayLadder(progress, customRp);
   const headline = getPredatorTrackerLabel({
     progress,
     customRp,
@@ -104,15 +106,15 @@ export function PredatorTrackerProgress({
   });
   const rpValue = getPredatorTrackerRp(customRp, startingRank);
   const rpLabel = formatPredatorRp(rpValue);
-  const currentRank =
-    progress.length > 0
-      ? getCurrentPredatorRankLabel(progress)
-      : headline.split(" · ")[0] ?? "Rookie";
+  const currentRank = getPredatorDisplayRank(progress, customRp);
 
   if (variant === "full" && progress.length > 0) {
     return (
       <div className={className}>
-        <PredatorProgressDisplay progress={progress} customRp={customRp} />
+        <PredatorProgressDisplay
+          progress={displayProgress}
+          customRp={customRp}
+        />
       </div>
     );
   }
@@ -126,7 +128,10 @@ export function PredatorTrackerProgress({
         </span>
       </div>
 
-      <CompactRankStrip progress={progress} fallbackRank={currentRank} />
+      <CompactRankStrip
+        progress={displayProgress}
+        fallbackRank={currentRank}
+      />
 
       {rpLabel ? (
         <p className="font-mono text-[11px] tabular-nums text-muted-foreground">
