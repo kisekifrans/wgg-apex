@@ -81,6 +81,7 @@ export default async function EditOrderPage({ params }: PageProps) {
         <PredatorProgressPanel
           orderId={order.id}
           progress={predatorProgress}
+          customRp={order.predatorCustomRp}
         />
       ) : null}
 

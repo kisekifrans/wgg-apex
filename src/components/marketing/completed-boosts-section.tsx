@@ -60,8 +60,11 @@ export function CompletedBoostsSection({
                 </div>
               </div>
               <div className="p-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-primary">
+                  {boost.serviceType}
+                </p>
                 {boost.description ? (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="mt-2 text-sm text-muted-foreground">
                     {boost.description}
                   </p>
                 ) : null}

@@ -1,6 +1,6 @@
 import { CheckCircle2, Clock, Package } from "lucide-react";
 
-import { PredatorProgressDisplay } from "@/components/orders/predator-progress-display";
+import { PredatorTrackerProgress } from "@/components/orders/predator-tracker-progress";
 import { RankIcon } from "@/components/shared/rank-icon";
 import { formatPriceFromCents } from "@/lib/services/format-price";
 import type { PublicOrderSnapshot } from "@/types/public-order";
@@ -12,6 +12,7 @@ type OrderLookupCardProps = {
 export function OrderLookupCard({ order }: OrderLookupCardProps) {
   const amount = formatPriceFromCents(order.amountCents);
   const hasRankSpan = Boolean(order.currentRank && order.targetRank);
+  const isPredatorMaintenance = order.orderType === "predator_maintenance";
 
   return (
     <div className="glass-panel rounded-2xl p-6 sm:p-8">
@@ -81,22 +82,33 @@ export function OrderLookupCard({ order }: OrderLookupCardProps) {
         </div>
       </dl>
 
-      <div className="mt-8 space-y-2">
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>Progress</span>
-          <span className="font-mono tabular-nums">{order.progressPercent}%</span>
-        </div>
-        <div className="h-2 overflow-hidden rounded-full bg-white/5">
-          <div
-            className="h-full rounded-full bg-primary"
-            style={{ width: `${order.progressPercent}%` }}
+      {isPredatorMaintenance ? (
+        <div className="mt-8">
+          <PredatorTrackerProgress
+            progress={order.predatorProgress}
+            customRp={order.predatorCustomRp}
+            startingRank={order.currentRank}
+            variant={
+              (order.predatorProgress?.length ?? 0) > 0 ? "full" : "compact"
+            }
           />
         </div>
-      </div>
-
-      {order.predatorProgress && order.predatorProgress.length > 0 ? (
-        <PredatorProgressDisplay progress={order.predatorProgress} />
-      ) : null}
+      ) : (
+        <div className="mt-8 space-y-2">
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>Progress</span>
+            <span className="font-mono tabular-nums">
+              {order.progressPercent}%
+            </span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-white/5">
+            <div
+              className="h-full rounded-full bg-primary"
+              style={{ width: `${order.progressPercent}%` }}
+            />
+          </div>
+        </div>
+      )}
 
       {order.timeline.length > 0 && (
         <div className="mt-8">
@@ -118,7 +130,7 @@ export function OrderLookupCard({ order }: OrderLookupCardProps) {
                   dateTime={entry.createdAt}
                   className="mt-1 block text-xs text-muted-foreground/80"
                 >
-                  {new Date(entry.createdAt).toLocaleString()}
+                  {new Date(entry.createdAt).toLocaleString("en-US")}
                 </time>
               </li>
             ))}

@@ -4,8 +4,10 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { Award, Clock, Link2, Shield, ShieldCheck, ShoppingBag } from "lucide-react";
 
+import { PredatorTrackerProgress } from "@/components/orders/predator-tracker-progress";
 import { RankIcon } from "@/components/shared/rank-icon";
 import { Badge } from "@/components/ui/badge";
+import { parseRankTierFromLabel } from "@/config/brand-assets";
 import { formatHeroServiceDetail } from "@/lib/orders/public-display";
 import { formatPriceFromCents } from "@/lib/services/format-price";
 import { cn } from "@/lib/utils";
@@ -20,12 +22,10 @@ type HeroOrderPreviewProps = {
 
 function OrderTypeIcon({ order }: { order: HeroDashboardOrder }) {
   if (order.orderType === "predator_maintenance") {
+    const tier =
+      parseRankTierFromLabel(order.predatorProgressLabel ?? "") ?? "Predator";
     return (
-      <RankIcon
-        tier="Predator"
-        size="sm"
-        className="ring-1 ring-primary/30"
-      />
+      <RankIcon tier={tier} size="sm" className="ring-1 ring-primary/30" />
     );
   }
 
@@ -111,6 +111,7 @@ function OrderRankSpan({ order }: { order: HeroDashboardOrder }) {
 
 function DashboardOrderRow({ order }: { order: HeroDashboardOrder }) {
   const amountLabel = formatPriceFromCents(order.amountCents);
+  const isPredatorMaintenance = order.orderType === "predator_maintenance";
 
   return (
     <li
@@ -143,20 +144,30 @@ function DashboardOrderRow({ order }: { order: HeroDashboardOrder }) {
 
           <OrderRankSpan order={order} />
 
-          <div className="mt-2.5 space-y-1.5">
-            <div className="flex justify-between text-[11px] text-muted-foreground">
-              <span>Progress</span>
-              <span className="font-mono tabular-nums">
-                {order.progressPercent}%
-              </span>
+          {isPredatorMaintenance ? (
+            <PredatorTrackerProgress
+              className="mt-2.5"
+              progress={order.predatorProgress}
+              customRp={order.predatorCustomRp}
+              startingRank={order.currentRank}
+              variant="compact"
+            />
+          ) : (
+            <div className="mt-2.5 space-y-1.5">
+              <div className="flex justify-between text-[11px] text-muted-foreground">
+                <span>Progress</span>
+                <span className="font-mono tabular-nums">
+                  {order.progressPercent}%
+                </span>
+              </div>
+              <div className="h-1 overflow-hidden rounded-full bg-white/5">
+                <div
+                  className="h-full rounded-full bg-primary transition-[width] duration-500"
+                  style={{ width: `${order.progressPercent}%` }}
+                />
+              </div>
             </div>
-            <div className="h-1 overflow-hidden rounded-full bg-white/5">
-              <div
-                className="h-full rounded-full bg-primary transition-[width] duration-500"
-                style={{ width: `${order.progressPercent}%` }}
-              />
-            </div>
-          </div>
+          )}
         </div>
       </div>
 

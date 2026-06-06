@@ -71,6 +71,20 @@ export async function sendDiscordWebhook(
         };
       }
 
+      if (response.status === 400) {
+        const embedHint =
+          typeof bodyJson === "object" &&
+          bodyJson !== null &&
+          "errors" in bodyJson
+            ? " Check screenshot URL is a public https image."
+            : "";
+        return {
+          success: false,
+          error: `${discordMessage}${embedHint}`,
+          status: response.status,
+        };
+      }
+
       return { success: false, error: discordMessage, status: response.status };
     }
 

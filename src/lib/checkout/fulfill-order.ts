@@ -3,6 +3,10 @@ import "server-only";
 import { sendNewOrderNotification } from "@/lib/discord/notify-new-order";
 import { sendMarketplaceSoldNotification } from "@/lib/discord/notify-marketplace-sold";
 import { recordPromoRedemption } from "@/lib/db/promo-codes";
+import {
+  ensurePredatorProgressLadder,
+  syncPredatorOrderProgress,
+} from "@/lib/db/predator-progress";
 import { sendOrderConfirmationEmail } from "@/lib/email/send-order-confirmation";
 import { generateOrderNumber } from "@/lib/orders/order-number";
 import { progressPercentForStatus } from "@/lib/orders/progress";
@@ -183,6 +187,12 @@ export async function fulfillCheckoutAsOrder(
   await recordOrderStatusUpdate(order.id, "paid", {
     message: "Payment confirmed — assigning operator",
   });
+
+  if (checkout.checkout_kind === "predator_maintenance") {
+    await ensurePredatorProgressLadder(order.id)
+      .then(() => syncPredatorOrderProgress(order.id))
+      .catch(() => undefined);
+  }
 
   await sendCheckoutConfirmationEmail(checkout, order.order_number);
 

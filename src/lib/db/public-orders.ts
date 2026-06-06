@@ -24,6 +24,7 @@ type PublicOrderRow = {
   status: ServiceOrderStatus;
   payment_status: ServiceOrderPaymentStatus;
   progress_percent: number;
+  predator_custom_rp: number | null;
   amount_cents: number | null;
   currency: string;
   updated_at: string;
@@ -70,11 +71,12 @@ async function mapPublicRow(
     }),
     predatorProgress:
       predatorProgress.length > 0 ? predatorProgress : undefined,
+    predatorCustomRp: row.predator_custom_rp ?? null,
   };
 }
 
 const PUBLIC_ORDER_COLUMNS =
-  "id, order_number, order_type, customer_discord, customer_email, current_rank, target_rank, service_detail, status, payment_status, progress_percent, amount_cents, currency, updated_at, completed_at";
+  "id, order_number, order_type, customer_discord, customer_email, current_rank, target_rank, service_detail, status, payment_status, progress_percent, predator_custom_rp, amount_cents, currency, updated_at, completed_at";
 
 /** Recent paid orders for homepage live dashboard (no PII beyond order numbers). */
 export async function getRecentPublicHeroOrders(

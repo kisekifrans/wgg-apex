@@ -31,6 +31,9 @@ export default async function AdminContentPage() {
         boosts={boosts}
         soldWebhookUrl={discordSettings.soldWebhookUrl ?? ""}
         ordersWebhookUrl={discordSettings.ordersWebhookUrl ?? ""}
+        completedBoostsWebhookUrl={
+          discordSettings.completedBoostsWebhookUrl ?? ""
+        }
         promos={promos}
       />
     </>

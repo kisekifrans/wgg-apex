@@ -33,6 +33,7 @@ export type PublicOrderSnapshot = {
   completedAt: string | null;
   timeline: PublicOrderTimelineEntry[];
   predatorProgress?: PredatorRankProgress[];
+  predatorCustomRp?: number | null;
 };
 
 export type HeroDashboardOrder = {
@@ -48,6 +49,9 @@ export type HeroDashboardOrder = {
   etaLabel: string;
   amountCents: number | null;
   currency: string;
+  predatorProgress?: PredatorRankProgress[];
+  predatorCustomRp?: number | null;
+  predatorProgressLabel?: string | null;
 };
 
 export type HeroOrderPreviewData = {

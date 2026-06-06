@@ -1,3 +1,4 @@
+import { getPredatorTrackerLabel } from "@/lib/orders/predator-rank-progress";
 import type {
   HeroDashboardOrder,
   HeroOrderPreviewData,
@@ -149,6 +150,7 @@ const HERO_DASHBOARD_DEMO_ORDERS: HeroDashboardOrder[] = [
     etaLabel: "RP maintenance",
     amountCents: 18500,
     currency: "USD",
+    predatorProgressLabel: "Gold · 12,500 RP",
   },
   {
     orderNumber: "ORD-2026-00012",
@@ -191,6 +193,7 @@ const HERO_DASHBOARD_DEMO_ORDERS: HeroDashboardOrder[] = [
     etaLabel: "RP maintenance",
     amountCents: 26500,
     currency: "USD",
+    predatorProgressLabel: "Master · 18,400 RP",
   },
   {
     orderNumber: "ORD-2026-00018",
@@ -235,6 +238,16 @@ function snapshotToDashboardOrder(
     etaLabel: snapshot.etaLabel,
     amountCents: snapshot.amountCents,
     currency: snapshot.currency,
+    predatorProgress: snapshot.predatorProgress,
+    predatorCustomRp: snapshot.predatorCustomRp,
+    predatorProgressLabel:
+      snapshot.orderType === "predator_maintenance"
+        ? getPredatorTrackerLabel({
+            progress: snapshot.predatorProgress,
+            customRp: snapshot.predatorCustomRp,
+            startingRank: snapshot.currentRank,
+          })
+        : null,
   };
 }
 

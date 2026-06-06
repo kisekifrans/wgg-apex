@@ -15,8 +15,11 @@ export async function saveDiscordWebhooks(
   await requireAdmin();
   const soldWebhookUrl = String(formData.get("soldWebhookUrl") ?? "").trim();
   const ordersWebhookUrl = String(formData.get("ordersWebhookUrl") ?? "").trim();
+  const completedBoostsWebhookUrl = String(
+    formData.get("completedBoostsWebhookUrl") ?? ""
+  ).trim();
 
-  for (const url of [soldWebhookUrl, ordersWebhookUrl]) {
+  for (const url of [soldWebhookUrl, ordersWebhookUrl, completedBoostsWebhookUrl]) {
     if (url && !url.startsWith("https://discord.com/api/webhooks/")) {
       return { success: false, error: "Invalid Discord webhook URL" };
     }
@@ -26,6 +29,7 @@ export async function saveDiscordWebhooks(
     await setAppSetting("discord_webhooks", {
       soldWebhookUrl,
       ordersWebhookUrl,
+      completedBoostsWebhookUrl,
     });
     revalidatePath("/admin/content");
     revalidatePath("/admin/discord");

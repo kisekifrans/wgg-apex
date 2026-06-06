@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/guards";
 import {
   ensurePredatorProgressLadder,
+  syncPredatorOrderProgress,
   type PredatorRankProgressStatus,
 } from "@/lib/db/predator-progress";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -19,7 +20,9 @@ export async function initPredatorProgress(
   await requireAdmin();
   try {
     await ensurePredatorProgressLadder(orderId);
+    await syncPredatorOrderProgress(orderId);
     revalidatePath(`/admin/orders/${orderId}`);
+    revalidatePath("/track-order");
     return { success: true };
   } catch (e) {
     return {
@@ -51,6 +54,52 @@ export async function updatePredatorRankStatus(
 
   if (error) {
     return { success: false, error: error.message };
+  }
+
+  try {
+    await syncPredatorOrderProgress(orderId);
+  } catch (e) {
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : "Failed to sync progress",
+    };
+  }
+
+  revalidatePath(`/admin/orders/${orderId}`);
+  revalidatePath("/track-order");
+  revalidatePath("/account");
+  return { success: true };
+}
+
+export async function updatePredatorCustomRp(
+  orderId: string,
+  rp: number | null
+): Promise<ActionResult> {
+  await requireAdmin();
+
+  if (rp != null && (!Number.isFinite(rp) || rp < 0 || rp > 999_999)) {
+    return { success: false, error: "RP must be between 0 and 999,999" };
+  }
+
+  const supabase = createAdminClient();
+
+  const { error } = await supabase
+    .from("service_orders")
+    .update({ predator_custom_rp: rp })
+    .eq("id", orderId)
+    .eq("order_type", "predator_maintenance");
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  try {
+    await syncPredatorOrderProgress(orderId);
+  } catch (e) {
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : "Failed to sync progress",
+    };
   }
 
   revalidatePath(`/admin/orders/${orderId}`);

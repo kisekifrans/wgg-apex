@@ -117,7 +117,7 @@ export function OrdersDashboard({ orders }: OrdersDashboardProps) {
                     {order.orderNumber}
                   </div>
                   <div className="mt-0.5 text-[11px] text-muted-foreground">
-                    {new Date(order.createdAt).toLocaleDateString(undefined, {
+                    {new Date(order.createdAt).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
                     })}

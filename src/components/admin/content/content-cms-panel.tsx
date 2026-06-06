@@ -2,14 +2,18 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Send, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { saveDiscordWebhooks } from "@/actions/admin/settings/discord-webhooks";
 import { PromoCodesPanel } from "@/components/admin/content/promo-codes-panel";
-import { createCompletedBoost } from "@/actions/admin/content/completed-boosts";
+import {
+  createCompletedBoost,
+  deleteCompletedBoost,
+  publishCompletedBoostToDiscord,
+} from "@/actions/admin/content/completed-boosts";
 import { createReview, deleteReview } from "@/actions/admin/content/reviews";
-import { deleteCompletedBoost } from "@/actions/admin/content/completed-boosts";
+import { CMS_SERVICE_TYPES } from "@/config/cms-service-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,20 +22,12 @@ import type { CompletedBoost } from "@/lib/db/completed-boosts";
 import type { CustomerReview } from "@/lib/db/customer-reviews";
 import type { PromoCode } from "@/types/promo";
 
-const SERVICE_TYPES = [
-  "Ranked Boosting",
-  "Predator Maintenance",
-  "Badge Boosting",
-  "Unban Service",
-  "Account Relinking",
-  "Duo Ranked Boost",
-];
-
 type ContentCmsPanelProps = {
   reviews: CustomerReview[];
   boosts: CompletedBoost[];
   soldWebhookUrl: string;
   ordersWebhookUrl: string;
+  completedBoostsWebhookUrl: string;
   promos: PromoCode[];
 };
 
@@ -40,6 +36,7 @@ export function ContentCmsPanel({
   boosts,
   soldWebhookUrl,
   ordersWebhookUrl,
+  completedBoostsWebhookUrl,
   promos,
 }: ContentCmsPanelProps) {
   const router = useRouter();
@@ -54,7 +51,7 @@ export function ContentCmsPanel({
           <code className="text-xs">1119290295281008650</code> in your channel.
           Env fallbacks:{" "}
           <code className="text-xs">DISCORD_ORDERS_WEBHOOK_URL</code>,{" "}
-          <code className="text-xs">DISCORD_MARKETPLACE_SOLD_WEBHOOK_URL</code>.
+          <code className="text-xs">DISCORD_COMPLETED_BOOSTS_WEBHOOK_URL</code>.
         </p>
         <form
           className="mt-4 space-y-4"
@@ -87,6 +84,18 @@ export function ContentCmsPanel({
               className="border-white/10 bg-background/50"
             />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="completedBoostsWebhookUrl">
+              Completed boosts webhook (embed + screenshot)
+            </Label>
+            <Input
+              id="completedBoostsWebhookUrl"
+              name="completedBoostsWebhookUrl"
+              defaultValue={completedBoostsWebhookUrl}
+              placeholder="https://discord.com/api/webhooks/..."
+              className="border-white/10 bg-background/50"
+            />
+          </div>
           <Button type="submit" disabled={pending}>
             Save webhooks
           </Button>
@@ -113,7 +122,7 @@ export function ContentCmsPanel({
           <div className="space-y-2">
             <Label htmlFor="serviceType">Service</Label>
             <select id="serviceType" name="serviceType" required className="field-select flex h-9 w-full rounded-lg border border-white/10 bg-background/50 px-3 text-sm">
-              {SERVICE_TYPES.map((s) => (
+              {CMS_SERVICE_TYPES.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
@@ -166,6 +175,10 @@ export function ContentCmsPanel({
 
       <section className="rounded-xl border border-white/5 bg-card/40 p-6">
         <h2 className="font-heading text-lg font-semibold">Add completed boost</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Showcase finished work on the homepage. Use Send to post an embed with
+          screenshot to your Discord completed-boosts webhook.
+        </p>
         <form
           className="mt-4 grid gap-4 sm:grid-cols-2"
           action={async (fd) => {
@@ -175,6 +188,21 @@ export function ContentCmsPanel({
             });
           }}
         >
+          <div className="space-y-2 sm:col-span-2">
+            <Label htmlFor="boostServiceType">Service completed</Label>
+            <select
+              id="boostServiceType"
+              name="serviceType"
+              required
+              className="field-select flex h-9 w-full rounded-lg border border-white/10 bg-background/50 px-3 text-sm"
+            >
+              {CMS_SERVICE_TYPES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="space-y-2">
             <Label htmlFor="fromRank">Starting rank</Label>
             <Input id="fromRank" name="fromRank" required placeholder="Bronze" className="border-white/10 bg-background/50" />
@@ -202,26 +230,60 @@ export function ContentCmsPanel({
 
         <ul className="mt-8 space-y-3">
           {boosts.map((b) => (
-            <li key={b.id} className="flex items-start justify-between gap-4 rounded-lg border border-white/10 px-4 py-3">
-              <div>
-                <p className="font-medium">{b.fromRank} → {b.toRank}</p>
-                <p className="text-xs text-muted-foreground">{b.completedAt}</p>
+            <li
+              key={b.id}
+              className="flex items-start justify-between gap-4 rounded-lg border border-white/10 px-4 py-3"
+            >
+              <div className="min-w-0">
+                <p className="text-xs font-medium uppercase tracking-wide text-primary">
+                  {b.serviceType}
+                </p>
+                <p className="mt-1 font-medium">
+                  {b.fromRank} → {b.toRank}
+                </p>
+                {b.description ? (
+                  <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+                    {b.description}
+                  </p>
+                ) : null}
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {b.completedAt}
+                </p>
               </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                disabled={pending}
-                onClick={() =>
-                  startTransition(async () => {
-                    const result = await deleteCompletedBoost(b.id);
-                    if (!result.success) toast.error(result.error);
-                    else router.refresh();
-                  })
-                }
-              >
-                <Trash2 className="size-4 text-destructive" />
-              </Button>
+              <div className="flex shrink-0 items-center gap-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="border-white/10"
+                  disabled={pending}
+                  onClick={() =>
+                    startTransition(async () => {
+                      const result = await publishCompletedBoostToDiscord(b.id);
+                      if (!result.success) toast.error(result.error);
+                      else toast.success("Sent to Discord");
+                    })
+                  }
+                >
+                  <Send className="size-4" data-icon="inline-start" />
+                  Send
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled={pending}
+                  onClick={() =>
+                    startTransition(async () => {
+                      const result = await deleteCompletedBoost(b.id);
+                      if (!result.success) toast.error(result.error);
+                      else router.refresh();
+                    })
+                  }
+                >
+                  <Trash2 className="size-4 text-destructive" />
+                </Button>
+              </div>
             </li>
           ))}
         </ul>

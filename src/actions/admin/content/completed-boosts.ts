@@ -4,12 +4,16 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { CMS_SERVICE_TYPES } from "@/config/cms-service-types";
 import { requireAdmin } from "@/lib/auth/guards";
+import { getCompletedBoostById } from "@/lib/db/completed-boosts";
+import { sendCompletedBoostToDiscord } from "@/lib/discord/notify-completed-boost";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const CMS_BUCKET = "cms-assets";
 
 const boostSchema = z.object({
+  serviceType: z.enum(CMS_SERVICE_TYPES),
   fromRank: z.string().trim().min(2),
   toRank: z.string().trim().min(2),
   description: z.string().trim().optional(),
@@ -45,6 +49,7 @@ export async function createCompletedBoost(
 ): Promise<ActionResult> {
   await requireAdmin();
   const parsed = boostSchema.safeParse({
+    serviceType: formData.get("serviceType"),
     fromRank: formData.get("fromRank"),
     toRank: formData.get("toRank"),
     description: formData.get("description") || undefined,
@@ -77,6 +82,7 @@ export async function createCompletedBoost(
 
   const supabase = createAdminClient();
   const { error } = await supabase.from("completed_boosts").insert({
+    service_type: parsed.data.serviceType,
     from_rank: parsed.data.fromRank,
     to_rank: parsed.data.toRank,
     description: parsed.data.description || null,
@@ -89,6 +95,24 @@ export async function createCompletedBoost(
   if (error) return { success: false, error: error.message };
   revalidate();
   redirect("/admin/content");
+}
+
+export async function publishCompletedBoostToDiscord(
+  id: string
+): Promise<ActionResult> {
+  await requireAdmin();
+
+  const boost = await getCompletedBoostById(id);
+  if (!boost) {
+    return { success: false, error: "Completed boost not found" };
+  }
+
+  const result = await sendCompletedBoostToDiscord(boost);
+  if (!result.success) {
+    return { success: false, error: result.error ?? "Discord publish failed" };
+  }
+
+  return { success: true };
 }
 
 export async function deleteCompletedBoost(id: string): Promise<ActionResult> {

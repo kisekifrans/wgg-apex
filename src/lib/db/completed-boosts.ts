@@ -5,6 +5,7 @@ import { getPublicDataClient } from "@/lib/supabase/public-data";
 
 export type CompletedBoost = {
   id: string;
+  serviceType: string;
   fromRank: string;
   toRank: string;
   description: string | null;
@@ -16,6 +17,7 @@ export type CompletedBoost = {
 
 type Row = {
   id: string;
+  service_type: string;
   from_rank: string;
   to_rank: string;
   description: string | null;
@@ -28,6 +30,7 @@ type Row = {
 function mapRow(row: Row): CompletedBoost {
   return {
     id: row.id,
+    serviceType: row.service_type,
     fromRank: row.from_rank,
     toRank: row.to_rank,
     description: row.description,

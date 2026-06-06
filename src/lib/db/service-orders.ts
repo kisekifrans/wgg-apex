@@ -30,6 +30,7 @@ type OrderRow = {
   completed_at: string | null;
   cancelled_at: string | null;
   progress_percent: number;
+  predator_custom_rp: number | null;
 };
 
 function mapOrder(row: OrderRow): ServiceOrder {
@@ -48,6 +49,7 @@ function mapOrder(row: OrderRow): ServiceOrder {
     currency: row.currency,
     customerEmail: row.customer_email,
     progressPercent: row.progress_percent ?? 0,
+    predatorCustomRp: row.predator_custom_rp ?? null,
     metadata: revealOrderMetadata(
       (row.metadata ?? {}) as Record<string, unknown>
     ) as ServiceOrderMetadata,

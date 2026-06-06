@@ -1,6 +1,7 @@
 import "server-only";
 
 import { PREDATOR_RANK_LADDER } from "@/config/predator-platform-pricing";
+import { computePredatorDerivedPercent } from "@/lib/orders/predator-rank-progress";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPublicDataClient } from "@/lib/supabase/public-data";
 import type {
@@ -68,4 +69,28 @@ export async function ensurePredatorProgressLadder(
 
   if (error) throw new Error(error.message);
   return ((data as Row[]) ?? []).map(mapRow);
+}
+
+export async function syncPredatorOrderProgress(orderId: string): Promise<void> {
+  const supabase = createAdminClient();
+  const progress = await getPredatorProgressForOrder(orderId, true);
+  if (progress.length === 0) return;
+
+  const { data: order } = await supabase
+    .from("service_orders")
+    .select("predator_custom_rp")
+    .eq("id", orderId)
+    .maybeSingle();
+
+  const percent = computePredatorDerivedPercent(
+    progress,
+    order?.predator_custom_rp ?? null
+  );
+
+  const { error } = await supabase
+    .from("service_orders")
+    .update({ progress_percent: percent })
+    .eq("id", orderId);
+
+  if (error) throw new Error(error.message);
 }

@@ -34,14 +34,19 @@ export async function setAppSetting(
 export type DiscordWebhookSettings = {
   soldWebhookUrl?: string;
   ordersWebhookUrl?: string;
+  completedBoostsWebhookUrl?: string;
 };
 
 export async function getDiscordWebhookSettings(): Promise<DiscordWebhookSettings> {
   const soldEnvUrl = process.env.DISCORD_MARKETPLACE_SOLD_WEBHOOK_URL?.trim();
   const ordersEnvUrl = process.env.DISCORD_ORDERS_WEBHOOK_URL?.trim();
+  const boostsEnvUrl =
+    process.env.DISCORD_COMPLETED_BOOSTS_WEBHOOK_URL?.trim();
   const db = await getAppSetting<DiscordWebhookSettings>("discord_webhooks", {});
   return {
     soldWebhookUrl: db.soldWebhookUrl || soldEnvUrl || undefined,
     ordersWebhookUrl: db.ordersWebhookUrl || ordersEnvUrl || undefined,
+    completedBoostsWebhookUrl:
+      db.completedBoostsWebhookUrl || boostsEnvUrl || undefined,
   };
 }
