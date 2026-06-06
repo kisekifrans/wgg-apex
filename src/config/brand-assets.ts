@@ -5,6 +5,8 @@
 export const brandAssets = {
   logo: "/logo/wgg.png",
   brandHero: "/images/wgg-brand-hero.png",
+  /** Featured “Most Popular” service card on the homepage — auth email header art. */
+  authEmailHero: "/heroes/thumbnail1.png",
 } as const;
 
 import type { ServiceDisplayConfig } from "@/types/services";

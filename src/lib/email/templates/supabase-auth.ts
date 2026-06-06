@@ -51,7 +51,7 @@ function supabaseAuthEmailHtml(
             </tr>
             <tr>
               <td style="border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);background:#111111;box-shadow:0 24px 48px rgba(0,0,0,0.35);">
-                <img src="${SITE}${brandAssets.brandHero}" width="560" alt="" style="display:block;width:100%;max-width:560px;height:auto;border:0;outline:none;" />
+                <img src="${SITE}${brandAssets.authEmailHero}" width="560" alt="WGG Apex ranked boosting" style="display:block;width:100%;max-width:560px;height:auto;border:0;outline:none;" />
                 <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                   <tr>
                     <td style="padding:28px 32px 8px;">

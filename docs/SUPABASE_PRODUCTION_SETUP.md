@@ -102,7 +102,7 @@ Customer sign-in at `/account/login` sends email through **Supabase Auth**, not 
    - Body: paste contents of `supabase/email-templates/confirm-signup.html`
 4. Save each template. Request a new link at `/account/login` to preview.
 
-Templates use `{{ .ConfirmationURL }}` and `{{ .SiteURL }}` — keep **Site URL** set to `https://www.wggapex.com` (section 2) so logo/hero images load.
+Templates use `{{ .ConfirmationURL }}` and `{{ .SiteURL }}` — keep **Site URL** set to `https://www.wggapex.com` (section 2) so the logo and homepage featured thumbnail (`/heroes/thumbnail1.png`) load.
 
 ### B — Send from your domain (recommended)
 
